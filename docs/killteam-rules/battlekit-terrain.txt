@@ -1,0 +1,468 @@
+
+Killteam 3 BattleKit
+
+Terrain And Movement
+
+Operatives cannot move through terrain — they must move around, climb over or drop/jump off it.
+
+Agents must end a move in a location where they can be placed; they cannot end mid-climb, jump, or drop. If that is not possible, they cannot begin the move.
+
+Climbing
+
+An operative must be within 1” horizontally and 3” vertically of terrain that’s visible to them to climb it. Each climb is treated as a minimum of 2” vertically (e.g. a 1” distance is treated as 2”).
+Dropping
+
+Operatives drop down when they move off terrain or after they’ve jumped. Ignore 2” of vertical distance that they drop during each action. This means a vertical drop of 2” or less is ignored. If they drop multiple times during an action, only 2” total is ignored, not 2” from each drop.
+Jumping
+
+Operatives can jump from Vantage terrain higher than 2” from the killzone floor when they move off it. You can move them up to 4” horizontally from the edge when they jump, done like any other move except in one straight-line increment. The operative must then drop or climb from there. When jumping from Vantage terrain, if there is a terrain part such as rampart at the edge you would jump from, you must climb it first then jump from the highest point it must climb over. When jumping to a terrain feature, you can ignore its height difference of 1” or less, including its rampart (if any).
+
+Jumping means agents can move across gaps up to 4" wide and over things that are below them.
+
+The operative moves up 4” until it’s above the highest point it must climb over. It moves across 2” until its base is fully past the rampart, then drops down for 0” (as the drop is less than 2”).
+
+Remember that increments are rounded up, so if the operative moves 3.5”, this is treated as 4”
+
+The operative moves across 2” until it’s fully off the ledge, then drops down for 2” (a 4” distance, but the first 2” is ignored). The operative could also jump off the terrain, moving 4” from one edge before it drops down.
+
+The operative moves up for 2” (a 1” distance, but treated as the minimum 2”) until it’s above the highest point it must climb over. It moves across 3” until its base is fully past the terrain feature, then drops down for 0” (as the drop is less than 2”).
+Terrain Rules
+
+A terrain feature is composed of different parts, each of which is a type of terrain (one part can be more than one type). If you are using a terrain feature from a specific killzone, the type of each part of that terrain feature will be specified. If you are using a terrain feature from a killzone of your own creation, you must specify the type of each part of that terrain feature before the battle. The most common types of terrain are below, but some killzones have their own types.
+
+Heavy
+
+Larger terrain is Heavy. It can obscure operatives.
+Heavy terrainIt’s good to have a mixture of Light and Heavy terrain in your killzone, as some other rules interact with each type differently.
+Light
+
+Smaller terrain is Light. It doesn’t have any additional rules, but other rules interact with it differently (e.g., Vantage terrain here).
+Light terrainLight terrain.
+Light terrainLight terrain.
+Blocking
+
+Blocking terrain is usually attributed to gaps between or underneath a terrain feature. Visibility cannot be drawn through such gaps, and for the purposes of cover and obscured, the gaps are intervening like the terrain around it.
+Blocking terrainThe gap under this pipe is blocking terrain.
+
+Technically, Blocking terrain isn’t actually physical terrain, but rather the gaps operatives shouldn’t be able to see through. Blocking terrain is rare, but it exists for the necessary instances.
+Blocking terrainThe door’s viewpoint or the broken vent is blocking terrain.
+Vantage
+
+Vantage terrain is the upper levels of the killzone—areas operatives can be placed upon above the game board. If terrain is not Vantage terrain, then operatives can move over it, but they cannot finish a move or be set up on it. Vantage terrain is also Light terrain. Vantage terrain has the following main features.
+
+    Firstly, whenever an operative on Vantage terrain is shooting an operative that has an Engage order, its ranged weapon has the Accurate 1 weapon rule if the target operative is at least 2" lower than it, or Accurate 2 if the target operative is at least 4" lower than it.
+    Secondly, whenever you are selecting a valid target for an operative on Vantage terrain, operatives at least 2" lower than that operative with a Conceal order cannot use Light terrain for cover. Whilst this can allow such operatives to be targeted (assuming they’re visible), it doesn’t remove their cover save, and the defender can retain it as a critical success instead, or retain one additional cover save.
+    Thirdly, for the purposes of obscured, ignore Heavy terrain connected to Vantage terrain the active operative or the intended target is on.
+
+Vantage terrain
+
+As Vantage terrain is also Light, an operative on Vantage terrain will often be in cover from operatives lower than them — imagine them crouching down to gain a cover save or avoid being a valid target.
+
+An operative on Vantage terrain can target an operative with a Conceal order that’s 2” lower than them and only in cover from Light terrain.
+
+If an operative is obstructed from moving across Vantage terrain by enemy operatives or other terrain features, it can move around these obstructions (without dropping off) so long as part of its base is always on the Vantage terrain.
+Vantage terrainOperative B has a Conceal order and is in cover from Light terrain, but since operative A is on Vantage terrain and at least 2” higher, operative B is a valid target.
+Accessible
+
+Operatives can move through Accessible terrain (this takes precedence over Bases, and Terrain and Movement), but it counts as an additional 1" to do so. Only the centre of an operative’s base needs to move through Accessible terrain, so base sizes are irrelevant.
+Accessible terrainThe door is accessible terrain.
+Insignificant
+
+Insignificant terrain is usually very small. For the purposes of climbing and dropping, ignore it.
+Small piles of rubble are insignificant terrain.
+
+An operative can move over and across Insignificant terrain without going up and down.
+Exposed
+
+Exposed terrain is usually very small, or terrain with large gaps that operatives shouldn’t be able to take cover behind.
+Exposed terrainThis ladder and these hanging chains are exposed terrain.
+
+It’s particularly important to identify Insignificant and Exposed terrain before the battle, to prevent misunderstandings later on.
+Ceiling
+
+Operatives with a round base of 50mm or less, or an oval base of 60x35mm, can move underneath Ceiling terrain regardless of the operative’s height (this takes precedence over Terrain and Movement on pg 56). The operative must still finish the action in a location it can be placed.
+Octarius
+
+Killzone: Octarius has 4x ramshackle walls, 1x oil pump, 3x ramshackle barricades, and 3x scrap piles.
+Ramshackle Walls
+
+    A. The upper level is Vantage and Ceiling terrain.
+    B. The door is Accessible and Heavy terrain. For the purposes of control range, ignore the door when determining visibility.
+    C. The gap in the wall on the lower level and all gaps in the upper level’s floors are Blocking terrain.
+    All other parts of it are Heavy terrain.
+
+Ramshackle Barricades
+
+This is Light terrain.
+Scrap Piles
+
+This is Light terrain.
+Oil Pump
+
+    A. The upper level is Vantage and Ceiling terrain.
+    B. The pumpjack’s horse head is Exposed terrain.
+    C. The small spigot is Insignificant and Exposed terrain.
+
+Gallowdark
+
+Killzone: Gallowdark uses a 606mm x 703mm game board with a 6x7 grid system for setting up. It has 4x short walls with hatchway and pillars and 2x each other terrain feature specified on page 109. It also has 8x left and 8x right pillars, and 30x pillar caps to complete terrain configuration. Note that some mission maps use less than this.
+Gallowdark Wall
+
+A Gallowdark wall terrain feature is Heavy and Wall terrain. Some walls include a hatchway, which is explained separately on page 69.
+
+Wall terrain:
+
+    Operatives cannot move over or through Wall terrain (this takes precedence over all other rules).
+    Visibility cannot be determined over or through Wall terrain.
+    Other than to areas of the killzone (centre of the killzone, drop zones, etc.), distances cannot be measured over or through Wall terrain; they must be measured around it using the shortest possible route.
+    For the purposes of cover and obscured, only the corners and ends of Wall terrain can intervene, unless the active operative has passed it (see examples on pages 67-68).
+
+Operative A would usually be within 3” of operative B, but as distances cannot be measured over or through Wall terrain, it must be measured around the Gallowdark wall. This would make operative A more than 3” from operative B.
+
+Operative B is not in cover as a corner or end of the wall is not intervening. Note that minor parts of the wall that protrude do not make a corner or end alone; it must be the main structure of the wall that turns a corner or ends, as shown in the following diagrams.
+
+A corner of the wall is intervening, therefore operative B is in cover.
+
+Operative A has passed the corner of the wall, therefore it’s not intervening and operative B is not in cover. Note that if operative A was wholly on the left side of the dotted black line, the wall would be intervening and operative B would be in cover.
+
+An end of the wall is intervening, therefore operative B is in cover.
+
+As the hatchway is open, an end of the wall is intervening. It’s more than 1” from both operatives, therefore operative B is obscured.
+Hatchway
+
+A hatchway has two statuses: closed and open. It has two parts — an access point and a hatch — and their terrain types depend upon the hatchway’s status. Operatives can perform the Operate Hatch mission action to change its status. Hatchways begin the battle closed.
+
+As an open hatchway’s access point is Exposed terrain, the walls either side of it must be used for cover and obscuring instead of the access point.
+Operate Hatch
+1APL
+
+    Open or close a hatchway that’s access point is within the operative’s control range.
+    An operative can perform this action during a Dash or Reposition action, and any remaining move distance can be used after it does so.
+    An operative cannot perform this action while within control range of an enemy operative, or if that hatchway is open and its access point is within an enemy operative’s control range.
+
+Opening a hatchway can cause the operative to be within control range of an enemy operative, in which case its Dash or Reposition action would immediately end (unless it has rules that allow it to move within control range of an enemy operative).
+
+Closed
+While a hatchway is closed:
+
+    Its hatch must be fully shut.
+    The access point and hatch are Heavy and Wall terrain.
+
+Open
+While a hatchway is open:
+
+    Its hatch must be fully open (it cannot be ajar).
+    Its access point is Accessible, Insignificant and Exposed terrain.
+    Its hatch is Heavy and Wall terrain, and the gap directly underneath it is Blocking terrain.
+
+If operatives would prevent the hatch from fully opening or closing, temporarily remove them from the killzone, open or close the hatch, then return the operatives as close as possible to their original location. If an operative is within an enemy operative’s control range before a hatch is opened, it must be returned there.
+Condensed Environment
+
+Weapons with the Blast, Torrent and/or x” Devastating (i.e. Devastating with a distance requirement) weapon rule also have the Lethal 5+ weapon rule (pg. 111).
+
+On Guard
+
+Once during each enemy operative’s activation, after that enemy operative performs an action, you can interrupt that activation and select one friendly operative on guard to perform the Fight or Shoot action for free (including actions that are treated as such, e.g. Hatchway Fight see below).
+
+That friendly operative can even perform the Shoot action while within control range of an enemy operative (this takes precedence over the normal Shoot action conditions). This is known as a point-blank shot and has the following additional rules while your operative is doing it:
+
+    Target the enemy operative within your operative’s control range (even if it wouldn’t normally be a valid target).
+    Worsen the Hit stat of your operative’s weapons by 1.
+    Until the end of the interrupted enemy operative’s activation, your operative cannot retaliate.
+
+If you do, that friendly operative cannot counteract during the turning point.
+
+Determine the target as normal for these actions. This means you don’t have to target the operative you interrupted.
+Guard
+1APL
+
+    The operative goes on guard (see below) until any of the following are true:
+        It performs any action, moves or is set up.
+        An enemy operative ends an action within its control range and you don’t interrupt that activation (see below).
+        Its order is changed.
+        It’s the start of the next turning point.
+    This action is treated as a Shoot action. An operative cannot perform this action while it has a Conceal order, or while it’s within control range of an enemy operative.
+
+Guard is a powerful action that allows an operative to attack later, at the opportune moment. It can change the dynamic of the game, so try to avoid enemy operatives on guard, or consider how best to utilise it yourself. Use the token above to indicate any operatives that are on guard.
+
+Hatchway Fight
+
+Hatchway Fight
+1APL
+
+    Fight with the active operative (see fight sequence here)
+    In the Select Enemy Operative step, instead select an enemy operative within 2” of, and on the other side of, an open hatchway’s access point the active operative is touching. For the duration of that action, those operatives are treated as being within each other’s control range.
+    This action is treated as a Fight action. An operative cannot perform this action while within control range of an enemy operative, or if its base isn’t touching an open hatchway’s access point.
+
+This action allows an operative to fight across an open hatchway — useful if the enemy is obstructing it and preventing your operatives from moving through.
+
+Operative A’s base is touching an open hatchway’s access point. It can perform the Hatchway Fight action to fight against either operative B or C.
+Key Reference
+
+Bheta-Decima
+
+Killzone: Bheta-Decima has 2x short gantries, 4x medium gantries, 2x long gantries and 1x thermometric condenser.
+Gantry
+
+    Gantry floors are Accessible and Vantage terrain.
+    Gantry pillars are Heavy terrain.
+    Gantry terrain features come in three sizes: long, medium, and short. When they are connected (i.e., their gantry floors are touching each other), they are treated as the same terrain.
+
+Thermometric Condenser
+
+    The roof is Accessible and Vantage terrain.
+    The inner-ledge of the roof is Exposed and Insignificant terrain: ignore the slight difference in height between the outer and inner area of the roof.
+    The battlements on the roof are Light terrain.
+    All other parts of it are Heavy terrain.
+
+Hazardous Areas
+
+Killzone: Bheta-Decima has the following additional rules that use hazardous areas marked on the game board.
+
+Restricted Movement
+
+No part of an operative’s base can be touching a hazardous area.
+
+Lurking predators stop operatives from venturing too close to the ocean, while strong currents and toxic water prevent them from entering it.
+
+Restricted Targeting
+
+When selecting a valid target for an operative on the killzone floor, an intended target on the killzone floor is not a valid target if 4” of hazardous area is between them.
+
+When selecting a valid target for an operative on Vantage terrain, an intended target on the killzone floor is not a valid target if the footprint of a gantry is between them. The same is also true in reverse (an operative on the killzone floor to an intended target on Vantage terrain). However, in both cases, ignore the footprint of gantry terrain features the operative or the intended target is on or in.
+
+Relentless waves, sea mist, and industrial smog make it harder for operatives to see targets over the ocean’s surface.
+
+In both cases, use targeting lines to determine if a hazardous area or the footprint of a gantry is between them.
+
+Restricted targeting only matters if one or more of the operatives in question are on the killzone floor; if they are both on Vantage terrain, it has no effect.
+
+A gantry’s footprint is the gantry itself, plus the area underneath it.
+
+4” of hazardous area is between operatives A and B, therefore operative B is not a valid target (and neither would operative A be in reverse).
+
+The footprint of a gantry is between operatives A and B, therefore operative B is not a valid target (and neither would operative A be in reverse). Note that the left gantry is ignored when determining this, as operative A is on it.
+Equipment
+
+Equipment can be set up on Vantage terrain, on the killzone floor and within 2" of Accessible terrain (this takes precedence over the usual restrictions).
+
+Volkus
+
+Killzone: Volkus has 2x strongholds, 2x large ruins, 2x small ruins, 2x heavy rubble, and 3x light rubble.
+Stronghold
+
+    A The upper level(s) of a stronghold terrain feature is Ceiling and Vantage terrain.
+    B The door is Accessible and Heavy terrain.
+    C The fire steps are Vantage, Insignificant, and Exposed terrain.
+    D The broken vent is Blocking terrain.
+    E The three barrel containers on Stronghold A are Blocking and Heavy terrain.
+    F The small broken ramparts on the edge of the Vantage terrain of Stronghold A are Insignificant and Exposed terrain and Ceiling.
+    G The gap on the lower Vantage terrain of Stronghold B is Accessible terrain.
+    H You cannot have more than one friendly operative on the highest upper level of Stronghold B at once, and that operative must be placed on one side or the other of that level, it cannot be placed in the middle (this means an enemy operative cannot be prevented from moving onto or being set up on the other side). If an operative’s base is too big to be placed there, it must move (or be set up) on as far as possible (otherwise it cannot complete that move), then place it to one side instead and treat it as being there. Hold it as far on that level as possible when it matters for checking other rules (e.g. control range, visibility, distance to other operatives, etc.). This takes precedence over the rules for bases and being in a location it can be placed.
+    All other parts of it are Heavy terrain.
+    For the purposes of control range, ignore the door and parts of this terrain feature less than 2” high when determining visibility.
+
+Large Ruin
+
+    A The upper level of a large ruin terrain feature is Ceiling and Vantage terrain. For the purposes of intervening and targeting lines, treat this level as the same height as the first upper level of a stronghold terrain feature.
+    B The upper rampart is Light terrain.
+    C The door is Accessible and Heavy terrain. For the purposes of control range, ignore the door when determining visibility.
+    D The door’s viewpoint is Blocking terrain.
+    E Unbroken windows are Barred and Heavy terrain.
+
+    Barred terrain: Visibility cannot be drawn through this terrain unless the operative or what they’re trying to see is horizontally within 1” of it.
+    All other parts of it are Heavy terrain.
+
+Small Ruin
+
+This is Heavy terrain.
+
+Heavy Rubble
+
+This is Heavy terrain.
+
+Light Rubble
+
+This is Light terrain.
+
+Cityfight
+
+Killzone: Volkus has the following additional rules.
+
+Condensed Stronghold
+
+Whenever an operative is shooting with a weapon that has the Blast, Torrent and/or x” Devastating (i.e., Devastating with a distance requirement) weapon rule, it also has the Lethal 5+ weapon rule (pg. 111) if the target is wholly within a stronghold terrain feature and on the killzone floor or a fire step.
+
+The Condensed Stronghold rule always relates to the target’s location, so if the primary target is wholly within a stronghold, but the secondary target isn’t, then this rule doesn’t apply to that secondary target.
+
+Garrisoned Stronghold
+
+When an operative wholly within a stronghold terrain feature is retaliating against an operative that isn’t, the defender resolves first (this takes precedence over the normal fight resolution order).
+
+Door Fight
+
+Door Fight
+1APL
+
+    Fight with the active operative (see fight sequence on page 44).
+    In the Select Enemy Operative step, select an enemy operative within 2” of, and on the other side of, a door the active operative is touching. For the duration of that action, those operatives are treated as being within each other’s control range.
+    This action is treated as a Fight action. An operative cannot perform this action while within control range of an enemy operative, or if its base isn’t touching a door.
+
+This action allows an operative to fight through a door; it’s useful if the enemy is obstructing it and preventing your operatives from moving through.
+
+Tomb World
+
+Killzone: Tomb World uses a 606mm x 703mm game board with a 6x7 grid system for setting up. It has 1x sarcophagus, 4x debris and 2x each other terrain feature specified on page 76-77. It also has 16x half pillars to complete terrain configuration. Note that some mission maps use less than this.
+
+Designer’s note: This killzone is similar to Killzone: Gallowdark from the Kill Team Core Book. To maintainconsistency of rules - especially for those printed elsewhere - we’ve kept the terms the same. For example, even though Killzone: Tomb World uses portals rather than hatches, we still call it a hatchway and operatives perform the Operate Hatch action.
+
+Tomb World Wall
+
+A Tomb World wall terrain feature is Heavy and Wall terrain. Some walls include a hatchway (pg 55) or a breach point (pg 56).
+Wall terrain:
+
+    Operatives cannot move over or through Wall terrain (this takes precedence over all other rules).
+    Visibility cannot be determined over or through Wall terrain.
+    Other than to areas of the killzone (centre of the killzone, drop zones, etc.), distances cannot be measured over or through Wall terrain; they must be measured around it using the shortest possible route.
+    For the purposes of cover and obscured, only the corners and ends of Wall terrain can intervene, unless the active operative has passed it (see examples on pg 54).
+
+Operative A would usually be within 3” of operative B, but as distances cannot be measured over or through Wall terrain, it must be measured around the Tomb World wall. This would make operative A more than 3” from operative B.
+
+Operative B is not in cover as a corner or end of the wall is not intervening. Note that minor parts of the wall that protrude do not make a corner or end alone; it must be the main structure of the wall that turns a corner or ends, as shown in the following diagrams.
+
+A corner of the wall is intervening, therefore operative B is in cover.
+
+Operative A has passed the corner of the wall, therefore it’s not intervening and operative B is not in cover. Note that if operative A was wholly on the left side of the dotted black line, the wall would be intervening and operative B would be in cover.
+
+An end of the wall is intervening, therefore operative B is in cover.
+
+As the hatchway is open, an end of the wall is intervening. It’s more than 1” from both operatives, therefore operative B is obscured.
+Hatchway
+
+A hatchway has two statuses: closed and open. It has two parts — an access point and a hatch — and their terrain types depend upon the hatchway’s status. Operatives can perform the Operate Hatch mission action to change its status. Hatchways begin the battle closed.
+
+As an open hatchway’s access point is Exposed terrain, the walls either side of it must be used for cover and obscuring instead of the access point.
+Operate Hatch
+1APL
+
+    Open or close a hatchway that’s access point is within the operative’s control range.
+    An operative can perform this action during a Dash or Reposition action, and any remaining move distance can be used after it does so.
+    An operative cannot perform this action while within control range of an enemy operative, or if that hatchway is open and its access point is within an enemy operative’s control range.
+
+Opening a hatchway can cause the operative to be within control range of an enemy operative, in which case its Dash or Reposition action would immediately end (unless it has rules that allow it to move within control range of an enemy operative).
+
+Closed
+While a hatchway is closed:
+
+    Its hatch must be within its access point.
+    The access point and hatch are Heavy and Wall terrain.
+
+Open
+While a hatchway is open:
+
+    Its hatch must be removed from the killzone.
+    Its access point is Accessible, Insignificant and Exposed terrain.
+    Its access point is also exposed terrain. This means the wall either side of it must be used for cover or obscuring instead.
+
+Breach Point
+
+A breach point has two statuses: closed and open. It has two parts - an access point and a breach wall- and their terrain types depend upon the breach point’s status. Breach points begin the battle closed. To open a breach point, operatives can perform the Breach mission action (at which point it cannot be closed again).
+Breach
+2AP
+
+    Open a closed breach point thats access point is within the operative’s control range.
+    An operative that has the word(s) “breach marker”, “grenadier” or “mine” on its datacard, or has a weapon with the Piercing 2 or Piercing Crits 2 weapon rule (excluding weapons that have the Blast or Torrent weapon rule) can perform this action for 1 less AP (to a minimum of 1AP). It cannot this action for less than 2AP during an activation/counteraction in which it performed the Charge or Shoot action (or vice versa).
+    Roll one D6 separately for each operative that’s on the other side of the access point and has that access point within its control range: on a 4+, subtract 1 from that operative’s APL stat until the end of its next activation and inflict damage on it equal to the dice result halved (rounding up).
+    An operative cannot perform this action while within control range of an operative, or if that breach point is open.
+
+The elite operatives that form kill teams are specially equipped to overcome all manner of barriers. Some draw upon esoteric traits and adaptable skills to inventively force a route to their target. From point-blank firepower and atomic destabilisers to bio-acids and raw strength fuelled by faith, operatives have a variety of methods at their disposal to breach weak points. The forces involved can result in extreme damage, with whizzing debris and violent shock waves hitting those unlucky enough to be on the other side.
+
+Closed
+While a breach point is closed:
+
+    Its breach wall must be within its access point.
+    The access point and breach wall are Heavy and Wall terrain.
+
+Open
+While a breach point is open:
+
+    Its breach wall must be removed from the killzone.
+    Its access point is Accessible and Insignificant terrain.
+    Its access point is also Exposed terrain. This means the walls either side of it must be used for cover and obscuring instead.
+
+Teleport pad
+
+A teleport pad is Exposed, Insignificant and Vantage. Only one operative can be on it at once, and while an operative is on it, that operative cannot touch the killzone floor (in other words, an operative can’t be both on the teleport pad and on the killzone floor).
+
+From the start of the second turning point, whenever a friendly operative on a teleport pad performs the Charge, Fall Back or Reposition action, you can teleport it. If you do, don’t move it. Instead, remove it from the killzone and set it back up on the other teleport pad. It must still fulfil all other requirements of that action, otherwise it cannot teleport (e.g. if it’s the Charge action, the operative must finish that action within control range of an enemy operative). If another operative is on the other teleport pad when an operative teleports, swap them around (if it’s an enemy operative, its controlling player sets it up). Equipment terrain features cannot be set up within 2" of a teleport pad. Whenever an operative’s base is touching a teleport pad, if another operative is on that teleport pad, those operatives are treated as being within each other’s control range. An operative cannot teleport more than once per activation
+
+Sarcophagus and debris (light terrain)
+
+This is Light terrain.
+
+Condensed Environment
+
+Weapons with the Blast, Torrent and/or x” Devastating (i.e. Devastating with a distance requirement) weapon rule also have the Lethal 5+ weapon rule (pg. 111).
+
+On Guard
+
+Once during each enemy operative’s activation, after that enemy operative performs an action, you can interrupt that activation and select one friendly operative on guard to perform the Fight or Shoot action for free (including actions that are treated as such, e.g. Hatchway Fight opposite).
+
+That friendly operative can even perform the Shoot action while within control range of an enemy operative (this takes precedence over the normal Shoot action conditions). This is known as a point-blank shot and has the following additional rules while your operative is doing it:
+
+    Target the enemy operative within your operative’s control range (even if it wouldn’t normally be a valid target).
+    Worsen the Hit stat of your operative’s weapons by 1.
+    Until the end of the interrupted enemy operative’s activation, your operative cannot retaliate.
+
+Determine the target as normal for these actions. This means you don’t have to target the operative you interrupted.
+Guard
+1APL
+
+    The operative goes on guard (see below) until any of the following are true:
+        It performs any action.
+        An enemy operative ends an action within its control range and you don’t interrupt that activation (see below).
+        Its order is changed.
+        It’s the start of the next turning point.
+    This action is treated as a Shoot action. An operative cannot perform this action while it has a Conceal order, or while it’s within control range of an enemy operative.
+
+Guard is a powerful action that allows an operative to attack later, at the opportune moment. It can change the dynamic of the game, so try to avoid enemy operatives on guard, or consider how best to utilise it yourself. Use the token above to indicate any operatives that are on guard.
+
+Hatchway Fight
+
+Hatchway Fight
+1APL
+
+    Fight with the active operative (see fight sequence here)
+    In the Select Enemy Operative step, instead select an enemy operative within 2” of, and on the other side of, an open hatchway’s access point the active operative is touching. For the duration of that action, those operatives are treated as being within each other’s control range.
+    This action is treated as a Fight action. An operative cannot perform this action while within control range of an enemy operative, or if its base isn’t touching the access point of an open hatchway/breach point.
+
+This action allows an operative to fight across an open hatchway — useful if the enemy is obstructing it and preventing your operatives from moving through.
+
+Operative A’s base is touching an open hatchway’s access point. It can perform the Hatchway Fight action to fight against either operative B or C.
+Descent
+
+A Descent killzone uses two existing killzones on smaller game boards. They are linked by Entryway markers, allowing operatives to move between the different game boards during the battle. The Descent killzone in this publication uses Killzone: Volkus and Killzone: Tomb World, but players are free to use any killzones they wish. The rules will refer to upper and lower killzones; in this publication, upper is Killzone: Volkus and lower is Killzone: Tomb World. If you are using different killzones, be sure to define which is which. Use a 607mm x 414mm game board for close quarters killzones, and a 559mm x 381mm game board for any other killzones
+Entryway Markers
+
+Climbing Entryway Markers
+
+Whenever an Entryway marker is within a friendly operative’s control range, it can climb that marker for 3" of its move distance. Remove that operative from the killzone and set it back up in a location it can be placed so that the same-numbered Entryway marker in the other killzone is within its control range (if this isn’t possible, then as close as possible to that marker). That operative cannot be set up within control range of an enemy operative unless it’s permitted to move there during that action (e.g. Charge).
+
+Note that the operative can continue moving after being set up if it has any move distance remaining and the action allows it. For the purposes of distance requirements when setting up an operative (e.g. an operative carrying the relic from Adversary Ops mission 3: Awakening), climbing an Entryway marker is considered 3" away.
+
+Shooting from Entryway Markers
+
+Whenever a friendly operative performs the Shoot action, if an Entryway marker is within its control range, instead of selecting a valid target as normal, you can select an enemy operative that has the same-numbered Entryway marker in the other killzone within its control range (ignoring the Range X weapon rule). If you do, that enemy operative cannot be in cover or obscured for that sequence. Note that you still cannot select an enemy operative that has friendly operatives within its control range.
+
+If the target is within a killzone that has the close quarters rules (e.g. Killzone: Gallowdark), then the Condensed Environment additional rule will be in use (even if the friendly operative isn’t in that killzone).
+
+Additional Rules
+
+Some operatives have faction rules that allow them to be removed from the killzone and set back up again, e.g. FLY, MANDRAKE SHADOW PASSAGE, etc. Whenever you use such a faction rule in a Descent killzone, you cannot set up the operative in a different killzone from the one it was removed from. In other words, operatives can FLY and SHADOW PASSAGE within an upper or lower killzone, but not between them.
+
+When using TEMPESTUS AQUILON Drop markers and RAVENER Tunnel markers, those markers cannot be placed in different killzones (you must choose upper or lower, but be mindful of Adversary Ops mission 1: Into the Depths, where you cannot set up markers in the lower killzone).
+
+For the CANOPTEK CIRCLE kill team, be mindful of where you set up your OBELISK NODE markers (and where the mission maps allow you to), as they can only create an OBELISK NODE MATRIX with other markers in the same killzone.
+
+If your operative is on guard and teleports to a different killzone using a teleport pad, it’s no longer on guard.
+

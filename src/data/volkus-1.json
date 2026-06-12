@@ -1,0 +1,56 @@
+{
+  "id": "volkus-1",
+  "name": "Volkus 1",
+  "killzone": "volkus",
+  "image": "/maps/Volkus/Volkus1.jpg",
+  "widthIn": 30,
+  "heightIn": 22,
+  "pxPerInchX": 19.9667,
+  "pxPerInchY": 20.1364,
+  "originPx": { "x": 0, "y": 0 },
+  "draft": true,
+  "notes": "DRAFT annotation traced approximately from the layout image. Piece footprints, drop zone depths, and objective positions need verification in Annotation mode against the physical layout. Small interior pieces (J, L, M, N rects) are not yet annotated.",
+  "placements": [
+    { "pieceId": "stronghold-a", "x": 20.03, "y": 8.0, "rotationDeg": 0 },
+    { "pieceId": "stronghold-b", "x": 8.93, "y": 6.88, "rotationDeg": 0 },
+    { "pieceId": "large-ruin-a", "x": 19.0, "y": 8.0, "rotationDeg": 0 },
+    { "pieceId": "large-ruin-b", "x": 8.25, "y": 8.2, "rotationDeg": 0 },
+    { "pieceId": "small-ruin-a", "x": 13.1, "y": 17.6, "rotationDeg": 0 },
+    { "pieceId": "small-ruin-b", "x": 22.45, "y": 17.55, "rotationDeg": 0 },
+    { "pieceId": "heavy-rubble-a", "x": 4.4, "y": 14.45, "rotationDeg": 0 },
+    { "pieceId": "heavy-rubble-b", "x": 20.5, "y": 15.35, "rotationDeg": 0 },
+    { "pieceId": "light-rubble-a", "x": 19.75, "y": 2.95, "rotationDeg": 0 },
+    { "pieceId": "light-rubble-b", "x": 14.45, "y": 13.35, "rotationDeg": 0 },
+    { "pieceId": "light-rubble-c", "x": 19.05, "y": 20.65, "rotationDeg": 0 }
+  ],
+  "dropZones": [
+    {
+      "id": "dz-a",
+      "name": "A (west)",
+      "anchorEdge": "left",
+      "polygon": [
+        { "x": 0, "y": 0 },
+        { "x": 6, "y": 0 },
+        { "x": 6, "y": 22 },
+        { "x": 0, "y": 22 }
+      ]
+    },
+    {
+      "id": "dz-b",
+      "name": "B (east)",
+      "anchorEdge": "right",
+      "polygon": [
+        { "x": 24, "y": 0 },
+        { "x": 30, "y": 0 },
+        { "x": 30, "y": 22 },
+        { "x": 24, "y": 22 }
+      ]
+    }
+  ],
+  "objectives": [
+    { "id": "obj-center", "role": "center", "center": { "x": 15, "y": 11 } },
+    { "id": "obj-west", "role": "other", "center": { "x": 11.3, "y": 6.7 } },
+    { "id": "obj-east", "role": "other", "center": { "x": 19.0, "y": 9.2 } },
+    { "id": "obj-south", "role": "other", "center": { "x": 15.0, "y": 15.8 } }
+  ]
+}

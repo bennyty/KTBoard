@@ -1,0 +1,166 @@
+import type { Chain, DropZone, Objective, Vec, WorldPiece } from '@/model/types'
+import { COVERAGE_DISK_RADIUS_IN, MARKER_RADIUS_IN, OBJECTIVE_RADIUS_IN } from '@/model/constants'
+
+/** All layer components render in killzone-inch coordinates; the parent
+ *  board wraps them in the pixel-scaling <g transform>. */
+
+const polyPoints = (poly: Vec[]) => poly.map((p) => `${p.x},${p.y}`).join(' ')
+
+export function TerrainLayer({ pieces, selectedId, onPiecePointerDown }: {
+  pieces: WorldPiece[]
+  selectedId?: string
+  onPiecePointerDown?: (pieceId: string, e: React.PointerEvent) => void
+}) {
+  return (
+    <g>
+      {pieces.map((piece) => (
+        <g
+          key={piece.pieceId}
+          onPointerDown={onPiecePointerDown ? (e) => onPiecePointerDown(piece.pieceId, e) : undefined}
+          style={onPiecePointerDown ? { cursor: 'grab' } : undefined}
+        >
+          <polygon
+            points={polyPoints(piece.outer)}
+            fill={piece.kind === 'stronghold' ? 'rgba(40,40,48,0.45)' : 'rgba(60,70,60,0.5)'}
+            stroke={piece.pieceId === selectedId ? '#ffd54a' : 'rgba(230,230,230,0.8)'}
+            strokeWidth={piece.pieceId === selectedId ? 0.1 : 0.05}
+          />
+          {piece.innerFloor && (
+            <polygon
+              points={polyPoints(piece.innerFloor)}
+              fill="rgba(190,190,200,0.25)"
+              stroke="rgba(230,230,230,0.6)"
+              strokeWidth={0.04}
+            />
+          )}
+        </g>
+      ))}
+    </g>
+  )
+}
+
+export function DropZoneLayer({ dropZones, activeId }: { dropZones: DropZone[]; activeId?: string }) {
+  return (
+    <g>
+      {dropZones.map((dz) => (
+        <polygon
+          key={dz.id}
+          points={polyPoints(dz.polygon)}
+          fill={dz.id === activeId ? 'rgba(80,160,255,0.18)' : 'rgba(120,120,120,0.08)'}
+          stroke={dz.id === activeId ? 'rgba(80,160,255,0.9)' : 'rgba(150,150,150,0.5)'}
+          strokeWidth={0.06}
+          strokeDasharray="0.3 0.18"
+        />
+      ))}
+    </g>
+  )
+}
+
+export function ObjectiveLayer({ objectives, homeId, onObjectivePointerDown, selectedId }: {
+  objectives: Objective[]
+  homeId?: string
+  selectedId?: string
+  onObjectivePointerDown?: (id: string, e: React.PointerEvent) => void
+}) {
+  return (
+    <g>
+      {objectives.map((o) => (
+        <g
+          key={o.id}
+          onPointerDown={onObjectivePointerDown ? (e) => onObjectivePointerDown(o.id, e) : undefined}
+          style={onObjectivePointerDown ? { cursor: 'grab' } : undefined}
+        >
+          <circle
+            cx={o.center.x}
+            cy={o.center.y}
+            r={COVERAGE_DISK_RADIUS_IN}
+            fill="none"
+            stroke="rgba(255,140,40,0.35)"
+            strokeWidth={0.04}
+            strokeDasharray="0.18 0.12"
+          />
+          <circle
+            cx={o.center.x}
+            cy={o.center.y}
+            r={OBJECTIVE_RADIUS_IN}
+            fill={o.role === 'center' ? 'rgba(255,90,40,0.85)' : 'rgba(255,150,40,0.8)'}
+            stroke={o.id === selectedId ? '#fff' : o.id === homeId ? '#7fd4ff' : '#30231a'}
+            strokeWidth={o.id === homeId || o.id === selectedId ? 0.12 : 0.05}
+          />
+          <text
+            x={o.center.x}
+            y={o.center.y + 0.14}
+            textAnchor="middle"
+            fontSize={0.42}
+            fill="#1b1208"
+            style={{ pointerEvents: 'none', fontWeight: 700 }}
+          >
+            {o.role === 'center' ? 'C' : o.id === homeId ? 'H' : ''}
+          </text>
+        </g>
+      ))}
+    </g>
+  )
+}
+
+export function TunnelLayer({ chain, invalidMarkers, onMarkerPointerDown }: {
+  chain: Chain
+  invalidMarkers?: Set<number>
+  onMarkerPointerDown?: (index: number, e: React.PointerEvent) => void
+}) {
+  const path = chain.map((m) => `${m.x},${m.y}`).join(' ')
+  return (
+    <g>
+      <polyline
+        points={path}
+        fill="none"
+        stroke="rgba(150,90,220,0.45)"
+        strokeWidth={MARKER_RADIUS_IN * 2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {chain.map((m, i) => {
+        const invalid = invalidMarkers?.has(i)
+        return (
+          <g
+            key={i}
+            onPointerDown={onMarkerPointerDown ? (e) => onMarkerPointerDown(i, e) : undefined}
+            style={onMarkerPointerDown ? { cursor: 'grab' } : undefined}
+          >
+            <circle
+              cx={m.x}
+              cy={m.y}
+              r={MARKER_RADIUS_IN}
+              fill={invalid ? '#e23b3b' : '#9050e0'}
+              stroke={invalid ? '#ffd0d0' : '#e8d8ff'}
+              strokeWidth={0.06}
+            />
+            <circle cx={m.x} cy={m.y} r={MARKER_RADIUS_IN * 2.2} fill="transparent" />
+            <text
+              x={m.x}
+              y={m.y + 0.12}
+              textAnchor="middle"
+              fontSize={0.36}
+              fill="#fff"
+              style={{ pointerEvents: 'none', fontWeight: 700 }}
+            >
+              {i}
+            </text>
+          </g>
+        )
+      })}
+    </g>
+  )
+}
+
+/** 1" verification grid for calibration. */
+export function GridLayer({ widthIn, heightIn }: { widthIn: number; heightIn: number }) {
+  const lines = []
+  for (let x = 0; x <= widthIn; x++) {
+    lines.push(<line key={`v${x}`} x1={x} y1={0} x2={x} y2={heightIn} />)
+  }
+  for (let y = 0; y <= heightIn; y++) {
+    lines.push(<line key={`h${y}`} x1={0} y1={y} x2={widthIn} y2={y} />)
+  }
+  return <g stroke="rgba(80,220,120,0.5)" strokeWidth={0.02}>{lines}</g>
+}

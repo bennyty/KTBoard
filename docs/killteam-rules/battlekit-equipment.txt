@@ -1,0 +1,100 @@
+
+Killteam 3 BattleKit
+
+Universal Equipment
+
+The following equipment options are available to all kill teams, alongside their faction equipment. You cannot select each option more than once per battle.
+
+1x Ammo Cache
+
+Before the battle, you can set up one of your Ammo Cache markers wholly within your territory. Friendly operatives can perform the following mission action during the battle.
+Ammo Resupply
+0AP
+
+    One of your Ammo Cache markers the active operative controls is used this turning point.
+    Until the start of the next turning point, whenever this operative is shooting with a weapon from its datacard, you can re-roll one of your attack dice.
+    An operative cannot perform this action while within control range of an enemy operative, if that marker isn’t yours, or if that marker has been used this turning point.
+
+1x Comms Device
+
+Before the battle, you can set up one of your Comms Device markers wholly within your territory. While a friendly operative controls this marker, add 3" to the distance requirements of its SUPPORT rules that refer to friendly operatives (e.g., "select a friendly operative within 6" would be "within 9" instead"). Note you cannot benefit from your opponent’s Comms Device markers.
+
+1x Mines
+
+Before the battle, you can set up up to one of your Mines markers wholly within your territory and more than 2" from other markers, access points and accesible terrain. The first time that marker is within an operative’s control range, remove that marker and inflict D3+3 damage on that operative.
+
+1x Razor Wire
+
+Razor wire is Exposed and Obstructing terrain. Before the battle, you can set it up wholly within your territory, on the killzone floor and more than 2" from all other equipment terrain features, access points and accesible terrain.
+
+Obstructing: Whenever an operative would cross over this terrain feature within 1" of it, treat the distance as an additional 1".
+
+2x Light Barricades
+
+Light barricades are Light terrain, except the feet, which are Insignificant and Exposed. Before the battle, you can set up any number of them wholly within your territory, on the killzone floor and more than 2" from other equipment terrain features, access points and accesible terrain.
+
+1x Heavy Barricade
+
+A heavy barricade is Heavy terrain. Before the battle, you can set it up wholly within 4" of your drop zone, on the killzone floor and more than 2” from other equipment terrain features, access points and accesible terrain.
+
+2x Ladders
+
+Ladders are Insignificant and Exposed terrain. Before the battle, you can set up any number of them as follows:
+
+    Wholly within your territory.
+    Upright against terrain that has a height of at least 2".
+    More than 2" from other equipment terrain features.
+    More than 1" from doors and access points.
+
+Once per action, whenever an operative is climbing the terrain feature a ladder is placed against, treat the vertical distance as 1" if the ladder is within that operative’s control range during that entire climb.
+
+1x Portable Barricade
+
+A portable barricade is Light, Protective and Portable terrain except the feet which are Insignificant and Exposed. Before the battle, you can set it up wholly within your territory, on the killzone floor and more than 2" from all other equipment terrain features, access points and accesible terrain.
+
+Protective: While an operative is in Cover behind this terrain feature, improve its Save stat by 1 (to a maximum of 2+).
+
+Portable: This terrain feature only provides cover while an operative is connected to it and if the shield is intervening (ignore its feet). Operatives connected to the inside of it can perform the following unique action during the battle.
+Move with Barricade
+1AP
+
+    The same as the Reposition action, except the active operative can move no more than its Move stat minus 2" and cannot climb, drop, jump or use any kill team\'s rules that remove it and set it back up again (e.g. HEARTHKYN SALVAGER FLY, MANDRAKE SHADOW PASSAGE).
+    Before this operative moves, remove the portable barricade it is connected to. After the operative moves, set up the portable barricade so that it is once again, but the portable barricade cannot be set up within 2" of other equipment terrain features, access points or Accessible terrain. If this is not possible, the portable barricade is not set up again.
+    This action is treated as a Reposition action. An operative cannot perform the Move with Barricade action in the same turning point in which it performed the Fall Back or Charge actions.
+
+The operative must contact both feet of the inside of the protable barricade to be connected to it.
+Utility Grenades
+
+When you select this equipment, select two utility grenades (2 smoke, 2 stun, or 1 smoke and 1 stun). Each selection is a unique action your operatives can perform, but your kill team can only use that weapon a total number of times during the battle equal to your selection.
+
+SMOKE GRENADE
+1AP
+
+    Place one of your smoke grenade markers within 6" of this operative. It must be visible to this operative or set on vantage terrain or a terrain feature visible to this operative. The marker creates a 1" horizontally and vertically unlimited smoke area from it (but not below it).
+    While an operative is wholly within a smoke area, it is considered obscured to operatives more than 2" away from it and vice versa. Additionally, when an operative shoots at an enemy operative that is wholly within a smoke area, weapons with the Piercing 2 or Piercing Crits 2 weapon rule have the Piercing 1 or Piercing Crits 1 weapon rule (respectively) instead, unless they’re within 2" of each other.
+    In the Ready Step of the next Strategy Phase, roll a D3. Remove that smoke grenade marker once a number of activations equal to the result of that D3 is completed, or at the end of the turning point (whichever occurs first).
+    An operative cannot perform this action while within the control range of an enemy operative, or if you reached the total number of times your kill team can perform it.
+
+STUN GRENADE
+1AP
+
+    Select an enemy operative within 6" of this operative and visible to it. That operative and each other operative within 1" of it makes a stun check. To make a stun check, roll a D6: if the result is 3+, subtract 1 from its APL stat until the end of its next activation.
+    An operative cannot perform this action while within control range of an enemy operative, or if you have reached the total number of times your kill team can perform it.
+
+Explosive Grenades
+
+The forces of the 41st Millennium utilise a wide range of offensive grenades, from simple fragmentation grenades to plasma and gravitic concussion grenades, and even more exotic devices employed to pierce enemy armour.
+
+When you select this equipment, select two explosive grenades (2 frag, 2 krak, or 1 frag and 1 krak). Each selection is a unique weapon your operatives can use, but your kill team can only use that weapon a total number of times during the battle equal to your selection.
+
+Name	A	BS	D
+Frag Grenade	4	4+	2/4
+WEAPON RULES
+Range 6", Blast 2", Saturate
+Name	A	BS	D
+Krak Grenade	4	4+	4/5
+WEAPON RULES
+Range 6", Piercing 1, Saturate
+Breaching Charge
+
+Once per battle, when a friendly operative performs the Breach action, you can use this rule. If you do, that operative can perform that action for 1 less AP (to a minimum of 1AP) as though it had the word ‘breach marker’ on its datacard.
