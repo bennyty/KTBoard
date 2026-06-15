@@ -26,6 +26,8 @@ export const MAX_LINK_GAP_IN = 5
 /** Centre-to-centre equivalent of MAX_LINK_GAP_IN for two 20mm markers. */
 export const MAX_LINK_CENTER_TO_CENTER_IN = MAX_LINK_GAP_IN + 2 * MARKER_RADIUS_IN
 
+export const MIN_LINK_CENTER_TO_CENTER_IN = 4
+
 /** Marker 0 candidates sit on the strip 10mm inside the drop zone's anchor edge. */
 export const MARKER0_EDGE_INSET_IN = MARKER_RADIUS_IN
 

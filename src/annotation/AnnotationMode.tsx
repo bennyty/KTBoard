@@ -1,12 +1,15 @@
 import { useMemo, useRef, useState } from 'react'
-import type {
-  AnchorEdge,
-  AnnotatedMap,
-  KillzoneCatalogue,
-  Objective,
-  PiecePlacement,
-  Polygon,
-  Vec,
+import {
+  PIECE_KINDS,
+  type AnchorEdge,
+  type AnnotatedMap,
+  type KillzoneCatalogue,
+  type Objective,
+  type PieceDef,
+  type PieceKind,
+  type PiecePlacement,
+  type Polygon,
+  type Vec,
 } from '@/model/types'
 import { IN_PER_MM } from '@/model/constants'
 import { catalogues, maps } from '@/data/registry'
@@ -15,8 +18,77 @@ import { polygonCentroid, polygonToLocal, resolvePiece } from '@/geometry/polygo
 import { rotateDeg, sub, add } from '@/geometry/vec'
 import { Board, mapTransform } from '@/ui/Board'
 import { DropZoneLayer, GridLayer, ObjectiveLayer, TerrainLayer } from '@/ui/layers'
+import { useImageSize } from '@/ui/useImageSize'
 
 type Tab = 'calibrate' | 'pieces' | 'place' | 'zones' | 'objectives' | 'export'
+
+const LOUPE_R = 2
+const LOUPE_ZOOM = 4
+const LOUPE_OFFSET_X = LOUPE_R * 1.6
+const LOUPE_OFFSET_Y = -LOUPE_R * 0.4
+
+interface TraceLoupeProps {
+  image: string
+  imgSize: { width: number; height: number }
+  map: AnnotatedMap
+  cursor: Vec
+  vertex: Vec
+}
+
+function clamp(v: number, lo: number, hi: number) {
+  return Math.max(lo, Math.min(hi, v))
+}
+
+function TraceLoupe({ image, imgSize, map, cursor, vertex }: TraceLoupeProps) {
+  // Canvas bounds in inch-coordinate space
+  const canvasMinX = -map.originPx.x / map.pxPerInchX
+  const canvasMaxX = (imgSize.width - map.originPx.x) / map.pxPerInchX
+  const canvasMinY = -map.originPx.y / map.pxPerInchY
+  const canvasMaxY = (imgSize.height - map.originPx.y) / map.pxPerInchY
+
+  // Prefer loupe to the right; flip left if right edge would clip it.
+  let lx = cursor.x + LOUPE_OFFSET_X
+  if (lx + LOUPE_R > canvasMaxX) lx = cursor.x - LOUPE_OFFSET_X
+  lx = clamp(lx, canvasMinX + LOUPE_R, canvasMaxX - LOUPE_R)
+
+  // Prefer loupe slightly above; flip below if top edge would clip it.
+  let ly = cursor.y + LOUPE_OFFSET_Y
+  if (ly - LOUPE_R < canvasMinY) ly = cursor.y - LOUPE_OFFSET_Y
+  ly = clamp(ly, canvasMinY + LOUPE_R, canvasMaxY - LOUPE_R)
+
+  // Image in inch-coordinate space (matching the Board <g> transform)
+  const imageX = -map.originPx.x / map.pxPerInchX
+  const imageY = -map.originPx.y / map.pxPerInchY
+  const imageW = imgSize.width / map.pxPerInchX
+  const imageH = imgSize.height / map.pxPerInchY
+  const gap = 0.12
+
+  return (
+    <g pointerEvents="none">
+      <defs>
+        <clipPath id="trace-loupe-clip">
+          <circle cx={lx} cy={ly} r={LOUPE_R} />
+        </clipPath>
+      </defs>
+      <circle cx={lx} cy={ly} r={LOUPE_R} fill="#0c0c10" />
+      <g clipPath="url(#trace-loupe-clip)">
+        <image
+          href={image}
+          x={lx + (imageX - vertex.x) * LOUPE_ZOOM}
+          y={ly + (imageY - vertex.y) * LOUPE_ZOOM}
+          width={imageW * LOUPE_ZOOM}
+          height={imageH * LOUPE_ZOOM}
+          imageRendering="pixelated"
+        />
+        <line x1={lx - LOUPE_R} y1={ly} x2={lx - gap} y2={ly} stroke="rgba(255,60,60,0.9)" strokeWidth={0.03} />
+        <line x1={lx + gap} y1={ly} x2={lx + LOUPE_R} y2={ly} stroke="rgba(255,60,60,0.9)" strokeWidth={0.03} />
+        <line x1={lx} y1={ly - LOUPE_R} x2={lx} y2={ly - gap} stroke="rgba(255,60,60,0.9)" strokeWidth={0.03} />
+        <line x1={lx} y1={ly + gap} x2={lx} y2={ly + LOUPE_R} stroke="rgba(255,60,60,0.9)" strokeWidth={0.03} />
+      </g>
+      <circle cx={lx} cy={ly} r={LOUPE_R} fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth={0.06} />
+    </g>
+  )
+}
 
 const blankMap: AnnotatedMap = {
   id: 'new-map',
@@ -39,7 +111,7 @@ export function AnnotationMode() {
   const [draftCatalogue, setDraftCatalogue] = useState<KillzoneCatalogue>(() =>
     structuredClone(catalogues[maps[0].killzone]),
   )
-  const [tab, setTab] = useState<Tab>('calibrate')
+  const [tab, setTab] = useState<Tab>('pieces')
 
   // Calibration state
   const [cornerA, setCornerA] = useState<Vec | null>(null) // image px
@@ -48,7 +120,8 @@ export function AnnotationMode() {
   const [showCursorCircles, setShowCursorCircles] = useState(false)
 
   // Tracing state
-  const [tracePieceId, setTracePieceId] = useState<string>('')
+  const [tracePieceName, setTracePieceName] = useState<string>('')
+  const [tracePieceKind, setTracePieceKind] = useState<PieceKind>('rubble')
   const [traceTarget, setTraceTarget] = useState<'outer' | 'innerFloor'>('outer')
   const [traceShape, setTraceShape] = useState<'polygon' | 'rectangle'>('polygon')
   const [traceVertices, setTraceVertices] = useState<Polygon>([]) // world inches
@@ -58,6 +131,7 @@ export function AnnotationMode() {
   const [selectedObjectiveId, setSelectedObjectiveId] = useState<string | null>(null)
   const dragPiece = useRef<{ pieceId: string; offset: Vec } | null>(null)
   const dragObjective = useRef<string | null>(null)
+  const dragTraceVertexIndex = useRef<number | null>(null)
 
   // Drop zone drawing
   const [zoneVertices, setZoneVertices] = useState<Polygon>([])
@@ -66,6 +140,9 @@ export function AnnotationMode() {
 
   const [importText, setImportText] = useState('')
   const [importError, setImportError] = useState<string | null>(null)
+  const [draggingVertex, setDraggingVertex] = useState(false)
+
+  const imgSize = useImageSize(draftMap.image)
 
   const pieces = useMemo(() => {
     const defs = new Map(draftCatalogue.pieces.map((p) => [p.id, p]))
@@ -79,6 +156,69 @@ export function AnnotationMode() {
 
   function patchMap(patch: Partial<AnnotatedMap>) {
     setDraftMap((m) => ({ ...m, ...patch }))
+  }
+
+  // Rounding keeps the editable fields readable without losing meaningful precision.
+  const r3 = (n: number) => Math.round(n * 1000) / 1000
+  const r4 = (n: number) => Math.round(n * 10000) / 10000
+
+  // ---- Fine-tune helpers (shared by the numeric editors and nudge buttons) ----
+
+  function nudgeCalibration(patch: {
+    pxPerInchX?: number
+    pxPerInchY?: number
+    originX?: number
+    originY?: number
+  }) {
+    setDraftMap((m) => ({
+      ...m,
+      pxPerInchX: r4(m.pxPerInchX + (patch.pxPerInchX ?? 0)),
+      pxPerInchY: r4(m.pxPerInchY + (patch.pxPerInchY ?? 0)),
+      originPx: {
+        x: r3(m.originPx.x + (patch.originX ?? 0)),
+        y: r3(m.originPx.y + (patch.originY ?? 0)),
+      },
+    }))
+  }
+
+  function nudgePlacement(pieceId: string, dx: number, dy: number) {
+    patchPlacement(pieceId, (pl) => ({ x: r3(pl.x + dx), y: r3(pl.y + dy) }))
+  }
+
+  function setPieceKind(pieceId: string, kind: PieceKind) {
+    setDraftCatalogue((c) => ({
+      ...c,
+      pieces: c.pieces.map((p) => {
+        if (p.id !== pieceId) return p
+        // Strongholds carry an inner-floor polygon; other kinds don't.
+        return kind === 'stronghold' ? { ...p, kind } : { ...p, kind, innerFloor: undefined }
+      }),
+    }))
+  }
+
+  /** Uniformly scale a piece's footprint about its local pivot to fine-tune size. */
+  function scaleFootprint(pieceId: string, factor: number) {
+    setDraftCatalogue((c) => ({
+      ...c,
+      pieces: c.pieces.map((p) =>
+        p.id === pieceId
+          ? {
+              ...p,
+              outer: p.outer.map((v) => ({ x: r4(v.x * factor), y: r4(v.y * factor) })),
+              innerFloor: p.innerFloor?.map((v) => ({ x: r4(v.x * factor), y: r4(v.y * factor) })),
+            }
+          : p,
+      ),
+    }))
+  }
+
+  function nudgeObjective(id: string, dx: number, dy: number) {
+    setDraftMap((m) => ({
+      ...m,
+      objectives: m.objectives.map((o) =>
+        o.id === id ? { ...o, center: { x: r3(o.center.x + dx), y: r3(o.center.y + dy) } } : o,
+      ),
+    }))
   }
 
   // ---- Calibration ----
@@ -98,29 +238,43 @@ export function AnnotationMode() {
   // ---- Tracing ----
 
   function commitTrace(vertices: Polygon) {
-    if (!tracePieceId || vertices.length < 3) return
-    const def = draftCatalogue.pieces.find((p) => p.id === tracePieceId)
-    if (!def) return
-    const existing = draftMap.placements.find((pl) => pl.pieceId === tracePieceId)
+    const name = tracePieceName.trim()
+    if (!name || vertices.length < 3) return
 
-    if (existing) {
-      // Keep the piece's local frame: world → local via inverse placement.
+    const existingDef = draftCatalogue.pieces.find((p) => p.name === name)
+    const pieceId = existingDef?.id ?? `piece-${Date.now()}`
+    const existing = draftMap.placements.find((pl) => pl.pieceId === pieceId)
+
+    if (!existingDef) {
+      const pivot = polygonCentroid(vertices)
+      const local = polygonToLocal(vertices, pivot)
+      const newPiece: PieceDef = { id: pieceId, name, kind: tracePieceKind, outer: local }
+      setDraftCatalogue((c) => ({ ...c, pieces: [...c.pieces, newPiece] }))
+      setDraftMap((m) => ({
+        ...m,
+        placements: [...m.placements, { pieceId, x: pivot.x, y: pivot.y, rotationDeg: 0 }],
+      }))
+    } else if (existing) {
       const origin = { x: existing.x, y: existing.y }
       const local = vertices.map((v) => rotateDeg(sub(v, origin), -existing.rotationDeg))
       setDraftCatalogue((c) => ({
         ...c,
-        pieces: c.pieces.map((p) => (p.id === tracePieceId ? { ...p, [traceTarget]: local } : p)),
+        pieces: c.pieces.map((p) =>
+          p.id === pieceId ? { ...p, kind: tracePieceKind, [traceTarget]: local } : p,
+        ),
       }))
     } else {
       const pivot = polygonCentroid(vertices)
       const local = polygonToLocal(vertices, pivot)
       setDraftCatalogue((c) => ({
         ...c,
-        pieces: c.pieces.map((p) => (p.id === tracePieceId ? { ...p, [traceTarget]: local } : p)),
+        pieces: c.pieces.map((p) =>
+          p.id === pieceId ? { ...p, kind: tracePieceKind, [traceTarget]: local } : p,
+        ),
       }))
       setDraftMap((m) => ({
         ...m,
-        placements: [...m.placements, { pieceId: tracePieceId, x: pivot.x, y: pivot.y, rotationDeg: 0 }],
+        placements: [...m.placements, { pieceId, x: pivot.x, y: pivot.y, rotationDeg: 0 }],
       }))
     }
     setTraceVertices([])
@@ -142,10 +296,19 @@ export function AnnotationMode() {
 
   // ---- Board pointer routing ----
 
-  function onBoardPointerDown(inches: Vec) {
+  const VERTEX_HIT_R = 0.2
+
+  function onBoardPointerDown(inches: Vec, e: React.PointerEvent<SVGSVGElement>) {
     if (tab === 'calibrate') onCalibrateClick(inches)
-    else if (tab === 'pieces' && tracePieceId) {
-      if (traceShape === 'rectangle') {
+    else if (tab === 'pieces' && tracePieceName.trim()) {
+      const hitIdx = traceVertices.findIndex(
+        (v) => Math.hypot(v.x - inches.x, v.y - inches.y) < VERTEX_HIT_R,
+      )
+      if (hitIdx !== -1) {
+        dragTraceVertexIndex.current = hitIdx
+        setDraggingVertex(true)
+        e.currentTarget.setPointerCapture(e.pointerId)
+      } else if (traceShape === 'rectangle') {
         // Two clicks on opposite corners define the rectangle.
         if (traceVertices.length === 0) setTraceVertices([inches])
         else commitTrace(rectFromCorners(traceVertices[0], inches))
@@ -165,6 +328,11 @@ export function AnnotationMode() {
 
   function onBoardPointerMove(inches: Vec) {
     setCursorIn(inches)
+    if (dragTraceVertexIndex.current !== null) {
+      const i = dragTraceVertexIndex.current
+      setTraceVertices((v) => v.map((p, k) => (k === i ? inches : p)))
+      return
+    }
     if (dragPiece.current) {
       const { pieceId, offset } = dragPiece.current
       const pos = add(inches, offset)
@@ -182,6 +350,8 @@ export function AnnotationMode() {
   }
 
   function onBoardPointerUp() {
+    if (dragTraceVertexIndex.current !== null) setDraggingVertex(false)
+    dragTraceVertexIndex.current = null
     dragPiece.current = null
     dragObjective.current = null
   }
@@ -249,8 +419,9 @@ export function AnnotationMode() {
     }
   }
 
-  const tracedPiece = draftCatalogue.pieces.find((p) => p.id === tracePieceId)
+
   const selectedPlacement = draftMap.placements.find((p) => p.pieceId === selectedPieceId)
+  const selectedDef = draftCatalogue.pieces.find((p) => p.id === selectedPieceId)
   const pieceName = (id: string) => draftCatalogue.pieces.find((p) => p.id === id)?.name ?? id
 
   return (
@@ -286,7 +457,7 @@ export function AnnotationMode() {
             <input value={draftMap.image} onChange={(e) => patchMap({ image: e.target.value })} />
           </label>
           <nav className="tabs">
-            {(['calibrate', 'pieces', 'place', 'zones', 'objectives', 'export'] as Tab[]).map((x) => (
+            {(['pieces', 'place', 'zones', 'objectives', 'calibrate', 'export'] as Tab[]).map((x) => (
               <button key={x} className={tab === x ? 'selected' : ''} onClick={() => setTab(x)}>
                 {x}
               </button>
@@ -330,10 +501,64 @@ export function AnnotationMode() {
               />
               Show 32mm / 40mm cursor circles
             </label>
-            <p className="hint">
-              pxPerInch: {draftMap.pxPerInchX.toFixed(3)} × {draftMap.pxPerInchY.toFixed(3)}, origin (
-              {draftMap.originPx.x.toFixed(1)}, {draftMap.originPx.y.toFixed(1)})
-            </p>
+            <div className="fine-tune">
+              <p className="hint">
+                Fine-tune the transform with the grid on until the 1" lines and 40mm circle land
+                exactly on the killzone.
+              </p>
+              <div className="row">
+                <label>
+                  px / inch X
+                  <input
+                    type="number"
+                    step={0.01}
+                    value={Number(draftMap.pxPerInchX.toFixed(4))}
+                    onChange={(e) => patchMap({ pxPerInchX: Number(e.target.value) })}
+                  />
+                </label>
+                <label>
+                  px / inch Y
+                  <input
+                    type="number"
+                    step={0.01}
+                    value={Number(draftMap.pxPerInchY.toFixed(4))}
+                    onChange={(e) => patchMap({ pxPerInchY: Number(e.target.value) })}
+                  />
+                </label>
+              </div>
+              <div className="row">
+                <button onClick={() => nudgeCalibration({ pxPerInchX: -0.1 })}>X −0.1</button>
+                <button onClick={() => nudgeCalibration({ pxPerInchX: 0.1 })}>X +0.1</button>
+                <button onClick={() => nudgeCalibration({ pxPerInchY: -0.1 })}>Y −0.1</button>
+                <button onClick={() => nudgeCalibration({ pxPerInchY: 0.1 })}>Y +0.1</button>
+              </div>
+              <div className="row">
+                <label>
+                  origin X (px)
+                  <input
+                    type="number"
+                    step={1}
+                    value={Number(draftMap.originPx.x.toFixed(2))}
+                    onChange={(e) => patchMap({ originPx: { ...draftMap.originPx, x: Number(e.target.value) } })}
+                  />
+                </label>
+                <label>
+                  origin Y (px)
+                  <input
+                    type="number"
+                    step={1}
+                    value={Number(draftMap.originPx.y.toFixed(2))}
+                    onChange={(e) => patchMap({ originPx: { ...draftMap.originPx, y: Number(e.target.value) } })}
+                  />
+                </label>
+              </div>
+              <div className="row">
+                <button onClick={() => nudgeCalibration({ originX: -1 })}>◀ 1px</button>
+                <button onClick={() => nudgeCalibration({ originX: 1 })}>1px ▶</button>
+                <button onClick={() => nudgeCalibration({ originY: -1 })}>▲ 1px</button>
+                <button onClick={() => nudgeCalibration({ originY: 1 })}>1px ▼</button>
+              </div>
+            </div>
           </section>
         )}
 
@@ -341,17 +566,23 @@ export function AnnotationMode() {
           <section>
             <h2>Trace piece footprints</h2>
             <label>
-              Piece
-              <select value={tracePieceId} onChange={(e) => setTracePieceId(e.target.value)}>
-                <option value="">— select —</option>
-                {draftCatalogue.pieces.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
+              Name
+              <input
+                type="text"
+                value={tracePieceName}
+                onChange={(e) => setTracePieceName(e.target.value)}
+                placeholder="piece name"
+              />
+            </label>
+            <label>
+              Kind
+              <select value={tracePieceKind} onChange={(e) => setTracePieceKind(e.target.value as PieceKind)}>
+                {PIECE_KINDS.map((k) => (
+                  <option key={k} value={k}>{k}</option>
                 ))}
               </select>
             </label>
-            {tracedPiece?.kind === 'stronghold' && (
+            {tracePieceKind === 'stronghold' && (
               <label>
                 Polygon
                 <select value={traceTarget} onChange={(e) => setTraceTarget(e.target.value as 'outer' | 'innerFloor')}>
@@ -411,6 +642,17 @@ export function AnnotationMode() {
                     onChange={(e) => renamePiece(selectedPlacement.pieceId, e.target.value)}
                   />
                 </label>
+                <label>
+                  Kind
+                  <select
+                    value={selectedDef?.kind ?? 'rubble'}
+                    onChange={(e) => setPieceKind(selectedPlacement.pieceId, e.target.value as PieceKind)}
+                  >
+                    { PIECE_KINDS.map((k) => (
+                      <option value={k}>{k}</option>
+                    ))}
+                  </select>
+                </label>
                 <div className="row">
                   <label>
                     X (in)
@@ -435,6 +677,12 @@ export function AnnotationMode() {
                     />
                   </label>
                 </div>
+                <div className="row">
+                  <button onClick={() => nudgePlacement(selectedPlacement.pieceId, -0.05, 0)}>◀ X</button>
+                  <button onClick={() => nudgePlacement(selectedPlacement.pieceId, 0.05, 0)}>X ▶</button>
+                  <button onClick={() => nudgePlacement(selectedPlacement.pieceId, 0, -0.05)}>▲ Y</button>
+                  <button onClick={() => nudgePlacement(selectedPlacement.pieceId, 0, 0.05)}>Y ▼</button>
+                </div>
                 <label>
                   Rotation (°)
                   <input
@@ -453,6 +701,16 @@ export function AnnotationMode() {
                   <button onClick={() => rotateSelected(-1)}>⟲ 1°</button>
                   <button onClick={() => rotateSelected(1)}>⟳ 1°</button>
                   <button onClick={() => rotateSelected(15)}>⟳ 15°</button>
+                </div>
+                <label>
+                  Footprint scale
+                  <span className="hint">Grow or shrink the traced footprint about its pivot.</span>
+                </label>
+                <div className="row">
+                  <button onClick={() => scaleFootprint(selectedPlacement.pieceId, 0.98)}>− 2%</button>
+                  <button onClick={() => scaleFootprint(selectedPlacement.pieceId, 1 / 0.98)}>+ 2%</button>
+                  <button onClick={() => scaleFootprint(selectedPlacement.pieceId, 0.9)}>− 10%</button>
+                  <button onClick={() => scaleFootprint(selectedPlacement.pieceId, 1 / 0.9)}>+ 10%</button>
                 </div>
               </div>
             ) : (
@@ -616,6 +874,12 @@ export function AnnotationMode() {
                         />
                       </label>
                     </div>
+                    <div className="row">
+                      <button onClick={() => nudgeObjective(o.id, -0.05, 0)}>◀ X</button>
+                      <button onClick={() => nudgeObjective(o.id, 0.05, 0)}>X ▶</button>
+                      <button onClick={() => nudgeObjective(o.id, 0, -0.05)}>▲ Y</button>
+                      <button onClick={() => nudgeObjective(o.id, 0, 0.05)}>Y ▼</button>
+                    </div>
                   </li>
                 )
               })}
@@ -700,8 +964,18 @@ export function AnnotationMode() {
                 stroke="#ffd54a"
                 strokeWidth={0.05}
               />
-              {[...traceVertices, ...zoneVertices].map((p, i) => (
-                <circle key={i} cx={p.x} cy={p.y} r={0.12} fill="#ffd54a" />
+              {zoneVertices.map((p, i) => (
+                <circle key={`z${i}`} cx={p.x} cy={p.y} r={0.12} fill="#ffd54a" />
+              ))}
+              {traceVertices.map((p, i) => (
+                <circle
+                  key={`t${i}`}
+                  cx={p.x}
+                  cy={p.y}
+                  r={0.12}
+                  fill="#ffd54a"
+                  style={{ cursor: 'grab' }}
+                />
               ))}
             </g>
           )}
@@ -710,6 +984,15 @@ export function AnnotationMode() {
               <circle cx={cursorIn.x} cy={cursorIn.y} r={16 * IN_PER_MM} stroke="#7fd4ff" />
               <circle cx={cursorIn.x} cy={cursorIn.y} r={20 * IN_PER_MM} stroke="#ff7fd4" />
             </g>
+          )}
+          {draggingVertex && dragTraceVertexIndex.current !== null && cursorIn && imgSize && (
+            <TraceLoupe
+              image={draftMap.image}
+              imgSize={imgSize}
+              map={draftMap}
+              cursor={cursorIn}
+              vertex={traceVertices[dragTraceVertexIndex.current]}
+            />
           )}
         </Board>
       </main>

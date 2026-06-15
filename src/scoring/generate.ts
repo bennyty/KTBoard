@@ -1,6 +1,11 @@
 import type { AnnotatedMap, Chain, KillzoneCatalogue, Scores, ScoredPlan, Vec, WorldPiece } from '@/model/types'
 import { SCORE_AXES } from '@/model/types'
-import { CHAIN_LENGTH, MARKER0_EDGE_INSET_IN, MAX_LINK_CENTER_TO_CENTER_IN } from '@/model/constants'
+import {
+  CHAIN_LENGTH,
+  MARKER0_EDGE_INSET_IN,
+  MAX_LINK_CENTER_TO_CENTER_IN,
+  MIN_LINK_CENTER_TO_CENTER_IN,
+} from '@/model/constants'
 import { resolvePiece, pointInPolygon } from '@/geometry/polygon'
 import { markerPlacementClear } from '@/rules/validity'
 import { makeScoringContext, scoreChain, toDominanceVector } from './score'
@@ -8,8 +13,8 @@ import { ParetoFront } from './pareto'
 import { kMedoids } from './kmedoids'
 import { hashString, mulberry32 } from './rng'
 
-export const PRESENTED_PLANS = 6
-export const DEFAULT_ATTEMPTS = 100_000
+export const PRESENTED_PLANS = 20
+export const DEFAULT_ATTEMPTS = 500_000
 
 export interface GenerateProgress {
   attempted: number
@@ -94,9 +99,13 @@ export function generatePlans(
     const chain: Chain = [m0]
     let dead = false
     for (let i = 1; i < CHAIN_LENGTH; i++) {
-      // Area-uniform sample of the ≤5"-gap disk around the previous marker.
+      // Area-uniform sample of the annulus around the previous marker whose
+      // edge-to-edge gap is within [MIN_LINK_GAP_IN, MAX_LINK_GAP_IN], so every
+      // link pushes forward instead of clustering near the previous marker.
       const angle = rng() * 2 * Math.PI
-      const radius = MAX_LINK_CENTER_TO_CENTER_IN * Math.sqrt(rng())
+      const rMin2 = MIN_LINK_CENTER_TO_CENTER_IN * MIN_LINK_CENTER_TO_CENTER_IN
+      const rMax2 = MAX_LINK_CENTER_TO_CENTER_IN * MAX_LINK_CENTER_TO_CENTER_IN
+      const radius = Math.sqrt(rMin2 + rng() * (rMax2 - rMin2))
       const prev = chain[i - 1]
       const next = { x: prev.x + radius * Math.cos(angle), y: prev.y + radius * Math.sin(angle) }
       if (!markerPlacementClear(next, pieces, map.widthIn, map.heightIn)) {

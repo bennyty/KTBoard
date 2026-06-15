@@ -9,7 +9,8 @@ export interface Vec {
 /** Vertices in order; closed implicitly (last connects to first). */
 export type Polygon = Vec[]
 
-export type PieceKind = 'stronghold' | 'ruin' | 'rubble'
+export const PIECE_KINDS = ['stronghold', 'ruin', 'rubble'] as const
+export type PieceKind = typeof PIECE_KINDS[number]
 
 export interface PieceDef {
   id: string
@@ -95,7 +96,7 @@ export interface Scores {
 export const SCORE_AXES: { key: keyof Scores; label: string; higherIsBetter: boolean }[] = [
   { key: 'zigzag', label: 'Zigzag', higherIsBetter: true },
   { key: 'centerAccess', label: 'Center obj access', higherIsBetter: false },
-  { key: 'coverage', label: 'Objective coverage', higherIsBetter: true },
+  { key: 'coverage', label: 'Objectives completely covered', higherIsBetter: true },
   { key: 'homeUnburrow', label: 'Home obj unburrow', higherIsBetter: false },
   { key: 'forwardReach', label: 'Forward reach', higherIsBetter: true },
 ]

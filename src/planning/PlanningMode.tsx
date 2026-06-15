@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Chain, ScoredPlan, Scores, Vec } from '@/model/types'
 import { SCORE_AXES } from '@/model/types'
 import { getCatalogue, getMap, maps } from '@/data/registry'
-import { resolveMapPieces, DEFAULT_ATTEMPTS, PRESENTED_PLANS } from '@/scoring/generate'
+import { resolveMapPieces, DEFAULT_ATTEMPTS } from '@/scoring/generate'
 import { makeScoringContext, scoreChain } from '@/scoring/score'
 import { chainViolations } from '@/rules/validity'
 import type { Violation } from '@/rules/validity'
@@ -184,45 +184,6 @@ export function PlanningMode() {
           )}
         </section>
 
-        {plans.length > 0 && (
-          <section>
-            <h2>Plans ({plans.length} of {PRESENTED_PLANS})</h2>
-            <div className="plan-cards">
-              {plans.map((plan, i) => (
-                <button
-                  key={i}
-                  className={`plan-card${selectedPlan === i ? ' selected' : ''}`}
-                  onClick={() => {
-                    setSelectedPlan(i)
-                    setMarkers(plan.markers)
-                  }}
-                >
-                  <div className="plan-card-head">
-                    <span>Plan {i + 1}</span>
-                    <span className="wins">
-                      {plan.wins.map((w) => (
-                        <span key={w} className="win-badge" title={`Best ${AXIS_LABELS[w]}`}>
-                          {AXIS_LABELS[w]}
-                        </span>
-                      ))}
-                    </span>
-                  </div>
-                  <table>
-                    <tbody>
-                      {SCORE_AXES.map(({ key, label }) => (
-                        <tr key={key}>
-                          <td>{label}</td>
-                          <td>{formatScore(key, plan.scores[key])}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-
         {markers && (
           <section>
             <h2>Current plan</h2>
@@ -247,6 +208,64 @@ export function PlanningMode() {
             <p className="hint">Drag markers to refine. Shareable link updates automatically.</p>
           </section>
         )}
+
+        {plans.length > 0 && (
+          <section>
+            <h2>
+              Generated Plans ({plans.length})
+              <span className="plan-nav">
+                <button
+                  className="plan-nav-btn"
+                  onClick={() => {
+                    const i = Math.max(0, (selectedPlan ?? 0) - 1)
+                    setSelectedPlan(i)
+                    setMarkers(plans[i].markers)
+                  }}
+                  disabled={selectedPlan === null || selectedPlan === 0}
+                  aria-label="Previous plan"
+                >
+                  ‹
+                </button>
+                <button
+                  className="plan-nav-btn"
+                  onClick={() => {
+                    const i = Math.min(plans.length - 1, (selectedPlan ?? 0) + 1)
+                    setSelectedPlan(i)
+                    setMarkers(plans[i].markers)
+                  }}
+                  disabled={selectedPlan === null || selectedPlan === plans.length - 1}
+                  aria-label="Next plan"
+                >
+                  ›
+                </button>
+              </span>
+            </h2>
+            <div className="plan-cards">
+              {plans.map((plan, i) => (
+                <button
+                  key={i}
+                  className={`plan-card${selectedPlan === i ? ' selected' : ''}`}
+                  onClick={() => {
+                    setSelectedPlan(i)
+                    setMarkers(plan.markers)
+                  }}
+                >
+                  <div className="plan-card-head">
+                    <span>Plan {i + 1}</span>
+                    <span className="wins">
+                      {plan.wins.map((w) => (
+                        <span key={w} className="win-badge" title={`Best ${AXIS_LABELS[w]}`}>
+                          {AXIS_LABELS[w]}
+                        </span>
+                      ))}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
       </aside>
 
       <main className="board-pane">
