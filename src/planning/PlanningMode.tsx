@@ -224,7 +224,7 @@ export function PlanningMode() {
                   disabled={selectedPlan === null || selectedPlan === 0}
                   aria-label="Previous plan"
                 >
-                  ‹
+                  ⏴
                 </button>
                 <button
                   className="plan-nav-btn"
@@ -236,7 +236,7 @@ export function PlanningMode() {
                   disabled={selectedPlan === null || selectedPlan === plans.length - 1}
                   aria-label="Next plan"
                 >
-                  ›
+                  ⏵
                 </button>
               </span>
             </h2>

@@ -11,26 +11,85 @@
     "x": 10,
     "y": 10
   },
-  "draft": true,
-  "notes": "DRAFT annotation traced approximately from the layout image. Piece footprints, drop zone depths, and objective positions need verification in Annotation mode against the physical layout. Small interior pieces (J, L, M, N rects) are not yet annotated.",
+  "draft": false,
   "placements": [
     {
-      "pieceId": "stronghold-a",
-      "x": 20.037341158244313,
-      "y": 8.042775778918879,
+      "pieceId": "piece-1781534818479",
+      "x": 22.10035576505591,
+      "y": 17.321020769469932,
       "rotationDeg": 0
     },
     {
-      "pieceId": "stronghold-b",
-      "x": 9.073352895610782,
-      "y": 7.022585929729595,
+      "pieceId": "piece-1781534898813",
+      "x": 12.825423419038357,
+      "y": 18.005433232171992,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781534979444",
+      "x": 4.6399730796627425,
+      "y": 16.608091120821957,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781535088312",
+      "x": 9.2339556576638,
+      "y": 17.896117932896267,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781535256559",
+      "x": 14.982884497980617,
+      "y": 13.55675222460862,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781535380958",
+      "x": 14.665358359176718,
+      "y": 1.2033449450618825,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781535424509",
+      "x": 19.75796910079309,
+      "y": 3.015374396185868,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781535501557",
+      "x": 18.3540661764564,
+      "y": 20.957912318366024,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781535574708",
+      "x": 6.379798981079161,
+      "y": 5.04651092167018,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781594846017",
+      "x": 12.230508902253614,
+      "y": 4.545321465698198,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781594909852",
+      "x": 19.57017715752562,
+      "y": 8.003030261640884,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781594972550",
+      "x": 9.076745198816425,
+      "y": 7.033445939479635,
       "rotationDeg": 0
     }
   ],
   "dropZones": [
     {
       "id": "dz-a",
-      "name": "A (west)",
+      "name": "Orange (west)",
       "anchorEdge": "left",
       "polygon": [
         {
@@ -53,7 +112,7 @@
     },
     {
       "id": "dz-b",
-      "name": "B (east)",
+      "name": "Grey (east)",
       "anchorEdge": "right",
       "polygon": [
         {

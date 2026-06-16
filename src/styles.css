@@ -122,6 +122,36 @@ button.danger {
   letter-spacing: 0.06em;
   color: var(--muted);
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.plan-nav {
+  display: flex;
+  gap: 2px;
+}
+
+.plan-nav-btn {
+  background: none;
+  border: 1px solid #3a3a48;
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.plan-nav-btn:not(:disabled):hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.plan-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 label {

@@ -13,8 +13,8 @@ import { ParetoFront } from './pareto'
 import { kMedoids } from './kmedoids'
 import { hashString, mulberry32 } from './rng'
 
-export const PRESENTED_PLANS = 20
-export const DEFAULT_ATTEMPTS = 500_000
+export const PRESENTED_PLANS = 10
+export const DEFAULT_ATTEMPTS = 1_000_000
 
 export interface GenerateProgress {
   attempted: number
