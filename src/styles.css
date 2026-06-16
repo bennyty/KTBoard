@@ -122,36 +122,6 @@ button.danger {
   letter-spacing: 0.06em;
   color: var(--muted);
   margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
-
-.plan-nav {
-  display: flex;
-  gap: 2px;
-}
-
-.plan-nav-btn {
-  background: none;
-  border: 1px solid #3a3a48;
-  border-radius: 4px;
-  color: var(--muted);
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.plan-nav-btn:not(:disabled):hover {
-  color: var(--text);
-  border-color: var(--accent);
-}
-
-.plan-nav-btn:disabled {
-  opacity: 0.3;
-  cursor: default;
 }
 
 label {
@@ -237,6 +207,52 @@ svg.board {
   gap: 8px;
 }
 
+.plan-cards.dim {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.scores-total td {
+  border-top: 1px solid #3a3a48;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.weight-tuning {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.weight-tuning summary {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.weight-slider {
+  gap: 4px;
+}
+
+.weight-slider-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.weight-value {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.weight-slider input[type='range'] {
+  width: 100%;
+  padding: 0;
+  accent-color: var(--accent);
+}
+
 .plan-card {
   text-align: left;
   padding: 8px;
@@ -291,6 +307,26 @@ table.scores td {
 table.scores td:last-child {
   text-align: right;
   color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+table.scores th {
+  padding: 1px 2px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-weight: 600;
+  text-align: right;
+}
+
+table.scores th:first-child {
+  text-align: left;
+}
+
+/* Right-align the numeric columns (Value, Norm, Weighted). */
+table.scores td:not(:first-child) {
+  text-align: right;
   font-variant-numeric: tabular-nums;
 }
 

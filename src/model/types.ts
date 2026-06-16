@@ -81,6 +81,9 @@ export interface AnnotatedMap {
 export type Chain = Vec[]
 
 export interface Scores {
+  /** Sum of sigmoid proximity scores (one per objective) of the TUNNEL to each
+   *  objective. Best-effort closeness; doesn't require full coverage. Higher = better. */
+  objectiveDistance: number
   /** Distinct terrain pieces crossed by between-segments. Higher = better. */
   zigzag: number
   /** Smallest N (0–4) whose partial TUNNEL reaches center obj control range; 5 = never. Lower = better. */
@@ -93,12 +96,14 @@ export interface Scores {
   forwardReach: number
 }
 
+/** Display/iteration order follows the weighted-sum priority. */
 export const SCORE_AXES: { key: keyof Scores; label: string; higherIsBetter: boolean }[] = [
-  { key: 'zigzag', label: 'Zigzag', higherIsBetter: true },
-  { key: 'centerAccess', label: 'Center obj access', higherIsBetter: false },
-  { key: 'coverage', label: 'Objectives completely covered', higherIsBetter: true },
-  { key: 'homeUnburrow', label: 'Home obj unburrow', higherIsBetter: false },
+  { key: 'objectiveDistance', label: 'Objective distance', higherIsBetter: true },
   { key: 'forwardReach', label: 'Forward reach', higherIsBetter: true },
+  { key: 'centerAccess', label: 'Center obj access', higherIsBetter: false },
+  { key: 'homeUnburrow', label: 'Home obj unburrow', higherIsBetter: false },
+  { key: 'coverage', label: 'Objectives completely covered', higherIsBetter: true },
+  { key: 'zigzag', label: 'Zigzag', higherIsBetter: true },
 ]
 
 export interface Plan {

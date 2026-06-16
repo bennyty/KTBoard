@@ -38,3 +38,19 @@ export const COVERAGE_DISK_RADIUS_IN = OBJECTIVE_RADIUS_IN + 1
 export const COVERAGE_RANGE_IN = 2
 
 export const CHAIN_LENGTH = 5
+
+/**
+ * Objective distance axis: a logistic proximity score per objective,
+ *   score(d) = 1 / (1 + e^(K · (d − MID)))
+ * where d is the distance (in) from the objective centre to the TUNNEL.
+ * Calibrated for a gradual falloff: d=0 → ≈0.98, d=control range → ≈0.90,
+ * d=6" → ≈0.45, d=10" → ≈0.05. Both constants are tunable.
+ */
+export const OBJ_DISTANCE_SIGMOID_K = 0.7
+export const OBJ_DISTANCE_SIGMOID_MID = 5.7
+
+/** Objectives on a layout (Volkus 1 has 3); caps objective-distance & coverage. */
+export const OBJECTIVE_COUNT_MAX = 3
+
+/** Zigzag practical maximum: crossing ≥5 pieces normalises to a full score. */
+export const ZIGZAG_CAP = 5

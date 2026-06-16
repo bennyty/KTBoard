@@ -2,7 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Chain, ScoredPlan, Scores, Vec } from '@/model/types'
 import { SCORE_AXES } from '@/model/types'
 import { getCatalogue, getMap, maps } from '@/data/registry'
-import { resolveMapPieces, DEFAULT_ATTEMPTS } from '@/scoring/generate'
+import { resolveMapPieces, DEFAULT_ATTEMPTS, TUNE_ATTEMPTS } from '@/scoring/generate'
+import type { GenerateResult } from '@/scoring/generate'
+import { DEFAULT_WEIGHTS, makeNormContext, normalizeAxis, weightedScore } from '@/scoring/weighted'
+import type { WeightConfig } from '@/scoring/weighted'
 import { makeScoringContext, scoreChain } from '@/scoring/score'
 import { chainViolations } from '@/rules/validity'
 import type { Violation } from '@/rules/validity'
@@ -18,8 +21,16 @@ interface Progress {
   frontSize: number
 }
 
+type PlanGroup = 'weighted' | 'pareto'
+interface Selection {
+  group: PlanGroup
+  index: number
+}
+
 function formatScore(key: keyof Scores, v: number): string {
   switch (key) {
+    case 'objectiveDistance':
+      return v.toFixed(2)
     case 'homeUnburrow':
     case 'forwardReach':
       return `${v.toFixed(1)}"`
@@ -46,15 +57,22 @@ export function PlanningMode() {
 
   const pieces = useMemo(() => resolveMapPieces(map, catalogue), [map, catalogue])
   const ctx = useMemo(() => makeScoringContext(map, pieces, dropZone), [map, pieces, dropZone])
+  const norm = useMemo(() => makeNormContext(map, dropZone), [map, dropZone])
 
-  const [plans, setPlans] = useState<ScoredPlan[]>([])
-  const [selectedPlan, setSelectedPlan] = useState<number | null>(null)
+  const [weightedPlans, setWeightedPlans] = useState<ScoredPlan[]>([])
+  const [paretoPlans, setParetoPlans] = useState<ScoredPlan[]>([])
+  const [weights, setWeights] = useState<WeightConfig>(DEFAULT_WEIGHTS)
+  const [selected, setSelected] = useState<Selection | null>(null)
   const [markers, setMarkers] = useState<Chain | null>(initial.markers?.length === 5 ? initial.markers : null)
   const [progress, setProgress] = useState<Progress | null>(null)
   const [generating, setGenerating] = useState(false)
+  const [tuning, setTuning] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const workerRef = useRef<Worker | null>(null)
   const dragIndex = useRef<number | null>(null)
+  // True once a full generation has produced a Pareto front to keep stable
+  // while only the weighted plans re-tune.
+  const generatedRef = useRef(false)
 
   useEffect(() => () => workerRef.current?.terminate(), [])
 
@@ -74,50 +92,122 @@ export function PlanningMode() {
   )
   const invalidMarkers = useMemo(() => new Set(violations.map((v) => v.marker)), [violations])
 
-  function generate() {
+  /** Spawn a fresh worker for one generation pass. Cancels any in-flight run. */
+  function runGeneration(opts: {
+    attempts: number
+    weights: WeightConfig
+    onProgress?: (p: Progress) => void
+    onDone: (res: GenerateResult) => void
+    onError: (msg: string) => void
+  }) {
     workerRef.current?.terminate()
-    setGenerating(true)
-    setError(null)
-    setPlans([])
-    setSelectedPlan(null)
-    setProgress({ attempted: 0, totalAttempts: DEFAULT_ATTEMPTS, valid: 0, frontSize: 0 })
-    const worker = new Worker(new URL('../worker/generator.worker.ts', import.meta.url), {
-      type: 'module',
-    })
+    const worker = new Worker(new URL('../worker/generator.worker.ts', import.meta.url), { type: 'module' })
     workerRef.current = worker
     worker.onmessage = (e: MessageEvent<GeneratorMessage>) => {
       const msg = e.data
       if (msg.type === 'progress') {
-        setProgress(msg)
+        opts.onProgress?.(msg)
       } else if (msg.type === 'done') {
-        setPlans(msg.plans)
-        setGenerating(false)
-        setProgress(null)
-        if (msg.plans.length > 0) {
-          setSelectedPlan(0)
-          setMarkers(msg.plans[0].markers)
-        }
+        opts.onDone(msg)
         worker.terminate()
       } else {
-        setError(msg.message)
-        setGenerating(false)
-        setProgress(null)
+        opts.onError(msg.message)
         worker.terminate()
       }
     }
-    worker.postMessage({ type: 'generate', map, catalogue, dropZoneId, attempts: DEFAULT_ATTEMPTS })
+    worker.postMessage({ type: 'generate', map, catalogue, dropZoneId, attempts: opts.attempts, weights: opts.weights })
+  }
+
+  /** Full generation: rebuilds both the Pareto and weighted plan sets. */
+  function generate() {
+    setGenerating(true)
+    setError(null)
+    setWeightedPlans([])
+    setParetoPlans([])
+    setSelected(null)
+    generatedRef.current = false
+    setProgress({ attempted: 0, totalAttempts: DEFAULT_ATTEMPTS, valid: 0, frontSize: 0 })
+    runGeneration({
+      attempts: DEFAULT_ATTEMPTS,
+      weights,
+      onProgress: setProgress,
+      onDone: (res) => {
+        setWeightedPlans(res.weightedPlans)
+        setParetoPlans(res.paretoPlans)
+        setGenerating(false)
+        setProgress(null)
+        generatedRef.current = true
+        const first = res.weightedPlans[0] ?? res.paretoPlans[0]
+        if (first) {
+          setSelected(res.weightedPlans[0] ? { group: 'weighted', index: 0 } : { group: 'pareto', index: 0 })
+          setMarkers(first.markers)
+        }
+      },
+      onError: (m) => {
+        setError(m)
+        setGenerating(false)
+        setProgress(null)
+      },
+    })
+  }
+
+  // Re-tune only the weighted plans when weights change (debounced), reusing
+  // the cheaper attempt budget so the sliders stay responsive. The Pareto plans
+  // stay fixed from the last full generation.
+  useEffect(() => {
+    if (!generatedRef.current) return
+    const t = setTimeout(() => {
+      setTuning(true)
+      runGeneration({
+        attempts: TUNE_ATTEMPTS,
+        weights,
+        onDone: (res) => {
+          setWeightedPlans(res.weightedPlans)
+          setTuning(false)
+          setSelected((sel) => {
+            if (sel?.group !== 'weighted') return sel
+            if (res.weightedPlans.length === 0) return null
+            const index = Math.min(sel.index, res.weightedPlans.length - 1)
+            setMarkers(res.weightedPlans[index].markers)
+            return { group: 'weighted', index }
+          })
+        },
+        onError: (m) => {
+          setError(m)
+          setTuning(false)
+        },
+      })
+    }, 500)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [weights])
+
+  function resetPlans() {
+    setWeightedPlans([])
+    setParetoPlans([])
+    setSelected(null)
+    setMarkers(null)
+    generatedRef.current = false
+  }
+
+  function selectMap(id: string) {
+    setMapId(id)
+    resetPlans()
   }
 
   function selectDropZone(id: string) {
     setDropZoneId(id)
-    setPlans([])
-    setSelectedPlan(null)
-    setMarkers(null)
+    resetPlans()
+  }
+
+  function selectPlan(group: PlanGroup, index: number, plan: ScoredPlan) {
+    setSelected({ group, index })
+    setMarkers(plan.markers)
   }
 
   function onMarkerPointerDown(index: number, e: React.PointerEvent) {
     dragIndex.current = index
-    setSelectedPlan(null)
+    setSelected(null)
     ;(e.currentTarget.closest('svg') as SVGSVGElement)?.setPointerCapture(e.pointerId)
     e.preventDefault()
   }
@@ -138,6 +228,34 @@ export function PlanningMode() {
 
   const homeId = ctx.homeObjective?.id
 
+  function renderPlanList(group: PlanGroup, list: ScoredPlan[], dim = false) {
+    return (
+      <div className={`plan-cards${dim ? ' dim' : ''}`}>
+        {list.map((plan, i) => (
+          <button
+            key={i}
+            className={`plan-card${selected?.group === group && selected.index === i ? ' selected' : ''}`}
+            onClick={() => selectPlan(group, i, plan)}
+            disabled={dim}
+          >
+            <div className="plan-card-head">
+              <span>
+                Plan {i + 1} · <strong>{weightedScore(plan.scores, weights, norm).toFixed(1)}</strong>
+              </span>
+              <span className="wins">
+                {plan.wins.map((w) => (
+                  <span key={w} className="win-badge" title={`Best ${AXIS_LABELS[w]}`}>
+                    {AXIS_LABELS[w]}
+                  </span>
+                ))}
+              </span>
+            </div>
+          </button>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className="planning">
       <aside className="sidebar">
@@ -145,7 +263,7 @@ export function PlanningMode() {
           <h2>Setup</h2>
           <label>
             Annotated map
-            <select value={mapId} onChange={(e) => setMapId(e.target.value)}>
+            <select value={mapId} onChange={(e) => selectMap(e.target.value)}>
               {maps.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
@@ -184,6 +302,34 @@ export function PlanningMode() {
           )}
         </section>
 
+        {(weightedPlans.length > 0 || paretoPlans.length > 0) && (
+          <section>
+            <details className="weight-tuning">
+              <summary>Weight tuning</summary>
+              <p className="hint">
+                Adjust the weighted-sum priorities. Weighted plans regenerate automatically; Pareto plans stay fixed.
+              </p>
+              {SCORE_AXES.map(({ key, label }) => (
+                <label key={key} className="weight-slider">
+                  <span className="weight-slider-head">
+                    {label}
+                    <span className="weight-value">{weights[key]}</span>
+                  </span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={10}
+                    step={1}
+                    value={weights[key]}
+                    disabled={generating}
+                    onChange={(e) => setWeights((w) => ({ ...w, [key]: Number(e.target.value) }))}
+                  />
+                </label>
+              ))}
+            </details>
+          </section>
+        )}
+
         {markers && (
           <section>
             <h2>Current plan</h2>
@@ -195,13 +341,30 @@ export function PlanningMode() {
               </ul>
             ) : currentScores ? (
               <table className="scores">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                    <th>Norm</th>
+                    <th>Weighted</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {SCORE_AXES.map(({ key, label }) => (
-                    <tr key={key}>
-                      <td>{label}</td>
-                      <td>{formatScore(key, currentScores[key])}</td>
-                    </tr>
-                  ))}
+                  {SCORE_AXES.map(({ key, label }) => {
+                    const normalized = normalizeAxis(key, currentScores, norm)
+                    return (
+                      <tr key={key}>
+                        <td>{label}</td>
+                        <td>{formatScore(key, currentScores[key])}</td>
+                        <td>{normalized.toFixed(2)}</td>
+                        <td>{(weights[key] * normalized).toFixed(2)}</td>
+                      </tr>
+                    )
+                  })}
+                  <tr className="scores-total">
+                    <td colSpan={3}>Total (weighted)</td>
+                    <td>{weightedScore(currentScores, weights, norm).toFixed(1)}</td>
+                  </tr>
                 </tbody>
               </table>
             ) : null}
@@ -209,63 +372,19 @@ export function PlanningMode() {
           </section>
         )}
 
-        {plans.length > 0 && (
+        {weightedPlans.length > 0 && (
           <section>
-            <h2>
-              Generated Plans ({plans.length})
-              <span className="plan-nav">
-                <button
-                  className="plan-nav-btn"
-                  onClick={() => {
-                    const i = Math.max(0, (selectedPlan ?? 0) - 1)
-                    setSelectedPlan(i)
-                    setMarkers(plans[i].markers)
-                  }}
-                  disabled={selectedPlan === null || selectedPlan === 0}
-                  aria-label="Previous plan"
-                >
-                  ⏴
-                </button>
-                <button
-                  className="plan-nav-btn"
-                  onClick={() => {
-                    const i = Math.min(plans.length - 1, (selectedPlan ?? 0) + 1)
-                    setSelectedPlan(i)
-                    setMarkers(plans[i].markers)
-                  }}
-                  disabled={selectedPlan === null || selectedPlan === plans.length - 1}
-                  aria-label="Next plan"
-                >
-                  ⏵
-                </button>
-              </span>
-            </h2>
-            <div className="plan-cards">
-              {plans.map((plan, i) => (
-                <button
-                  key={i}
-                  className={`plan-card${selectedPlan === i ? ' selected' : ''}`}
-                  onClick={() => {
-                    setSelectedPlan(i)
-                    setMarkers(plan.markers)
-                  }}
-                >
-                  <div className="plan-card-head">
-                    <span>Plan {i + 1}</span>
-                    <span className="wins">
-                      {plan.wins.map((w) => (
-                        <span key={w} className="win-badge" title={`Best ${AXIS_LABELS[w]}`}>
-                          {AXIS_LABELS[w]}
-                        </span>
-                      ))}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
+            <h2>Weighted plans ({weightedPlans.length})</h2>
+            {renderPlanList('weighted', weightedPlans, tuning)}
           </section>
         )}
 
+        {paretoPlans.length > 0 && (
+          <section>
+            <h2>Pareto plans ({paretoPlans.length})</h2>
+            {renderPlanList('pareto', paretoPlans)}
+          </section>
+        )}
       </aside>
 
       <main className="board-pane">

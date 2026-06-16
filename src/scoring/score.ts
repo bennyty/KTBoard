@@ -5,6 +5,8 @@ import {
   COVERAGE_DISK_RADIUS_IN,
   COVERAGE_RANGE_IN,
   MARKER_RADIUS_IN,
+  OBJ_DISTANCE_SIGMOID_K,
+  OBJ_DISTANCE_SIGMOID_MID,
 } from '@/model/constants'
 import { dist, normalize, scale, sub, add } from '@/geometry/vec'
 import { segmentIntersectsPolygon, segmentNearBBox, distPointPolygon } from '@/geometry/polygon'
@@ -167,6 +169,26 @@ export function objectiveCoverage(chain: Chain, map: AnnotatedMap): number {
   return covered
 }
 
+/** Logistic proximity score for a single objective at TUNNEL distance `d` (in). */
+export function objectiveProximity(d: number): number {
+  return 1 / (1 + Math.exp(OBJ_DISTANCE_SIGMOID_K * (d - OBJ_DISTANCE_SIGMOID_MID)))
+}
+
+/**
+ * Objective distance: sum over all objectives of a sigmoid proximity score of
+ * the TUNNEL to the objective centre. Unlike coverage (binary, all-or-nothing),
+ * this rewards getting close even when full coverage is impossible. The sigmoid
+ * is calibrated against the objective centre, so a TUNNEL within control range
+ * still scores ≈0.9.
+ */
+export function objectiveDistance(chain: Chain, map: AnnotatedMap): number {
+  let total = 0
+  for (const o of map.objectives) {
+    total += objectiveProximity(distToTunnel(o.center, chain))
+  }
+  return total
+}
+
 /** Forward reach: max perpendicular distance from the anchor edge to any marker. */
 export function forwardReach(chain: Chain, ctx: ScoringContext): number {
   const { anchorEdge } = ctx.dropZone
@@ -182,6 +204,7 @@ export function forwardReach(chain: Chain, ctx: ScoringContext): number {
 
 export function scoreChain(chain: Chain, ctx: ScoringContext): Scores {
   return {
+    objectiveDistance: objectiveDistance(chain, ctx.map),
     zigzag: zigzag(chain, ctx.pieces),
     centerAccess: centerObjectiveAccess(chain, ctx),
     coverage: objectiveCoverage(chain, ctx.map),
@@ -192,5 +215,5 @@ export function scoreChain(chain: Chain, ctx: ScoringContext): Scores {
 
 /** Scores as a maximize-everything vector for Pareto dominance. */
 export function toDominanceVector(s: Scores): number[] {
-  return [s.zigzag, -s.centerAccess, s.coverage, -s.homeUnburrow, s.forwardReach]
+  return [s.objectiveDistance, s.zigzag, -s.centerAccess, s.coverage, -s.homeUnburrow, s.forwardReach]
 }

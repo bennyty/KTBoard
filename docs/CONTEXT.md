@@ -96,14 +96,19 @@ The affine map between image pixel coordinates and killzone inches. Calibrated b
 
 ### The MVP scorer
 
-The scorer evaluates each candidate chain against five soft criteria. Output is the Pareto front, k-medoid-sampled down to 6 presented plans.
+The scorer evaluates each candidate chain against six criteria. It supports two ranking strategies:
 
-**Zigzag** *(higher = better)*: count of *distinct* Terrain pieces whose footprint is crossed by at least one between-segment of the chain. Binary per piece; each piece type contributes equally.
+1. **Pareto front**: all candidates that no other candidate beats on every axis, k-medoid-sampled to ~6 diverse plans.
+2. **Weighted sum**: normalized scores weighted by priority, presenting the top 5 highest-scoring candidates.
 
-**Center objective access** *(lower = better)*: smallest N in {0…4} such that a 40mm base can be validly placed on the partial TUNNEL through markers 0…N with its centre within 40mm + 1″ of the centre objective. 5 if never reachable.
+**Objective distance** *(higher = better)*: sum of sigmoid-scored distances from the TUNNEL to each objective. For each objective, the distance is measured to the nearest point in the 1″-disk around the objective center. The sigmoid is parameterized to give score ≈1 at distance 0, score ≈0.9 at control range (40mm + 1″), and taper to ≈0 at 10″. Incentivizes best-effort proximity to all objectives even when complete coverage is impossible. Weighted priority: 6.
 
-**Objective coverage** *(higher = better)*: count of objective markers (any role) for which every point in the 1″-disk around the marker lies within 2″ of the TUNNEL.
+**Forward reach** *(higher = better)*: max perpendicular distance from the drop zone's anchor edge to any Tunnel marker in the chain. Incentivizes pushing into the enemy half. Weighted priority: 5.
 
-**Home objective unburrow** *(lower = better)*: minimum distance from the home objective's centre to the centre of any valid 40mm base placement on the TUNNEL (base touches TUNNEL, doesn't overlap terrain, wholly within killzone). 0 means the base centre is exactly on the home obj; ≤ 40mm + 1″ means control range is achievable.
+**Center objective access** *(lower = better)*: smallest N in {0…4} such that a 40mm base can be validly placed on the partial TUNNEL through markers 0…N with its centre within 40mm + 1″ of the centre objective. 5 if never reachable. Weighted priority: 4.
 
-**Forward reach** *(higher = better)*: max perpendicular distance from the drop zone's anchor edge to any Tunnel marker in the chain.
+**Home objective unburrow** *(binary)*: 1 if the home objective can be reached from the TUNNEL within control range (40mm + 1″), else 0. Indicates whether unburrow-to-home is tactically viable. Weighted priority: 3.
+
+**Objective coverage** *(higher = better)*: count of objective markers (any role) for which every point in the 1″-disk around the marker lies within 2″ of the TUNNEL. Weighted priority: 2.
+
+**Zigzag** *(higher = better)*: count of *distinct* Terrain pieces whose footprint is crossed by at least one between-segment of the chain. Capped at score 1.0 if ≥5 pieces (practical maximum for well-planned tunnels). Binary per piece; each piece type contributes equally. Weighted priority: 1.

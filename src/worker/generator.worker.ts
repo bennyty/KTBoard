@@ -1,6 +1,7 @@
 import type { AnnotatedMap, KillzoneCatalogue } from '@/model/types'
 import { generatePlans } from '@/scoring/generate'
 import type { GenerateProgress, GenerateResult } from '@/scoring/generate'
+import type { WeightConfig } from '@/scoring/weighted'
 
 export interface GenerateRequest {
   type: 'generate'
@@ -8,6 +9,7 @@ export interface GenerateRequest {
   catalogue: KillzoneCatalogue
   dropZoneId: string
   attempts: number
+  weights: WeightConfig
   seed?: number
 }
 
@@ -21,13 +23,21 @@ self.onmessage = (e: MessageEvent<GenerateRequest>) => {
   if (req.type !== 'generate') return
   try {
     let lastPost = 0
-    const result = generatePlans(req.map, req.catalogue, req.dropZoneId, req.attempts, req.seed, (p) => {
-      const now = Date.now()
-      if (now - lastPost > 50) {
-        lastPost = now
-        self.postMessage({ type: 'progress', ...p } satisfies GeneratorMessage)
-      }
-    })
+    const result = generatePlans(
+      req.map,
+      req.catalogue,
+      req.dropZoneId,
+      req.attempts,
+      req.seed,
+      (p) => {
+        const now = Date.now()
+        if (now - lastPost > 50) {
+          lastPost = now
+          self.postMessage({ type: 'progress', ...p } satisfies GeneratorMessage)
+        }
+      },
+      req.weights,
+    )
     self.postMessage({ type: 'done', ...result } satisfies GeneratorMessage)
   } catch (err) {
     self.postMessage({ type: 'error', message: String(err) } satisfies GeneratorMessage)
