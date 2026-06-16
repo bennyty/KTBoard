@@ -1,0 +1,74 @@
+{
+  "id": "one-obj-test-map",
+  "name": "One Objective Test Map",
+  "killzone": "volkus",
+  "image": "",
+  "widthIn": 30,
+  "heightIn": 22,
+  "pxPerInchX": 20,
+  "pxPerInchY": 20,
+  "originPx": {
+    "x": 0,
+    "y": 0
+  },
+  "placements": [],
+  "dropZones": [
+    {
+      "id": "dz-69807",
+      "name": "Left",
+      "polygon": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 5,
+          "y": 0
+        },
+        {
+          "x": 5,
+          "y": 22
+        },
+        {
+          "x": 0,
+          "y": 22
+        }
+      ],
+      "anchorEdge": "left"
+    },
+    {
+      "id": "dz-93675",
+      "name": "Top",
+      "polygon": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 30,
+          "y": 0
+        },
+        {
+          "x": 30,
+          "y": 5
+        },
+        {
+          "x": 0,
+          "y": 5
+        }
+      ],
+      "anchorEdge": "top"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "obj-16524",
+      "role": "other",
+      "center": {
+        "x": 9.054182037711143,
+        "y": 11.081272959709167
+      }
+    }
+  ],
+  "draft": true
+}

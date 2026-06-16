@@ -19,10 +19,16 @@ import type { WeightConfig } from './weighted'
 export const PARETO_PLANS = 5
 /** Weighted-sum plans shown (top scorers). */
 export const WEIGHTED_PLANS = 5
+/**
+ * Candidates sampled per link before committing one. Each is drawn from the
+ * arc-annulus, scored by weighted score on the partial chain, and the best
+ * advances (greedy lookahead). Higher = better links but ~N× the scoring cost.
+ */
+export const LINK_CANDIDATES = 20
 /** Full generation pass (Generate button). */
-export const DEFAULT_ATTEMPTS = 1_000_000
+export const DEFAULT_ATTEMPTS = 2_000
 /** Cheaper pass used for real-time weight tuning, to keep the UI responsive. */
-export const TUNE_ATTEMPTS = 200_000
+export const TUNE_ATTEMPTS = 1_000
 
 export interface GenerateProgress {
   attempted: number
@@ -135,24 +141,38 @@ export function generatePlans(
     const m0 = sampleMarker0(rng, map, dropZone)
     if (!m0 || !markerPlacementClear(m0, pieces, map.widthIn, map.heightIn)) continue
 
+    const rMin2 = MIN_LINK_CENTER_TO_CENTER_IN * MIN_LINK_CENTER_TO_CENTER_IN
+    const rMax2 = MAX_LINK_CENTER_TO_CENTER_IN * MAX_LINK_CENTER_TO_CENTER_IN
     const chain: Chain = [m0]
     let dead = false
     for (let i = 1; i < CHAIN_LENGTH; i++) {
-      // Sample the annulus around the previous marker whose edge-to-edge gap is
-      // within [MIN_LINK_GAP_IN, MAX_LINK_GAP_IN], restricted to a 180° arc
-      // centred on the forward direction so links advance into the board rather
-      // than doubling back toward the anchor edge.
-      const angle = forwardAngle + (rng() - 0.5) * Math.PI
-      const rMin2 = MIN_LINK_CENTER_TO_CENTER_IN * MIN_LINK_CENTER_TO_CENTER_IN
-      const rMax2 = MAX_LINK_CENTER_TO_CENTER_IN * MAX_LINK_CENTER_TO_CENTER_IN
-      const radius = Math.sqrt(rMin2 + rng() * (rMax2 - rMin2))
       const prev = chain[i - 1]
-      const next = { x: prev.x + radius * Math.cos(angle), y: prev.y + radius * Math.sin(angle) }
-      if (!markerPlacementClear(next, pieces, map.widthIn, map.heightIn)) {
+      // Draw LINK_CANDIDATES placements from the annulus around the previous
+      // marker whose edge-to-edge gap is within [MIN_LINK_GAP_IN, MAX_LINK_GAP_IN],
+      // restricted to a 180° arc centred on the forward direction so links advance
+      // into the board rather than doubling back toward the anchor edge. Of the
+      // valid candidates, commit the one whose partial chain scores best under the
+      // weights (greedy one-step lookahead).
+      let best: Vec | null = null
+      let bestScore = -Infinity
+      for (let c = 0; c < LINK_CANDIDATES; c++) {
+        const angle = forwardAngle + (rng() - 0.5) * Math.PI
+        const radius = Math.sqrt(rMin2 + rng() * (rMax2 - rMin2))
+        const cand = { x: prev.x + radius * Math.cos(angle), y: prev.y + radius * Math.sin(angle) }
+        if (!markerPlacementClear(cand, pieces, map.widthIn, map.heightIn)) continue
+        chain.push(cand)
+        const candScore = weightedScore(scoreChain(chain, ctx), weights, norm)
+        chain.pop()
+        if (candScore > bestScore) {
+          bestScore = candScore
+          best = cand
+        }
+      }
+      if (!best) {
         dead = true
         break
       }
-      chain.push(next)
+      chain.push(best)
     }
     if (dead) continue
 
