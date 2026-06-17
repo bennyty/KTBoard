@@ -471,6 +471,10 @@ export function AnnotationMode() {
             Image URL
             <input value={draftMap.image} onChange={(e) => patchMap({ image: e.target.value })} />
           </label>
+          <label>
+            Killzone
+            <input value={draftMap.killzone} onChange={(e) => patchMap({ killzone: e.target.value })} />
+          </label>
           <nav className="tabs">
             {(['pieces', 'place', 'zones', 'objectives', 'calibrate', 'export'] as Tab[]).map((x) => (
               <button key={x} className={tab === x ? 'selected' : ''} onClick={() => setTab(x)}>
