@@ -1,0 +1,175 @@
+{
+  "id": "volkus-4",
+  "name": "Volkus 4",
+  "killzone": "volkus",
+  "image": "/maps/volkus/vk_04.png",
+  "widthIn": 30,
+  "heightIn": 22,
+  "pxPerInchX": 102.25,
+  "pxPerInchY": 102.8,
+  "originPx": {
+    "x": 10,
+    "y": 10
+  },
+  "draft": false,
+  "placements": [
+    {
+      "pieceId": "piece-1781534818479",
+      "x": 15.889134268305995,
+      "y": 17.10733939353594,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "piece-1781534898813",
+      "x": 15.257,
+      "y": 4.798,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781534979444",
+      "x": 24.554,
+      "y": 4.382,
+      "rotationDeg": -90
+    },
+    {
+      "pieceId": "piece-1781535088312",
+      "x": 6.381,
+      "y": 18.692,
+      "rotationDeg": -90
+    },
+    {
+      "pieceId": "piece-1781535256559",
+      "x": 16.318069222503883,
+      "y": 11.063818165068499,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781535380958",
+      "x": 26.79182023733461,
+      "y": 18.605807973331054,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "piece-1781535424509",
+      "x": 17.017,
+      "y": 14.708,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "piece-1781535501557",
+      "x": 28.956868785338116,
+      "y": 10.970460434296692,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "piece-1781535574708",
+      "x": 3.1383934730331164,
+      "y": 8.966105589898982,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781594846017",
+      "x": 9.048524791279165,
+      "y": 8.466640349028172,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781594909852",
+      "x": 24.073431350782624,
+      "y": 11.555712845770767,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "piece-1781594972550",
+      "x": 5.907298183674335,
+      "y": 10.98307053054817,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781707930014",
+      "x": 25.531813951459664,
+      "y": 14.93417528816698,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781707965415",
+      "x": 6.472,
+      "y": 3.485,
+      "rotationDeg": 90
+    }
+  ],
+  "dropZones": [
+    {
+      "id": "dz-a",
+      "name": "Orange (north)",
+      "anchorEdge": "top",
+      "polygon": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 30,
+          "y": 0
+        },
+        {
+          "x": 30,
+          "y": 3
+        },
+        {
+          "x": 0,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "id": "dz-b",
+      "name": "Grey (south)",
+      "anchorEdge": "bottom",
+      "polygon": [
+        {
+          "x": 0,
+          "y": 19
+        },
+        {
+          "x": 30,
+          "y": 19
+        },
+        {
+          "x": 30,
+          "y": 22
+        },
+        {
+          "x": 0,
+          "y": 22
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "obj-west",
+      "role": "other",
+      "center": {
+        "x": 6.844961828590897,
+        "y": 8.20563065866552
+      }
+    },
+    {
+      "id": "obj-east",
+      "role": "other",
+      "center": {
+        "x": 23.154712521942436,
+        "y": 13.827144466485494
+      }
+    },
+    {
+      "id": "obj-south",
+      "role": "center",
+      "center": {
+        "x": 14.2,
+        "y": 11
+      }
+    }
+  ]
+}
