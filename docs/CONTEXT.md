@@ -1,6 +1,6 @@
-# Kill Team Tunnel Planner
+# Kill Team Board Planner
 
-A pre-game planning tool for the Raveners faction in Kill Team 2024 Approved Ops. The user picks an annotated killzone layout and drop zone; the app generates and ranks candidate placements of the five Tunnel markers and lets the user drag-and-drop to refine.
+A pre-game planning tool for the Raveners faction in Kill Team 2024 Approved Ops. The user authors a Plan: a named, URL-shareable collection of Slides for a given killzone layout and drop zone. Each Slide is an independent board state showing Tunnel markers and placed Objects. The app also generates and ranks candidate Tunnel placements to seed the tunnel on any Slide.
 
 ## Language
 
@@ -77,7 +77,16 @@ A scoring mission objective in KT 2024 Approved Ops. Out of scope for MVP; the p
 The mode (used by the developer, not end users) in which a layout image is loaded, the pixel-to-inch transform is calibrated, and each piece in the killzone's catalogue is positioned and rotated on the image. Produces an Annotated map.
 
 **Planning mode**:
-The mode in which an end user picks an Annotated map and a drop zone, the app generates and Pareto-ranks five-marker chains, and drag-and-drop refinement is available.
+The mode in which an end user authors a Plan. The board shows the current Slide. The sidebar has two tabs: **Plan tab** and **Tunnel tab** (the existing generator, weight tuning, and Tunnel candidate list). The Plan tab contains, top to bottom: tab controls, tool palette, an Object properties panel (visible only when an Object is selected), then the Slides list. Slides are listed vertically; each card shows the slide name, ↑ / ↓ reorder buttons, a duplicate button, and a delete button. Clicking a slide card makes it the active Slide.
+
+**Tool palette**:
+A set of tools in the Plan tab sidebar: Select, Circle, Rectangle, Arrow, Text. Selecting a placement tool and using its gesture places one Object, then the palette reverts automatically to Select. Single-clicking a placed Object selects it and shows its properties in the Plan tab.
+
+Placement gestures:
+- **Circle**: click-drag — radius snaps to nearest preset; bare click = 32mm.
+- **Rectangle**: one continuous gesture — mousedown sets center, drag direction sets rotation (distance ignored), mouseup places. Size comes from the active preset, not the drag.
+- **Arrow**: click-drag — mousedown = start point, mouseup = end point.
+- **Text**: single click — places at click position.
 
 **Layout**:
 A specific arrangement of a Killzone's piece catalogue — each piece positioned at an (x, y) and rotation, plus the layout's drop zones and objective markers. MVP supports only **Volkus 1**.
@@ -86,13 +95,32 @@ A specific arrangement of a Killzone's piece catalogue — each piece positioned
 The persistent representation of one Layout: layout image + per-piece placement + drop zones + objective markers. Used as input to the renderer and scorer.
 
 **Plan**:
-The artifact produced in Planning mode for a given (Annotated map, drop zone) pair. In MVP, a Plan is just the five Tunnel marker positions plus a reference to the map ID; post-MVP it also carries up to ~100 user-added Shapes.
+A named collection of Slides for a given (Annotated map, drop zone) pair. Encodes the full gameplan for sharing via URL. Replaces the MVP definition (which was a single five-marker chain). A Plan carries a user-editable name and an ordered list of Slides.
 
-**Shape** (post-MVP):
-A user-drawn circle, arrow, or short text overlay on a Plan, used as a visual reasoning aid (threat zones, hypothetical operative placements, notes). Not rule-enforced.
+**Plan lock**:
+An ephemeral boolean (not URL-encoded) that prevents accidental edits. When locked, the tool palette and object interaction are disabled; slide navigation remains active. Defaults to locked whenever a Plan is loaded from a URL. The user toggles it via a single button in the Plan tab.
+
+**Slide**:
+An independent board state within a Plan. Each Slide carries a user-editable name (defaulting to "Slide N"), an optional set of Tunnel markers, and its own collection of Objects. Slides within a Plan share the same map and drop zone but are otherwise independent. A Slide can be duplicated to carry its Objects forward as the starting point for the next.
+_Avoid_: frame, step, scene, page
+
+**Object** (on a Slide):
+Anything placed on the board beyond Tunnel markers. Objects are purely visual/planning aids — not rule-enforced. Four kinds:
+
+- **Circle**: position, size (mm), color, label. Placed by click-drag — the drag radius snaps to the nearest preset size in mm: [20, 25, 28, 32, 40, 50, 60]. A click with no drag places a 32mm circle. Size is editable afterward.
+- **Rectangle**: position, rotation, length (mm), width (mm), color, label. Placed via a two-part gesture (see Tool palette). Named presets set initial dimensions: Light Barricade (50×8mm), Heavy Barricade (40×15mm), Razor Wire (64×10mm), Mines (32×10mm), Ladder (15×3mm). Preset name becomes initial label. Dimensions editable afterward.
+- **Arrow**: start position, end position, color, label. Placed by click-drag (mousedown = start, mouseup = end).
+- **Text**: position, label.
+
+Colors are drawn from a fixed palette: red, blue, yellow, green, white, black. Stored as a token, not a hex value.
+_Avoid_: shape, token, overlay (too generic)
 
 **Pixel-to-inch transform**:
 The affine map between image pixel coordinates and killzone inches. Calibrated by clicking two opposite corners of the killzone rectangle and supplying its known dimensions; verified by overlaying a 1″ grid plus 32mm and 40mm circles. Correctness of this transform is the foundational soundness property of the whole tool.
+
+**Tunnel candidate**:
+A scored tunnel chain produced by the generator — the renamed `ScoredPlan`. Carries `markers`, `scores`, `wins`, but is not a Plan. The generator presents a ranked list of Tunnel candidates; the user picks one to load into the current Slide's tunnel.
+_Avoid_: plan (reserved for the collection of slides), scored plan
 
 ### The MVP scorer
 

@@ -106,16 +106,83 @@ export const SCORE_AXES: { key: keyof Scores; label: string; higherIsBetter: boo
   { key: 'zigzag', label: 'Zigzag', higherIsBetter: true },
 ]
 
-export interface Plan {
+/** A scored tunnel chain produced by the generator. Not a Plan — the user
+ *  picks one to load into the current Slide's tunnel. (Was `ScoredPlan`.) */
+export interface TunnelCandidate {
   mapId: string
   dropZoneId: string
   markers: Chain
+  scores: Scores
+  /** Axis keys this candidate is best at among the presented set. */
+  wins: (keyof Scores)[]
 }
 
-export interface ScoredPlan extends Plan {
-  scores: Scores
-  /** Axis keys this plan is best at among the presented set. */
-  wins: (keyof Scores)[]
+/** Fixed palette for board Objects. Stored as a token, not a hex value. */
+export const OBJECT_COLORS = ['red', 'blue', 'yellow', 'green', 'white', 'black'] as const
+export type ObjectColor = (typeof OBJECT_COLORS)[number]
+
+interface BaseObject {
+  id: string
+  /** Human-readable text shown on/near the object. May be empty. */
+  label: string
+}
+
+/** Circle: position (centre) + diameter in mm. */
+export interface CircleObject extends BaseObject {
+  kind: 'circle'
+  x: number
+  y: number
+  sizeMm: number
+  color: ObjectColor
+}
+
+/** Rectangle: centre, rotation, and dimensions in mm. `lengthMm` runs along
+ *  the local facing axis (set by rotation); `widthMm` is perpendicular. */
+export interface RectObject extends BaseObject {
+  kind: 'rect'
+  x: number
+  y: number
+  rotationDeg: number
+  lengthMm: number
+  widthMm: number
+  color: ObjectColor
+}
+
+/** Arrow from (x1,y1) to (x2,y2). */
+export interface ArrowObject extends BaseObject {
+  kind: 'arrow'
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  color: ObjectColor
+}
+
+/** Free text anchored at a position. */
+export interface TextObject extends BaseObject {
+  kind: 'text'
+  x: number
+  y: number
+}
+
+export type SlideObject = CircleObject | RectObject | ArrowObject | TextObject
+export type ObjectKind = SlideObject['kind']
+
+/** One independent board state within a Plan: an optional tunnel plus Objects. */
+export interface Slide {
+  id: string
+  name: string
+  /** Five Tunnel markers, or null if this Slide has no tunnel. */
+  markers: Chain | null
+  objects: SlideObject[]
+}
+
+/** A named, URL-shareable collection of Slides for one (map, drop zone) pair. */
+export interface Plan {
+  name: string
+  mapId: string
+  dropZoneId: string
+  slides: Slide[]
 }
 
 /** A terrain piece resolved to world (killzone) inches. */

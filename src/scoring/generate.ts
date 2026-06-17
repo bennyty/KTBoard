@@ -1,4 +1,4 @@
-import type { AnnotatedMap, Chain, KillzoneCatalogue, Scores, ScoredPlan, Vec, WorldPiece } from '@/model/types'
+import type { AnnotatedMap, Chain, KillzoneCatalogue, Scores, TunnelCandidate, Vec, WorldPiece } from '@/model/types'
 import { SCORE_AXES } from '@/model/types'
 import {
   CHAIN_LENGTH,
@@ -15,10 +15,10 @@ import { hashString, mulberry32 } from './rng'
 import { DEFAULT_WEIGHTS, makeNormContext, weightedScore } from './weighted'
 import type { WeightConfig } from './weighted'
 
-/** Pareto plans shown (k-medoid-sampled from the front). */
-export const PARETO_PLANS = 5
-/** Weighted-sum plans shown (top scorers). */
-export const WEIGHTED_PLANS = 5
+/** Pareto candidates shown (k-medoid-sampled from the front). */
+export const PARETO_CANDIDATES = 5
+/** Weighted-sum candidates shown (top scorers). */
+export const WEIGHTED_CANDIDATES = 5
 /**
  * Candidates sampled per link before committing one. Each is drawn from the
  * arc-annulus, scored by weighted score on the partial chain, and the best
@@ -39,9 +39,9 @@ export interface GenerateProgress {
 
 export interface GenerateResult {
   /** Diverse Pareto-front representatives (ADR 0001). */
-  paretoPlans: ScoredPlan[]
+  paretoCandidates: TunnelCandidate[]
   /** Highest weighted-sum scorers under the supplied weights (ADR 0002). */
-  weightedPlans: ScoredPlan[]
+  weightedCandidates: TunnelCandidate[]
   attempted: number
   valid: number
   frontSize: number
@@ -99,11 +99,11 @@ function sampleMarker0(
 
 /**
  * Rejection-sample five-marker chains and score the survivors. Survivors feed
- * two parallel rankings: a Pareto front (k-medoid-sampled to PARETO_PLANS
- * diverse representatives, ADR 0001) and a weighted-sum top-WEIGHTED_PLANS list
+ * two parallel rankings: a Pareto front (k-medoid-sampled to PARETO_CANDIDATES
+ * diverse representatives, ADR 0001) and a weighted-sum top-WEIGHTED_CANDIDATES list
  * (ADR 0002). Deterministic for a given (map, drop zone, seed).
  */
-export function generatePlans(
+export function generateCandidates(
   map: AnnotatedMap,
   catalogue: KillzoneCatalogue,
   dropZoneId: string,
@@ -180,24 +180,24 @@ export function generatePlans(
     const scores = scoreChain(chain, ctx)
     const item: Scored = { chain, scores }
     front.offer(toDominanceVector(scores), item)
-    offerWeighted(weightedTop, weightedScore(scores, weights, norm), item, WEIGHTED_PLANS)
+    offerWeighted(weightedTop, weightedScore(scores, weights, norm), item, WEIGHTED_CANDIDATES)
   }
 
   const entries = front.entries
   const picks = kMedoids(
     entries.map((e) => e.vector),
-    PARETO_PLANS,
+    PARETO_CANDIDATES,
     rng,
   )
-  const paretoPlans = toScoredPlans(picks.map((i) => entries[i].item), map.id, dropZoneId)
-  const weightedPlans = toScoredPlans(weightedTop.map((w) => w.item), map.id, dropZoneId)
+  const paretoCandidates = toCandidates(picks.map((i) => entries[i].item), map.id, dropZoneId)
+  const weightedCandidates = toCandidates(weightedTop.map((w) => w.item), map.id, dropZoneId)
 
   onProgress?.({ attempted: attempts, totalAttempts: attempts, valid, frontSize: front.size })
-  return { paretoPlans, weightedPlans, attempted: attempts, valid, frontSize: front.size }
+  return { paretoCandidates, weightedCandidates, attempted: attempts, valid, frontSize: front.size }
 }
 
-/** Wrap chosen candidates as ScoredPlans, labelling each with its winning axes. */
-function toScoredPlans(chosen: Scored[], mapId: string, dropZoneId: string): ScoredPlan[] {
+/** Wrap chosen Scored items as TunnelCandidates, labelling each winning axis. */
+function toCandidates(chosen: Scored[], mapId: string, dropZoneId: string): TunnelCandidate[] {
   const all = chosen.map((c) => c.scores)
   return chosen.map(({ chain, scores }) => ({
     mapId,

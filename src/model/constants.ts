@@ -54,3 +54,18 @@ export const OBJECTIVE_COUNT_MAX = 3
 
 /** Zigzag practical maximum: crossing ≥5 pieces normalises to a full score. */
 export const ZIGZAG_CAP = 5
+
+/** Circle Object placement snaps the dragged radius to the nearest of these. */
+export const CIRCLE_PRESET_SIZES_MM = [20, 25, 28, 32, 40, 50, 60] as const
+
+/** Diameter used for a Circle placed with a bare click (no drag). */
+export const CIRCLE_DEFAULT_SIZE_MM = 32
+
+/** Named Rectangle presets (in-game equipment footprints), length × width in mm. */
+export const RECT_PRESETS = [
+  { name: 'Light Barricade', lengthMm: 50, widthMm: 8 },
+  { name: 'Heavy Barricade', lengthMm: 40, widthMm: 15 },
+  { name: 'Razor Wire', lengthMm: 64, widthMm: 10 },
+  { name: 'Mines', lengthMm: 32, widthMm: 10 },
+  { name: 'Ladder', lengthMm: 15, widthMm: 3 },
+] as const

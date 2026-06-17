@@ -1,5 +1,5 @@
 import type { AnnotatedMap, KillzoneCatalogue } from '@/model/types'
-import { generatePlans } from '@/scoring/generate'
+import { generateCandidates } from '@/scoring/generate'
 import type { GenerateProgress, GenerateResult } from '@/scoring/generate'
 import type { WeightConfig } from '@/scoring/weighted'
 
@@ -23,7 +23,7 @@ self.onmessage = (e: MessageEvent<GenerateRequest>) => {
   if (req.type !== 'generate') return
   try {
     let lastPost = 0
-    const result = generatePlans(
+    const result = generateCandidates(
       req.map,
       req.catalogue,
       req.dropZoneId,
