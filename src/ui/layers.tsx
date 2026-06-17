@@ -23,14 +23,14 @@ export function TerrainLayer({ pieces, selectedId, onPiecePointerDown }: {
             points={polyPoints(piece.outer)}
             fill={piece.kind === 'stronghold' ? 'rgba(40,40,48,0.45)' : 'rgba(60,70,60,0.5)'}
             stroke={piece.pieceId === selectedId ? '#ffd54a' : 'rgba(230,230,230,0.8)'}
-            strokeWidth={piece.pieceId === selectedId ? 0.1 : 0.05}
+            strokeWidth={0.05}
           />
           {piece.innerFloor && (
             <polygon
               points={polyPoints(piece.innerFloor)}
               fill="rgba(190,190,200,0.25)"
               stroke="rgba(230,230,230,0.6)"
-              strokeWidth={0.04}
+              strokeWidth={0.05}
             />
           )}
         </g>

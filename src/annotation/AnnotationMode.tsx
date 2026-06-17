@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   PIECE_KINDS,
   type AnchorEdge,
@@ -383,6 +383,21 @@ export function AnnotationMode() {
       rotationDeg: Math.round((pl.rotationDeg + deg) * 10) / 10,
     }))
   }
+
+  // Press "r" to rotate the selected piece 90° while placing.
+  useEffect(() => {
+    if (tab !== 'place' || !selectedPieceId) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key !== 'r' && e.key !== 'R') return
+      const target = e.target as HTMLElement | null
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return
+      e.preventDefault()
+      if (e.key === 'r') {rotateSelected(90)}
+      if (e.key === 'R') {rotateSelected(-90)}
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [tab, selectedPieceId])
 
   function patchPlacement(pieceId: string, patch: (pl: PiecePlacement) => Partial<PiecePlacement>) {
     setDraftMap((m) => ({
