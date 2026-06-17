@@ -510,7 +510,7 @@ export function AnnotationMode() {
             </p>
             <label className="row">
               <input type="checkbox" checked={showGrid} onChange={(e) => setShowGrid(e.target.checked)} />
-              Show 1" verification grid
+              Show verification grid
             </label>
             <label className="row">
               <input
@@ -963,7 +963,7 @@ export function AnnotationMode() {
             selectedId={selectedObjectiveId ?? undefined}
             onObjectivePointerDown={tab === 'objectives' ? onObjectivePointerDown : undefined}
           />
-          {showGrid && tab === 'calibrate' && <GridLayer widthIn={draftMap.widthIn} heightIn={draftMap.heightIn} />}
+          {showGrid && tab === 'calibrate' && <GridLayer killzone={draftMap.killzone} widthIn={draftMap.widthIn} heightIn={draftMap.heightIn} />}
           {tab === 'pieces' && traceShape === 'rectangle' && traceVertices.length === 1 && cursorIn && (
             <polygon
               points={rectFromCorners(traceVertices[0], cursorIn)

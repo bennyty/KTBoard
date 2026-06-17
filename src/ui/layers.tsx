@@ -153,14 +153,31 @@ export function TunnelLayer({ chain, invalidMarkers, onMarkerPointerDown }: {
   )
 }
 
-/** 1" verification grid for calibration. */
-export function GridLayer({ widthIn, heightIn }: { widthIn: number; heightIn: number }) {
+/** Verification grid for calibration. */
+export function GridLayer({ killzone, widthIn, heightIn }: { killzone: string; widthIn: number; heightIn: number }) {
   const lines = []
-  for (let x = 0; x <= widthIn; x++) {
-    lines.push(<line key={`v${x}`} x1={x} y1={0} x2={x} y2={heightIn} />)
+  console.log('GridLayer', killzone, widthIn, heightIn)
+  switch (killzone) {
+    case 'tombworld':
+    case 'gallowdark':
+      const widthStep = widthIn / 7 // 7 squares on the floor
+      const heightStep = heightIn / 6 // 6 squares on the floor
+      for (let x = 0; x <= widthIn; x++) {
+        lines.push(<line key={`v${x}`} x1={x * widthStep} y1={0} x2={x * widthStep} y2={heightIn} />)
+      }
+      for (let y = 0; y <= heightIn; y++) {
+        lines.push(<line key={`h${y}`} x1={0} y1={y * heightStep} x2={widthIn} y2={y * heightStep} />)
+      }
+      return <g stroke="rgba(80,220,120,0.5)" strokeWidth={0.02}>{lines}</g>
+    case 'volkus':
+      for (let x = 0; x <= widthIn; x++) {
+        lines.push(<line key={`v${x}`} x1={x} y1={0} x2={x} y2={heightIn} />)
+      }
+      for (let y = 0; y <= heightIn; y++) {
+        lines.push(<line key={`h${y}`} x1={0} y1={y} x2={widthIn} y2={y} />)
+      }
+      return <g stroke="rgba(80,220,120,0.5)" strokeWidth={0.02}>{lines}</g>
+    default:
+      return null
   }
-  for (let y = 0; y <= heightIn; y++) {
-    lines.push(<line key={`h${y}`} x1={0} y1={y} x2={widthIn} y2={y} />)
-  }
-  return <g stroke="rgba(80,220,120,0.5)" strokeWidth={0.02}>{lines}</g>
 }
