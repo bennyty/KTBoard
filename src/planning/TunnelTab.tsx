@@ -83,6 +83,11 @@ export function TunnelTab({
             Remove tunnel from slide
           </button>
         )}
+        {!markers && !gen.generating &&
+          <button onClick={gen.generateOne} disabled={gen.generating || disabled}>
+            {gen.generating ? 'Generating…' : 'Quick-add one tunnel'}
+          </button>
+        }
         {gen.progress && (
           <div className="progress">
             <progress value={gen.progress.attempted} max={gen.progress.totalAttempts} />

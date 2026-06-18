@@ -31,6 +31,7 @@ export interface TunnelGenerator {
   error: string | null
   selected: CandidateSelection | null
   generate(): void
+  generateOne(): void
   selectCandidate(group: CandidateGroup, index: number): void
   clearSelection(): void
   reset(): void
@@ -147,6 +148,38 @@ export function useTunnelGenerator({
     })
   }, [runGeneration, weights])
 
+  const generateOne = useCallback(() => {
+    setGenerating(true)
+    setError(null)
+    setWeightedCandidates([])
+    setParetoCandidates([])
+    setSelected(null)
+    generatedRef.current = false
+    setProgress({ attempted: 0, totalAttempts: 1, valid: 0, frontSize: 0 })
+    runGeneration({
+      attempts: 1,
+      weights,
+      onProgress: setProgress,
+      onDone: (res) => {
+        setWeightedCandidates(res.weightedCandidates)
+        setParetoCandidates(res.paretoCandidates)
+        setGenerating(false)
+        setProgress(null)
+        generatedRef.current = true
+        const first = res.weightedCandidates[0] ?? res.paretoCandidates[0]
+        if (first) {
+          setSelected(res.weightedCandidates[0] ? { group: 'weighted', index: 0 } : { group: 'pareto', index: 0 })
+          onPickRef.current(first.markers)
+        }
+      },
+      onError: (m) => {
+        setError(m)
+        setGenerating(false)
+        setProgress(null)
+      },
+    })
+  }, [runGeneration, weights])
+
   // Re-tune only the weighted list when weights change (debounced); the Pareto
   // list stays fixed from the last full generation.
   useEffect(() => {
@@ -200,6 +233,7 @@ export function useTunnelGenerator({
     error,
     selected,
     generate,
+    generateOne,
     selectCandidate,
     clearSelection,
     reset,
