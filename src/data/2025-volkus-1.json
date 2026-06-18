@@ -151,16 +151,16 @@
       "id": "obj-west",
       "role": "other",
       "center": {
-        "x": 11.15,
-        "y": 6.85
+        "x": 11.86,
+        "y": 11.85
       }
     },
     {
       "id": "obj-east",
       "role": "other",
       "center": {
-        "x": 18.89,
-        "y": 9.14
+        "x": 18.2,
+        "y": 18.2
       }
     },
     {
@@ -168,8 +168,9 @@
       "role": "center",
       "center": {
         "x": 15,
-        "y": 16.25
-      }
+        "y": 5.865
+      },
+      "name": "obj-north"
     }
   ]
 }

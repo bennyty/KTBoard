@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { AnnotatedMap, KillzoneCatalogue } from '@/model/types'
 import volkusCatalogueJson from '@/data/volkus-catalogue.json'
-import volkus1Json from '@/data/volkus-1.json'
+import volkus1Json from '@/data/2024-volkus-1.json'
 import { chainViolations } from '@/rules/validity'
 import { generateCandidates, resolveMapPieces } from './generate'
 import { DEFAULT_WEIGHTS, makeNormContext, weightedScore } from './weighted'
