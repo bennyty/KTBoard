@@ -94,7 +94,7 @@ const blankMap: AnnotatedMap = {
   id: 'new-map',
   name: 'New map',
   killzone: 'volkus',
-  image: '/maps/Volkus/Volkus1.jpg',
+  image: '/KTBoard/maps/Volkus/Volkus1.jpg',
   widthIn: 30,
   heightIn: 22,
   pxPerInchX: 20,
