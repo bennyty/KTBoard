@@ -62,10 +62,14 @@ export interface PlanController {
   toggleLock(): void
 }
 
+function isPlanEmpty(plan: Plan): boolean {
+  return plan.slides.length === 1 && !plan.slides[0].markers && plan.slides[0].objects.length === 0
+}
+
 export function usePlan(): PlanController {
   const [plan, setPlan] = useState<Plan>(() => readPlanFromUrl() ?? defaultPlan())
   // Plans arriving via a shared URL start locked to prevent accidental edits.
-  const [locked, setLocked] = useState(() => readPlanFromUrl() != null)
+  const [locked, setLocked] = useState(() => !isPlanEmpty(plan))
   const [currentSlideId, setCurrentSlideId] = useState(() => plan.slides[0].id)
   const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null)
   const [tool, setTool] = useState<Tool>('select')
