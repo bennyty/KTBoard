@@ -9,7 +9,7 @@ import { chainViolations } from '@/rules/validity'
 import { pxToInches } from '@/geometry/transform'
 import { Board, mapTransform } from '@/ui/Board'
 import { clientToSvg } from '@/ui/svgPointer'
-import { DropZoneLayer, ObjectiveLayer, TerrainLayer, TunnelLayer } from '@/ui/layers'
+import { DropZoneLayer, ObjectiveLayer, TerrainLayer, TunnelTremorscytheAuraLayer, TunnelLayer, TunnelUnburrowReachLayer } from '@/ui/layers'
 import { ObjectsLayer } from '@/ui/objectsLayer'
 import { usePlan } from './usePlan'
 import { useTunnelGenerator } from './useTunnelGenerator'
@@ -50,6 +50,8 @@ export function PlanningMode() {
   })
 
   const [tab, setTab] = useState<'plan' | 'tunnel'>('plan')
+  const [showTremorscytheAura, setShowTremorscytheAura] = useState(false)
+  const [showUnburrowReach, setShowUnburrowReach] = useState(false)
   const [draft, setDraft] = useState<SlideObject | null>(null)
   const [wiggle, setWiggle] = useState(false)
   const gesture = useRef<Gesture | null>(null)
@@ -321,6 +323,10 @@ export function PlanningMode() {
             disabled={locked}
             onRemoveTunnel={() => plan.setCurrentMarkers(null)}
             draftMap={!!map.draft}
+            showTremorscytheAura={showTremorscytheAura}
+            setShowTremorscytheAura={setShowTremorscytheAura}
+            showUnburrowReach={showUnburrowReach}
+            setShowUnburrowReach={setShowUnburrowReach}
           />
         )}
       </Sidebar>
@@ -344,6 +350,8 @@ export function PlanningMode() {
             onObjectPointerDown={onObjectPointerDown}
             onArrowHandlePointerDown={onArrowHandlePointerDown}
           />
+          {markers && showTremorscytheAura && <TunnelTremorscytheAuraLayer chain={markers} />}
+          {markers && showUnburrowReach && <TunnelUnburrowReachLayer chain={markers} />}
           {markers && (
             <TunnelLayer
               chain={markers}

@@ -1,5 +1,11 @@
 import type { Chain, DropZone, Objective, Vec, WorldPiece } from '@/model/types'
-import { COVERAGE_DISK_RADIUS_IN, MARKER_RADIUS_IN, OBJECTIVE_RADIUS_IN } from '@/model/constants'
+import {
+  COVERAGE_DISK_RADIUS_IN,
+  COVERAGE_RANGE_IN,
+  MARKER_RADIUS_IN,
+  OBJECTIVE_RADIUS_IN,
+  UNBURROW_CONTROL_RANGE_IN,
+} from '@/model/constants'
 
 /** All layer components render in killzone-inch coordinates; the parent
  *  board wraps them in the pixel-scaling <g transform>. */
@@ -99,6 +105,69 @@ export function ObjectiveLayer({ objectives, homeId, onObjectivePointerDown, sel
           </text>
         </g>
       ))}
+    </g>
+  )
+}
+
+/** The set of points within COVERAGE_RANGE_IN of the TUNNEL. The tunnel region
+ *  is the chain stroked at MARKER_RADIUS_IN (see distToTunnel); widening that
+ *  stroke by COVERAGE_RANGE_IN yields exactly the 2" aura, rounded caps and all. */
+export function TunnelTremorscytheAuraLayer({ chain }: { chain: Chain }) {
+  const path = chain.map((m) => `${m.x},${m.y}`).join(' ')
+  return (
+    <polyline
+      points={path}
+      fill="none"
+      stroke="rgba(150,90,220,0.18)"
+      strokeWidth={(MARKER_RADIUS_IN + COVERAGE_RANGE_IN) * 2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  )
+}
+
+/** The boundary of the points within REACH_RANGE_IN of the TUNNEL, drawn as an
+ *  outline only (no fill). A stroked polyline fills the whole band, so we mask it
+ *  with a slightly narrower band to leave just the perimeter ring. */
+export function TunnelUnburrowReachLayer({ chain }: { chain: Chain }) {
+  const path = chain.map((m) => `${m.x},${m.y}`).join(' ')
+  const width = (MARKER_RADIUS_IN + UNBURROW_CONTROL_RANGE_IN) * 2
+  const outline = 0.02
+  return (
+    <g>
+      <defs>
+        <mask
+          id="tunnel-reach-outline"
+          // The mask region must cover the full stroked band. objectBoundingBox (default) ignores stroke width, clipping the band to the centerline bbox
+          maskUnits="userSpaceOnUse"
+        >
+          <polyline
+            points={path}
+            fill="none"
+            stroke="white"
+            strokeWidth={width}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <polyline
+            points={path}
+            fill="none"
+            stroke="black"
+            strokeWidth={width - 2 * outline}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </mask>
+      </defs>
+      <polyline
+        points={path}
+        fill="none"
+        stroke="rgba(150,90,220,0.9)"
+        strokeWidth={width}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        mask="url(#tunnel-reach-outline)"
+      />
     </g>
   )
 }

@@ -20,7 +20,7 @@ export const CONTROL_CENTER_TO_CENTER_IN = 40 * IN_PER_MM + CONTROL_RANGE_IN
 /** Centre-to-centre is the same thing as wholly within 5" for two identical 20mm markers. */
 export const MAX_LINK_CENTER_TO_CENTER_IN = 5
 
-export const MIN_LINK_CENTER_TO_CENTER_IN = 4
+export const MIN_LINK_CENTER_TO_CENTER_IN = 4.5
 
 /** Marker 0 candidates sit on the strip 10mm inside the drop zone's anchor edge. */
 export const MARKER0_EDGE_INSET_IN = MARKER_RADIUS_IN
@@ -30,6 +30,10 @@ export const MARKER0_EDGE_INSET_IN = MARKER_RADIUS_IN
  *  (i.e. the objective's control-range zone). */
 export const COVERAGE_DISK_RADIUS_IN = OBJECTIVE_RADIUS_IN + 1
 export const COVERAGE_RANGE_IN = 2
+
+/** Reach aura (outline): every point within a Ravener's base diameter + 1" of
+ *  the TUNNEL. Distance measured from the tunnel region (see distToTunnel). */
+export const UNBURROW_CONTROL_RANGE_IN = 2 * BASE_RADIUS_IN + CONTROL_RANGE_IN
 
 export const CHAIN_LENGTH = 5
 

@@ -38,6 +38,10 @@ export function TunnelTab({
   disabled,
   onRemoveTunnel,
   draftMap,
+  showTremorscytheAura,
+  setShowTremorscytheAura,
+  showUnburrowReach,
+  setShowUnburrowReach,
 }: {
   gen: TunnelGenerator
   markers: Chain | null
@@ -47,6 +51,10 @@ export function TunnelTab({
   disabled: boolean
   onRemoveTunnel(): void
   draftMap: boolean
+  showTremorscytheAura: boolean
+  setShowTremorscytheAura(value: boolean): void
+  showUnburrowReach: boolean
+  setShowUnburrowReach(value: boolean): void
 }) {
   const { weights } = gen
 
@@ -184,6 +192,22 @@ export function TunnelTab({
               </tbody>
             </table>
           ) : null}
+          <Field row label={<input
+            type="checkbox"
+            className="accent-accent"
+            checked={showTremorscytheAura}
+            onChange={(e) => setShowTremorscytheAura(e.target.checked)}
+          />}>
+            Show 2″ range
+          </Field>
+          <Field row label={<input
+            type="checkbox"
+            className="accent-accent"
+            checked={showUnburrowReach}
+            onChange={(e) => setShowUnburrowReach(e.target.checked)}
+          />}>
+            Show base + 1″ reach
+          </Field>
           <Hint>Drag markers on the board to refine.</Hint>
         </Section>
       )}
