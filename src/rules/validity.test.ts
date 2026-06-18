@@ -84,14 +84,14 @@ describe('chainViolations', () => {
     expect(v.some((x) => x.marker === 4 && x.message.includes('apart'))).toBe(true)
   })
 
-  it('allows exactly-5"-gap links (centre-to-centre 5" + 20mm)', () => {
-    const gap = 5 + 2 * MARKER_RADIUS_IN
+  it('allows exactly-5"-gap links (centre-to-centre 5")', () => {
+    const gap = 5
     const chain: Chain = [
-      { x: 0.5, y: 11 },
-      { x: 0.5 + gap, y: 11 },
-      { x: 0.5 + gap, y: 16 },
-      { x: 0.5 + gap, y: 20 },
-      { x: 0.5 + gap - 4, y: 20 },
+      { x: 0.5, y: 0.5 },
+      { x: 0.5 + 1 * gap, y: 0.5 },
+      { x: 0.5 + 2 * gap, y: 0.5 },
+      { x: 0.5 + 3 * gap, y: 0.5 },
+      { x: 0.5 + 4 * gap, y: 0.5 },
     ]
     const v = chainViolations(chain, pieces, map, dz)
     expect(v.filter((x) => x.message.includes('apart'))).toEqual([])

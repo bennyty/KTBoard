@@ -1,23 +1,24 @@
 import { useState } from 'react'
 import { PlanningMode } from '@/planning/PlanningMode'
 import { AnnotationMode } from '@/annotation/AnnotationMode'
+import { Button } from '@/ui/components'
 
 export function App() {
   const [mode, setMode] = useState<'planning' | 'annotation'>('planning')
   const isDev = import.meta.env.DEV
 
   return (
-    <div className="app">
-      <header>
-        <h1>KTBoard</h1>
-        <nav>
-          <button className={mode === 'planning' ? 'selected' : ''} onClick={() => setMode('planning')}>
+    <div className="flex h-full flex-col">
+      <header className="flex items-center gap-4 border-b border-black bg-panel px-4 py-2">
+        <h1 className="m-0 text-base">KTBoard</h1>
+        <nav className="flex gap-1.5">
+          <Button selected={mode === 'planning'} onClick={() => setMode('planning')}>
             Planning
-          </button>
+          </Button>
           {isDev && (
-            <button className={mode === 'annotation' ? 'selected' : ''} onClick={() => setMode('annotation')}>
+            <Button selected={mode === 'annotation'} onClick={() => setMode('annotation')}>
               Annotation (dev)
-            </button>
+            </Button>
           )}
         </nav>
       </header>

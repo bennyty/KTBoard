@@ -11,9 +11,12 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.1",
     "lz-string": "^1.5.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

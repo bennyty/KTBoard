@@ -1,5 +1,6 @@
 import { forwardRef, useMemo } from 'react'
 import type { ReactNode } from 'react'
+import { twMerge } from 'tailwind-merge'
 import type { AnnotatedMap, Vec } from '@/model/types'
 import type { PxTransform } from '@/geometry/transform'
 import { pxToInches } from '@/geometry/transform'
@@ -14,6 +15,8 @@ export interface BoardProps {
   map: AnnotatedMap
   /** Crop the view to the killzone (planning) or show the whole image (annotation). */
   fullImage?: boolean
+  /** Extra classes for the board SVG (e.g. a locked cursor). */
+  className?: string
   /** Children render in killzone-inch coordinates. */
   children: ReactNode
   onPointerDown?: (inches: Vec, e: React.PointerEvent<SVGSVGElement>) => void
@@ -27,7 +30,7 @@ export interface BoardProps {
  * after calibration, inches are the source of truth.
  */
 export const Board = forwardRef<SVGSVGElement, BoardProps>(function Board(
-  { map, fullImage, children, onPointerDown, onPointerMove, onPointerUp },
+  { map, fullImage, className, children, onPointerDown, onPointerMove, onPointerUp },
   ref,
 ) {
   const imgSize = useImageSize(map.image)
@@ -49,7 +52,10 @@ export const Board = forwardRef<SVGSVGElement, BoardProps>(function Board(
   return (
     <svg
       ref={ref}
-      className="board"
+      className={twMerge(
+        'max-h-full max-w-full touch-none select-none rounded-lg bg-bg',
+        className,
+      )}
       viewBox={viewBox}
       onPointerDown={onPointerDown ? (e) => onPointerDown(toInches(e), e) : undefined}
       onPointerMove={onPointerMove ? (e) => onPointerMove(toInches(e), e) : undefined}

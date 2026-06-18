@@ -1,9 +1,11 @@
 import type { ReactElement } from 'react'
+import { twJoin, twMerge } from 'tailwind-merge'
 import type { ObjectColor, SlideObject, Slide } from '@/model/types'
 import { OBJECT_COLORS } from '@/model/types'
 import { RECT_PRESETS } from '@/model/constants'
 import { COLOR_HEX, OBJECT_KIND_LABELS } from './objects'
 import type { Tool } from './usePlan'
+import { Button, Field, Hint, Input, List, Row, Section, Select } from '@/ui/components'
 
 const ICON: Record<Tool, ReactElement> = {
   select: (
@@ -44,11 +46,14 @@ const TOOLS: { tool: Tool; label: string; key: string }[] = [
 
 function ColorPicker({ value, onChange }: { value: ObjectColor; onChange: (c: ObjectColor) => void }) {
   return (
-    <div className="swatches">
+    <div className="flex gap-1.5">
       {OBJECT_COLORS.map((c) => (
-        <button
+        <Button
           key={c}
-          className={`swatch${c === value ? ' selected' : ''}`}
+          className={twJoin(
+            'h-6 w-6 rounded-full border-2 p-0',
+            c === value && 'border-white shadow-sm',
+          )}
           style={{ background: COLOR_HEX[c] }}
           title={c}
           onClick={() => onChange(c)}
@@ -76,39 +81,33 @@ function ObjectProps({
       : -1
 
   return (
-    <section className="object-props">
-      <h2>{OBJECT_KIND_LABELS[object.kind]}</h2>
-
-      <label>
-        Label
-        <input value={object.label} onChange={(e) => patch({ label: e.target.value })} />
-      </label>
+    <Section title={OBJECT_KIND_LABELS[object.kind]} className="rounded-md bg-panel-2 p-2.5">
+      <Field label="Label">
+        <Input value={object.label} onChange={(e) => patch({ label: e.target.value })} />
+      </Field>
 
       {object.kind !== 'text' && (
-        <label>
-          Color
+        <Field label="Color">
           <ColorPicker value={object.color} onChange={(c) => patch({ color: c })} />
-        </label>
+        </Field>
       )}
 
       {object.kind === 'circle' && (
-        <label>
-          Size (mm)
-          <input
+        <Field label="Size (mm)">
+          <Input
             type="number"
             min={1}
             step={1}
             value={object.sizeMm}
             onChange={(e) => patch({ sizeMm: Number(e.target.value) })}
           />
-        </label>
+        </Field>
       )}
 
       {object.kind === 'rect' && (
         <>
-          <label>
-            Type
-            <select
+          <Field label="Type">
+            <Select
               value={presetIndex}
               onChange={(e) => {
                 const i = Number(e.target.value)
@@ -123,34 +122,31 @@ function ObjectProps({
                   {p.name}
                 </option>
               ))}
-            </select>
-          </label>
-          <div className="row">
-            <label>
-              Length (mm)
-              <input type="number" min={1} value={object.lengthMm} onChange={(e) => patch({ lengthMm: Number(e.target.value) })} />
-            </label>
-            <label>
-              Width (mm)
-              <input type="number" min={1} value={object.widthMm} onChange={(e) => patch({ widthMm: Number(e.target.value) })} />
-            </label>
-          </div>
-          <label>
-            Rotation (°)
-            <input
+            </Select>
+          </Field>
+          <Row className="gap-2">
+            <Field label="Length (mm)" className="flex-1">
+              <Input type="number" min={1} value={object.lengthMm} onChange={(e) => patch({ lengthMm: Number(e.target.value) })} />
+            </Field>
+            <Field label="Width (mm)" className="flex-1">
+              <Input type="number" min={1} value={object.widthMm} onChange={(e) => patch({ widthMm: Number(e.target.value) })} />
+            </Field>
+          </Row>
+          <Field label="Rotation (°)">
+            <Input
               type="number"
               step={5}
               value={Math.round(object.rotationDeg)}
               onChange={(e) => patch({ rotationDeg: Number(e.target.value) })}
             />
-          </label>
+          </Field>
         </>
       )}
 
-      <button className="danger" onClick={() => deleteObject(object.id)} title="Delete (Del)">
+      <Button variant="danger" onClick={() => deleteObject(object.id)} title="Delete (Del)">
         Delete object
-      </button>
-    </section>
+      </Button>
+    </Section>
   )
 }
 
@@ -189,24 +185,24 @@ export function PlanTab({
 }) {
   return (
     <>
-      <section>
-        <h2>Tools</h2>
-        <div className="tool-palette">
+      <Section title="Tools">
+        <div className="flex flex-nowrap gap-1">
           {TOOLS.map(({ tool: t, label, key }) => (
-            <button
+            <Button
               key={t}
-              className={`tool-button${tool === t ? ' selected' : ''}`}
+              className="flex min-w-0 flex-1 items-center justify-center px-0 py-2 [&_svg]:block"
+              selected={tool === t}
               disabled={disabled && t !== 'select'}
               onClick={() => setTool(t)}
               title={`${label} (${key})`}
               aria-label={`${label} (${key})`}
             >
               {ICON[t]}
-            </button>
+            </Button>
           ))}
         </div>
-        {!disabled && tool !== 'select' && <p className="hint">Click or click and drag to place object</p>}
-      </section>
+        {!disabled && tool !== 'select' && <Hint>Click or click and drag to place object</Hint>}
+      </Section>
 
       {selectedObject && !disabled && (
         <ObjectProps
@@ -217,16 +213,18 @@ export function PlanTab({
         />
       )}
 
-      <section>
-        <h2>Slides</h2>
-        <ul className="slide-list">
+      <Section title="Slides">
+        <List className="gap-1.5">
           {slides.map((s, i) => (
             <li
               key={s.id}
-              className={`slide-card${s.id === currentSlideId ? ' selected' : ''}`}
+              className={twMerge(
+                'flex cursor-pointer items-stretch gap-1.5 rounded-md border border-edge bg-panel-2 p-1.5',
+                s.id === currentSlideId && 'border-accent bg-blue-950',
+              )}
               onClick={() => selectSlide(s.id)}
             >
-              <button title="Select" onClick={() => selectSlide(s.id)}>
+              <Button title="Select" onClick={() => selectSlide(s.id)}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                   {/* Icon from Iconoir by Luca Burgio - https://github.com/iconoir-icons/iconoir/blob/main/LICENSE */}
                   <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
@@ -234,25 +232,29 @@ export function PlanTab({
                     <path d="M13.5 10V8.286c0-2.286 3-2.286 3 0V10m-6 0V7.5c0-2.286 3-2.286 3 0q0 0 0 0V10m-3 0V3.499A1.5 1.5 0 0 0 9 2v0a1.5 1.5 0 0 0-1.5 1.5V15" />
                   </g>
                 </svg>
-              </button>
-              <input
+              </Button>
+              <Input
+                className="min-w-0 flex-1"
                 value={s.name}
                 disabled={disabled}
                 onClick={(e) => e.stopPropagation()}
                 onChange={(e) => renameSlide(s.id, e.target.value)}
               />
-              <div className="slide-actions" onClick={(e) => e.stopPropagation()}>
-                <button title="Move up" disabled={disabled || i === 0} onClick={() => moveSlide(s.id, -1)}>
-                  ↑
-                </button>
-                <button title="Move down" disabled={disabled || i === slides.length - 1} onClick={() => moveSlide(s.id, 1)}>
-                  ↓
-                </button>
-                <button title="Duplicate" disabled={disabled} onClick={() => duplicateSlide(s.id)}>
+              <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                <div className="flex flex-col gap-0.5">
+                  <Button className="px-1.5 py-0.5 leading-none text-xs" title="Move up" disabled={disabled || i === 0} onClick={() => moveSlide(s.id, -1)}>
+                    ↑
+                  </Button>
+                  <Button className="px-1.5 py-0.5 leading-none text-xs" title="Move down" disabled={disabled || i === slides.length - 1} onClick={() => moveSlide(s.id, 1)}>
+                    ↓
+                  </Button>
+                </div>
+                <Button className="px-1.5 py-0.5 leading-none" title="Duplicate" disabled={disabled} onClick={() => duplicateSlide(s.id)}>
                   ⧉
-                </button>
-                <button
-                  className="danger"
+                </Button>
+                <Button
+                  variant="danger"
+                  className="px-1.5 py-0.5 leading-none"
                   title="Delete"
                   disabled={disabled}
                   onClick={() => {
@@ -260,15 +262,15 @@ export function PlanTab({
                   }}
                 >
                   ✕
-                </button>
+                </Button>
               </div>
             </li>
           ))}
-        </ul>
-        <button disabled={disabled} onClick={addSlide}>
+        </List>
+        <Button disabled={disabled} onClick={addSlide}>
           + Add slide
-        </button>
-      </section>
+        </Button>
+      </Section>
     </>
   )
 }

@@ -17,6 +17,8 @@ import { makeArrow, makeCircle, makeRect, makeText, snapCircleSizeMm } from './o
 import { PlanTab } from './PlanTab'
 import { TunnelTab } from './TunnelTab'
 import { clamp, constrainMarker0 } from '@/rules/tunnel'
+import { Button, Field, Hint, Input, Section, Select, Sidebar } from '@/ui/components'
+import { twJoin } from 'tailwind-merge'
 
 /** One in-progress board gesture (placement or drag). Kept in a ref — only the
  *  draft preview needs to re-render. */
@@ -247,50 +249,48 @@ export function PlanningMode() {
   }
 
   return (
-    <div className="planning">
-      <aside className="sidebar">
-        <section className="plan-header">
-          <label>
-            Plan name
-            <input value={plan.plan.name} disabled={locked} onChange={(e) => plan.setPlanName(e.target.value)} />
-          </label>
-          <label>
-            Map
-            <select value={map.id} disabled={locked} onChange={(e) => plan.setMap(e.target.value)}>
+    <div className="flex min-h-0 flex-1">
+      <Sidebar>
+        <Section className="border-b border-black pb-3">
+          <Field label="Plan name">
+            <Input value={plan.plan.name} disabled={locked} onChange={(e) => plan.setPlanName(e.target.value)} />
+          </Field>
+          <Field label="Map">
+            <Select value={map.id} disabled={locked} onChange={(e) => plan.setMap(e.target.value)}>
               {maps.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
                   {m.draft ? ' (draft annotation)' : ''}
                 </option>
               ))}
-            </select>
-          </label>
-          <label>
-            Drop zone
-            <select value={dropZone.id} disabled={locked} onChange={(e) => plan.setDropZone(e.target.value)}>
+            </Select>
+          </Field>
+          <Field label="Drop zone">
+            <Select value={dropZone.id} disabled={locked} onChange={(e) => plan.setDropZone(e.target.value)}>
               {map.dropZones.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.name}
                 </option>
               ))}
-            </select>
-          </label>
-          <button
-            className={`lock-button ${locked ? 'selected' : ''} ${wiggle ? 'wiggle' : ''}`}
+            </Select>
+          </Field>
+          <Button
+            className={twJoin(locked && 'border-danger bg-danger', wiggle && 'animate-wiggle')}
             onClick={plan.toggleLock}
             onAnimationEnd={() => setWiggle(false)}
           >
             {locked ? '🔒 Locked — click to edit' : '🔓 Unlocked'}
-          </button>
-        </section>
+          </Button>
+          {!locked && <Hint className="mx-auto">All changes are saved automatically, share the url!</Hint>}
+        </Section>
 
-        <div className="tabs">
-          <button className={tab === 'plan' ? 'selected' : ''} onClick={() => setTab('plan')}>
+        <div className="flex flex-wrap gap-1">
+          <Button className="px-2 py-1 text-xs" selected={tab === 'plan'} onClick={() => setTab('plan')}>
             Plan
-          </button>
-          <button className={tab === 'tunnel' ? 'selected' : ''} onClick={() => setTab('tunnel')}>
+          </Button>
+          <Button className="px-2 py-1 text-xs" selected={tab === 'tunnel'} onClick={() => setTab('tunnel')}>
             Tunnel
-          </button>
+          </Button>
         </div>
 
         {tab === 'plan' ? (
@@ -323,10 +323,16 @@ export function PlanningMode() {
             draftMap={!!map.draft}
           />
         )}
-      </aside>
+      </Sidebar>
 
-      <main className={`board-pane ${locked ? 'locked' : ''}`}>
-        <Board map={map} onPointerDown={onBoardPointerDown} onPointerMove={onBoardPointerMove} onPointerUp={onBoardPointerUp}>
+      <main className="flex min-w-0 flex-1 items-center justify-center p-3">
+        <Board
+          map={map}
+          className={locked ? 'cursor-not-allowed' : undefined}
+          onPointerDown={onBoardPointerDown}
+          onPointerMove={onBoardPointerMove}
+          onPointerUp={onBoardPointerUp}
+        >
           <DropZoneLayer dropZones={map.dropZones} activeId={dropZone.id} />
           <TerrainLayer pieces={pieces} />
           <ObjectiveLayer objectives={map.objectives} homeId={ctx.homeObjective?.id} />

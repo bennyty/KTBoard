@@ -19,6 +19,20 @@ import { rotateDeg, sub, add } from '@/geometry/vec'
 import { Board, mapTransform } from '@/ui/Board'
 import { DropZoneLayer, GridLayer, ObjectiveLayer, TerrainLayer } from '@/ui/layers'
 import { useImageSize } from '@/ui/useImageSize'
+import {
+  Button,
+  ErrorText,
+  Field,
+  Hint,
+  Input,
+  List,
+  ListItem,
+  Row,
+  Section,
+  Select,
+  Sidebar,
+  Textarea,
+} from '@/ui/components'
 
 type Tab = 'calibrate' | 'pieces' | 'place' | 'zones' | 'objectives' | 'export'
 
@@ -440,13 +454,11 @@ export function AnnotationMode() {
   const pieceName = (id: string) => draftCatalogue.pieces.find((p) => p.id === id)?.name ?? id
 
   return (
-    <div className="planning">
-      <aside className="sidebar">
-        <section>
-          <h2>Annotation (dev)</h2>
-          <label>
-            Base
-            <select
+    <div className="flex min-h-0 flex-1">
+      <Sidebar>
+        <Section title="Annotation (dev)">
+          <Field label="Base">
+            <Select
               onChange={(e) => {
                 if (e.target.value === '__blank') {
                   setDraftMap(structuredClone(blankMap))
@@ -465,154 +477,141 @@ export function AnnotationMode() {
                 </option>
               ))}
               <option value="__blank">Blank (Volkus image)</option>
-            </select>
-          </label>
-          <label>
-            Image URL
-            <input value={draftMap.image} onChange={(e) => patchMap({ image: e.target.value })} />
-          </label>
-          <label>
-            Killzone
-            <input value={draftMap.killzone} onChange={(e) => patchMap({ killzone: e.target.value })} />
-          </label>
-          <nav className="tabs">
+            </Select>
+          </Field>
+          <Field label="Image URL">
+            <Input value={draftMap.image} onChange={(e) => patchMap({ image: e.target.value })} />
+          </Field>
+          <Field label="Killzone">
+            <Input value={draftMap.killzone} onChange={(e) => patchMap({ killzone: e.target.value })} />
+          </Field>
+          <nav className="flex flex-wrap gap-1">
             {(['pieces', 'place', 'zones', 'objectives', 'calibrate', 'export'] as Tab[]).map((x) => (
-              <button key={x} className={tab === x ? 'selected' : ''} onClick={() => setTab(x)}>
+              <Button key={x} className="px-2 py-1 text-xs" selected={tab === x} onClick={() => setTab(x)}>
                 {x}
-              </button>
+              </Button>
             ))}
           </nav>
-        </section>
+        </Section>
 
         {tab === 'calibrate' && (
-          <section>
-            <h2>Calibrate pixel↔inch</h2>
-            <label>
-              Killzone width (in)
-              <input
+          <Section title="Calibrate pixel↔inch">
+            <Field label="Killzone width (in)">
+              <Input
                 type="number"
                 value={draftMap.widthIn}
                 onChange={(e) => patchMap({ widthIn: Number(e.target.value) })}
               />
-            </label>
-            <label>
-              Killzone height (in)
-              <input
+            </Field>
+            <Field label="Killzone height (in)">
+              <Input
                 type="number"
                 value={draftMap.heightIn}
                 onChange={(e) => patchMap({ heightIn: Number(e.target.value) })}
               />
-            </label>
-            <p className="hint">
+            </Field>
+            <Hint>
               {cornerA
                 ? 'Now click the bottom-right corner of the killzone.'
                 : 'Click the top-left corner of the killzone on the image.'}
-            </p>
-            <label className="row">
-              <input type="checkbox" checked={showGrid} onChange={(e) => setShowGrid(e.target.checked)} />
+            </Hint>
+            <Field row>
+              <input type="checkbox" className="accent-accent" checked={showGrid} onChange={(e) => setShowGrid(e.target.checked)} />
               Show verification grid
-            </label>
-            <label className="row">
+            </Field>
+            <Field row>
               <input
                 type="checkbox"
+                className="accent-accent"
                 checked={showCursorCircles}
                 onChange={(e) => setShowCursorCircles(e.target.checked)}
               />
               Show 32mm / 40mm cursor circles
-            </label>
-            <div className="fine-tune">
-              <p className="hint">
+            </Field>
+            <div className="flex flex-col gap-2 rounded-md bg-panel-2 p-2">
+              <Hint>
                 Fine-tune the transform with the grid on until the 1" lines and 40mm circle land
                 exactly on the killzone.
-              </p>
-              <div className="row">
-                <label>
-                  px / inch X
-                  <input
+              </Hint>
+              <Row>
+                <Field label="px / inch X">
+                  <Input
                     type="number"
                     step={0.01}
                     value={Number(draftMap.pxPerInchX.toFixed(4))}
                     onChange={(e) => patchMap({ pxPerInchX: Number(e.target.value) })}
                   />
-                </label>
-                <label>
-                  px / inch Y
-                  <input
+                </Field>
+                <Field label="px / inch Y">
+                  <Input
                     type="number"
                     step={0.01}
                     value={Number(draftMap.pxPerInchY.toFixed(4))}
                     onChange={(e) => patchMap({ pxPerInchY: Number(e.target.value) })}
                   />
-                </label>
-              </div>
-              <div className="row">
-                <button onClick={() => nudgeCalibration({ pxPerInchX: -0.1 })}>X −0.1</button>
-                <button onClick={() => nudgeCalibration({ pxPerInchX: 0.1 })}>X +0.1</button>
-                <button onClick={() => nudgeCalibration({ pxPerInchY: -0.1 })}>Y −0.1</button>
-                <button onClick={() => nudgeCalibration({ pxPerInchY: 0.1 })}>Y +0.1</button>
-              </div>
-              <div className="row">
-                <label>
-                  origin X (px)
-                  <input
+                </Field>
+              </Row>
+              <Row>
+                <Button onClick={() => nudgeCalibration({ pxPerInchX: -0.1 })}>X −0.1</Button>
+                <Button onClick={() => nudgeCalibration({ pxPerInchX: 0.1 })}>X +0.1</Button>
+                <Button onClick={() => nudgeCalibration({ pxPerInchY: -0.1 })}>Y −0.1</Button>
+                <Button onClick={() => nudgeCalibration({ pxPerInchY: 0.1 })}>Y +0.1</Button>
+              </Row>
+              <Row>
+                <Field label="origin X (px)">
+                  <Input
                     type="number"
                     step={1}
                     value={Number(draftMap.originPx.x.toFixed(2))}
                     onChange={(e) => patchMap({ originPx: { ...draftMap.originPx, x: Number(e.target.value) } })}
                   />
-                </label>
-                <label>
-                  origin Y (px)
-                  <input
+                </Field>
+                <Field label="origin Y (px)">
+                  <Input
                     type="number"
                     step={1}
                     value={Number(draftMap.originPx.y.toFixed(2))}
                     onChange={(e) => patchMap({ originPx: { ...draftMap.originPx, y: Number(e.target.value) } })}
                   />
-                </label>
-              </div>
-              <div className="row">
-                <button onClick={() => nudgeCalibration({ originX: -1 })}>◀ 1px</button>
-                <button onClick={() => nudgeCalibration({ originX: 1 })}>1px ▶</button>
-                <button onClick={() => nudgeCalibration({ originY: -1 })}>▲ 1px</button>
-                <button onClick={() => nudgeCalibration({ originY: 1 })}>1px ▼</button>
-              </div>
+                </Field>
+              </Row>
+              <Row>
+                <Button onClick={() => nudgeCalibration({ originX: -1 })}>◀ 1px</Button>
+                <Button onClick={() => nudgeCalibration({ originX: 1 })}>1px ▶</Button>
+                <Button onClick={() => nudgeCalibration({ originY: -1 })}>▲ 1px</Button>
+                <Button onClick={() => nudgeCalibration({ originY: 1 })}>1px ▼</Button>
+              </Row>
             </div>
-          </section>
+          </Section>
         )}
 
         {tab === 'pieces' && (
-          <section>
-            <h2>Trace piece footprints</h2>
-            <label>
-              Name
-              <input
+          <Section title="Trace piece footprints">
+            <Field label="Name">
+              <Input
                 type="text"
                 value={tracePieceName}
                 onChange={(e) => setTracePieceName(e.target.value)}
                 placeholder="piece name"
               />
-            </label>
-            <label>
-              Kind
-              <select value={tracePieceKind} onChange={(e) => setTracePieceKind(e.target.value as PieceKind)}>
+            </Field>
+            <Field label="Kind">
+              <Select value={tracePieceKind} onChange={(e) => setTracePieceKind(e.target.value as PieceKind)}>
                 {PIECE_KINDS.map((k) => (
                   <option key={k} value={k}>{k}</option>
                 ))}
-              </select>
-            </label>
+              </Select>
+            </Field>
             {tracePieceKind === 'stronghold' && (
-              <label>
-                Polygon
-                <select value={traceTarget} onChange={(e) => setTraceTarget(e.target.value as 'outer' | 'innerFloor')}>
+              <Field label="Polygon">
+                <Select value={traceTarget} onChange={(e) => setTraceTarget(e.target.value as 'outer' | 'innerFloor')}>
                   <option value="outer">outer extent (wall ring)</option>
                   <option value="innerFloor">inner floor</option>
-                </select>
-              </label>
+                </Select>
+              </Field>
             )}
-            <label>
-              Shape
-              <select
+            <Field label="Shape">
+              <Select
                 value={traceShape}
                 onChange={(e) => {
                   setTraceShape(e.target.value as 'polygon' | 'rectangle')
@@ -621,61 +620,57 @@ export function AnnotationMode() {
               >
                 <option value="polygon">polygon (click each vertex)</option>
                 <option value="rectangle">rectangle (click two corners)</option>
-              </select>
-            </label>
+              </Select>
+            </Field>
             {traceShape === 'rectangle' ? (
               <>
-                <p className="hint">
+                <Hint>
                   {traceVertices.length === 0
                     ? 'Click one corner of the rectangle.'
                     : 'Now click the opposite corner.'}
-                </p>
-                <div className="row">
-                  <button onClick={() => setTraceVertices([])}>Clear</button>
-                </div>
+                </Hint>
+                <Row>
+                  <Button onClick={() => setTraceVertices([])}>Clear</Button>
+                </Row>
               </>
             ) : (
               <>
-                <p className="hint">Click vertices on the image; finish with ≥3 points.</p>
-                <div className="row">
-                  <button onClick={finishTrace} disabled={traceVertices.length < 3}>
+                <Hint>Click vertices on the image; finish with ≥3 points.</Hint>
+                <Row>
+                  <Button onClick={finishTrace} disabled={traceVertices.length < 3}>
                     Finish polygon ({traceVertices.length} pts)
-                  </button>
-                  <button onClick={() => setTraceVertices([])}>Clear</button>
-                </div>
+                  </Button>
+                  <Button onClick={() => setTraceVertices([])}>Clear</Button>
+                </Row>
               </>
             )}
-          </section>
+          </Section>
         )}
 
         {tab === 'place' && (
-          <section>
-            <h2>Place pieces</h2>
-            <p className="hint">Drag pieces on the board, or select one to fine-tune below.</p>
+          <Section title="Place pieces">
+            <Hint>Drag pieces on the board, or select one to fine-tune below.</Hint>
             {selectedPlacement ? (
-              <div className="fine-tune">
-                <label>
-                  Name
-                  <input
+              <div className="flex flex-col gap-2 rounded-md bg-panel-2 p-2">
+                <Field label="Name">
+                  <Input
                     value={pieceName(selectedPlacement.pieceId)}
                     onChange={(e) => renamePiece(selectedPlacement.pieceId, e.target.value)}
                   />
-                </label>
-                <label>
-                  Kind
-                  <select
+                </Field>
+                <Field label="Kind">
+                  <Select
                     value={selectedDef?.kind ?? 'rubble'}
                     onChange={(e) => setPieceKind(selectedPlacement.pieceId, e.target.value as PieceKind)}
                   >
                     { PIECE_KINDS.map((k) => (
                       <option value={k}>{k}</option>
                     ))}
-                  </select>
-                </label>
-                <div className="row">
-                  <label>
-                    X (in)
-                    <input
+                  </Select>
+                </Field>
+                <Row>
+                  <Field label="X (in)">
+                    <Input
                       type="number"
                       step={0.1}
                       value={Number(selectedPlacement.x.toFixed(3))}
@@ -683,10 +678,9 @@ export function AnnotationMode() {
                         patchPlacement(selectedPlacement.pieceId, () => ({ x: Number(e.target.value) }))
                       }
                     />
-                  </label>
-                  <label>
-                    Y (in)
-                    <input
+                  </Field>
+                  <Field label="Y (in)">
+                    <Input
                       type="number"
                       step={0.1}
                       value={Number(selectedPlacement.y.toFixed(3))}
@@ -694,17 +688,16 @@ export function AnnotationMode() {
                         patchPlacement(selectedPlacement.pieceId, () => ({ y: Number(e.target.value) }))
                       }
                     />
-                  </label>
-                </div>
-                <div className="row">
-                  <button onClick={() => nudgePlacement(selectedPlacement.pieceId, -0.05, 0)}>◀ X</button>
-                  <button onClick={() => nudgePlacement(selectedPlacement.pieceId, 0.05, 0)}>X ▶</button>
-                  <button onClick={() => nudgePlacement(selectedPlacement.pieceId, 0, -0.05)}>▲ Y</button>
-                  <button onClick={() => nudgePlacement(selectedPlacement.pieceId, 0, 0.05)}>Y ▼</button>
-                </div>
-                <label>
-                  Rotation (°)
-                  <input
+                  </Field>
+                </Row>
+                <Row>
+                  <Button onClick={() => nudgePlacement(selectedPlacement.pieceId, -0.05, 0)}>◀ X</Button>
+                  <Button onClick={() => nudgePlacement(selectedPlacement.pieceId, 0.05, 0)}>X ▶</Button>
+                  <Button onClick={() => nudgePlacement(selectedPlacement.pieceId, 0, -0.05)}>▲ Y</Button>
+                  <Button onClick={() => nudgePlacement(selectedPlacement.pieceId, 0, 0.05)}>Y ▼</Button>
+                </Row>
+                <Field label="Rotation (°)">
+                  <Input
                     type="number"
                     step={1}
                     value={selectedPlacement.rotationDeg}
@@ -714,38 +707,37 @@ export function AnnotationMode() {
                       }))
                     }
                   />
-                </label>
-                <div className="row">
-                  <button onClick={() => rotateSelected(-15)}>⟲ 15°</button>
-                  <button onClick={() => rotateSelected(-1)}>⟲ 1°</button>
-                  <button onClick={() => rotateSelected(1)}>⟳ 1°</button>
-                  <button onClick={() => rotateSelected(15)}>⟳ 15°</button>
-                </div>
-                <label>
-                  Footprint scale
-                  <span className="hint">Grow or shrink the traced footprint about its pivot.</span>
-                </label>
-                <div className="row">
-                  <button onClick={() => scaleFootprint(selectedPlacement.pieceId, 0.98)}>− 2%</button>
-                  <button onClick={() => scaleFootprint(selectedPlacement.pieceId, 1 / 0.98)}>+ 2%</button>
-                  <button onClick={() => scaleFootprint(selectedPlacement.pieceId, 0.9)}>− 10%</button>
-                  <button onClick={() => scaleFootprint(selectedPlacement.pieceId, 1 / 0.9)}>+ 10%</button>
-                </div>
+                </Field>
+                <Row>
+                  <Button onClick={() => rotateSelected(-15)}>⟲ 15°</Button>
+                  <Button onClick={() => rotateSelected(-1)}>⟲ 1°</Button>
+                  <Button onClick={() => rotateSelected(1)}>⟳ 1°</Button>
+                  <Button onClick={() => rotateSelected(15)}>⟳ 15°</Button>
+                </Row>
+                <Field label="Footprint scale">
+                  <Hint as="span">Grow or shrink the traced footprint about its pivot.</Hint>
+                </Field>
+                <Row>
+                  <Button onClick={() => scaleFootprint(selectedPlacement.pieceId, 0.98)}>− 2%</Button>
+                  <Button onClick={() => scaleFootprint(selectedPlacement.pieceId, 1 / 0.98)}>+ 2%</Button>
+                  <Button onClick={() => scaleFootprint(selectedPlacement.pieceId, 0.9)}>− 10%</Button>
+                  <Button onClick={() => scaleFootprint(selectedPlacement.pieceId, 1 / 0.9)}>+ 10%</Button>
+                </Row>
               </div>
             ) : (
-              <p className="hint">Click a piece in the list to select it.</p>
+              <Hint>Click a piece in the list to select it.</Hint>
             )}
-            <ul className="list">
+            <List>
               {draftMap.placements.map((pl) => (
-                <li key={pl.pieceId} className={pl.pieceId === selectedPieceId ? 'selected' : ''}>
-                  <input
+                <ListItem key={pl.pieceId} selected={pl.pieceId === selectedPieceId}>
+                  <Input
                     value={pieceName(pl.pieceId)}
                     onChange={(e) => renamePiece(pl.pieceId, e.target.value)}
                     onFocus={() => setSelectedPieceId(pl.pieceId)}
                   />
-                  <button onClick={() => setSelectedPieceId(pl.pieceId)}>⌖</button>
-                  <button
-                    className="danger"
+                  <Button onClick={() => setSelectedPieceId(pl.pieceId)}>⌖</Button>
+                  <Button
+                    variant="danger"
                     onClick={() =>
                       setDraftMap((m) => ({
                         ...m,
@@ -754,32 +746,29 @@ export function AnnotationMode() {
                     }
                   >
                     ✕
-                  </button>
-                </li>
+                  </Button>
+                </ListItem>
               ))}
-            </ul>
-          </section>
+            </List>
+          </Section>
         )}
 
         {tab === 'zones' && (
-          <section>
-            <h2>Drop zones</h2>
-            <label>
-              Name
-              <input value={zoneName} onChange={(e) => setZoneName(e.target.value)} placeholder="A (west)" />
-            </label>
-            <label>
-              Anchor edge
-              <select value={zoneAnchor} onChange={(e) => setZoneAnchor(e.target.value as AnchorEdge)}>
+          <Section title="Drop zones">
+            <Field label="Name">
+              <Input value={zoneName} onChange={(e) => setZoneName(e.target.value)} placeholder="A (west)" />
+            </Field>
+            <Field label="Anchor edge">
+              <Select value={zoneAnchor} onChange={(e) => setZoneAnchor(e.target.value as AnchorEdge)}>
                 <option value="left">left</option>
                 <option value="right">right</option>
                 <option value="top">top</option>
                 <option value="bottom">bottom</option>
-              </select>
-            </label>
-            <p className="hint">Click polygon vertices on the board.</p>
-            <div className="row">
-              <button
+              </Select>
+            </Field>
+            <Hint>Click polygon vertices on the board.</Hint>
+            <Row>
+              <Button
                 disabled={zoneVertices.length < 3}
                 onClick={() => {
                   const id = `dz-${Date.now() % 100000}`
@@ -795,13 +784,13 @@ export function AnnotationMode() {
                 }}
               >
                 Add zone ({zoneVertices.length} pts)
-              </button>
-              <button onClick={() => setZoneVertices([])}>Clear</button>
-            </div>
-            <ul className="list">
+              </Button>
+              <Button onClick={() => setZoneVertices([])}>Clear</Button>
+            </Row>
+            <List>
               {draftMap.dropZones.map((dz) => (
-                <li key={dz.id}>
-                  <input
+                <ListItem key={dz.id}>
+                  <Input
                     value={dz.name}
                     onChange={(e) =>
                       setDraftMap((m) => ({
@@ -812,7 +801,7 @@ export function AnnotationMode() {
                       }))
                     }
                   />
-                  <select
+                  <Select
                     value={dz.anchorEdge}
                     onChange={(e) =>
                       setDraftMap((m) => ({
@@ -827,26 +816,25 @@ export function AnnotationMode() {
                     <option value="right">right</option>
                     <option value="top">top</option>
                     <option value="bottom">bottom</option>
-                  </select>
-                  <button
-                    className="danger"
+                  </Select>
+                  <Button
+                    variant="danger"
                     onClick={() =>
                       setDraftMap((m) => ({ ...m, dropZones: m.dropZones.filter((x) => x.id !== dz.id) }))
                     }
                   >
                     ✕
-                  </button>
-                </li>
+                  </Button>
+                </ListItem>
               ))}
-            </ul>
-          </section>
+            </List>
+          </Section>
         )}
 
         {tab === 'objectives' && (
-          <section>
-            <h2>Objectives</h2>
-            <p className="hint">Click the board to add; drag to move.</p>
-            <ul className="list">
+          <Section title="Objectives">
+            <Hint>Click the board to add; drag to move.</Hint>
+            <List>
               {draftMap.objectives.map((o) => {
                 const patchObjective = (patch: Partial<Objective>) =>
                   setDraftMap((m) => ({
@@ -854,97 +842,92 @@ export function AnnotationMode() {
                     objectives: m.objectives.map((x) => (x.id === o.id ? { ...x, ...patch } : x)),
                   }))
                 return (
-                  <li key={o.id} className={o.id === selectedObjectiveId ? 'selected' : ''}>
-                    <input
+                  <ListItem key={o.id} selected={o.id === selectedObjectiveId}>
+                    <Input
                       value={o.name ?? ''}
                       placeholder={o.id}
                       onChange={(e) => patchObjective({ name: e.target.value })}
                       onFocus={() => setSelectedObjectiveId(o.id)}
                     />
-                    <select value={o.role} onChange={(e) => patchObjective({ role: e.target.value as Objective['role'] })}>
+                    <Select value={o.role} onChange={(e) => patchObjective({ role: e.target.value as Objective['role'] })}>
                       <option value="center">center</option>
                       <option value="other">other</option>
-                    </select>
-                    <button
-                      className="danger"
+                    </Select>
+                    <Button
+                      variant="danger"
                       onClick={() =>
                         setDraftMap((m) => ({ ...m, objectives: m.objectives.filter((x) => x.id !== o.id) }))
                       }
                     >
                       ✕
-                    </button>
-                    <div className="row">
-                      <label>
-                        X (in)
-                        <input
+                    </Button>
+                    <Row className="basis-full">
+                      <Field label="X (in)">
+                        <Input
                           type="number"
                           step={0.1}
                           value={Number(o.center.x.toFixed(3))}
                           onChange={(e) => patchObjective({ center: { ...o.center, x: Number(e.target.value) } })}
                         />
-                      </label>
-                      <label>
-                        Y (in)
-                        <input
+                      </Field>
+                      <Field label="Y (in)">
+                        <Input
                           type="number"
                           step={0.1}
                           value={Number(o.center.y.toFixed(3))}
                           onChange={(e) => patchObjective({ center: { ...o.center, y: Number(e.target.value) } })}
                         />
-                      </label>
-                    </div>
-                    <div className="row">
-                      <button onClick={() => nudgeObjective(o.id, -0.05, 0)}>◀ X</button>
-                      <button onClick={() => nudgeObjective(o.id, 0.05, 0)}>X ▶</button>
-                      <button onClick={() => nudgeObjective(o.id, 0, -0.05)}>▲ Y</button>
-                      <button onClick={() => nudgeObjective(o.id, 0, 0.05)}>Y ▼</button>
-                    </div>
-                  </li>
+                      </Field>
+                    </Row>
+                    <Row className="basis-full">
+                      <Button onClick={() => nudgeObjective(o.id, -0.05, 0)}>◀ X</Button>
+                      <Button onClick={() => nudgeObjective(o.id, 0.05, 0)}>X ▶</Button>
+                      <Button onClick={() => nudgeObjective(o.id, 0, -0.05)}>▲ Y</Button>
+                      <Button onClick={() => nudgeObjective(o.id, 0, 0.05)}>Y ▼</Button>
+                    </Row>
+                  </ListItem>
                 )
               })}
-            </ul>
-          </section>
+            </List>
+          </Section>
         )}
 
         {tab === 'export' && (
-          <section>
-            <h2>Export / import</h2>
-            <label>
-              Map ID
-              <input value={draftMap.id} onChange={(e) => patchMap({ id: e.target.value })} />
-            </label>
-            <label>
-              Map name
-              <input value={draftMap.name} onChange={(e) => patchMap({ name: e.target.value })} />
-            </label>
-            <label className="row">
+          <Section title="Export / import">
+            <Field label="Map ID">
+              <Input value={draftMap.id} onChange={(e) => patchMap({ id: e.target.value })} />
+            </Field>
+            <Field label="Map name">
+              <Input value={draftMap.name} onChange={(e) => patchMap({ name: e.target.value })} />
+            </Field>
+            <Field row>
               <input
                 type="checkbox"
+                className="accent-accent"
                 checked={!!draftMap.draft}
                 onChange={(e) => patchMap({ draft: e.target.checked })}
               />
               Draft (annotation unverified)
-            </label>
-            <div className="row">
-              <button onClick={() => download(`${draftMap.id}.json`, draftMap)}>Download map JSON</button>
-              <button onClick={() => download(`${draftMap.killzone}-catalogue.json`, draftCatalogue)}>
+            </Field>
+            <Row>
+              <Button onClick={() => download(`${draftMap.id}.json`, draftMap)}>Download map JSON</Button>
+              <Button onClick={() => download(`${draftMap.killzone}-catalogue.json`, draftCatalogue)}>
                 Download catalogue JSON
-              </button>
-            </div>
-            <p className="hint">
+              </Button>
+            </Row>
+            <Hint>
               Drop the files into <code>src/data/</code> and register them in <code>registry.ts</code>.
-            </p>
-            <label>
-              Import JSON (map or catalogue)
-              <textarea rows={6} value={importText} onChange={(e) => setImportText(e.target.value)} />
-            </label>
-            <button onClick={applyImport}>Apply import</button>
-            {importError && <div className="error">{importError}</div>}
-          </section>
+            </Hint>
+            <Field label="Import JSON (map or catalogue)">
+              <Textarea rows={6} value={importText} onChange={(e) => setImportText(e.target.value)} />
+            </Field>
+            <Button onClick={applyImport}>Apply import</Button>
+            {importError && <ErrorText>{importError}</ErrorText>}
+          </Section>
         )}
-      </aside>
+      </Sidebar>
 
-      <main className="board-pane">
+      <main className="flex min-w-0 flex-1 items-center justify-center p-3">
         <Board
           map={draftMap}
           fullImage
