@@ -19,18 +19,18 @@ export const catalogues: Record<string, KillzoneCatalogue> = {
 }
 
 export const maps: AnnotatedMap[] = [
-  volkus1Json as AnnotatedMap,
-  volkus2Json as AnnotatedMap,
-  volkus3Json as AnnotatedMap,
-  volkus4Json as AnnotatedMap,
-  volkus5Json as AnnotatedMap,
-  volkus6Json as AnnotatedMap,
   volkus7Json as AnnotatedMap,
   volkus8Json as AnnotatedMap,
   volkus9Json as AnnotatedMap,
   volkus10Json as AnnotatedMap,
   volkus11Json as AnnotatedMap,
   volkus12Json as AnnotatedMap,
+  volkus1Json as AnnotatedMap,
+  volkus2Json as AnnotatedMap,
+  volkus3Json as AnnotatedMap,
+  volkus4Json as AnnotatedMap,
+  volkus5Json as AnnotatedMap,
+  volkus6Json as AnnotatedMap,
   one_obj_map as AnnotatedMap
 ]
 
