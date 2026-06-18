@@ -499,6 +499,11 @@ table.scores td:not(:first-child) {
   animation: lock-wiggle 0.4s ease;
 }
 
+.lock-button.selected {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
 @keyframes lock-wiggle {
   0%, 100% { transform: rotate(0); }
   20% { transform: rotate(-3deg); }

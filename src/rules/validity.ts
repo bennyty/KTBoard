@@ -1,5 +1,5 @@
 import type { AnnotatedMap, Chain, DropZone, Vec, WorldPiece } from '@/model/types'
-import { MARKER_RADIUS_IN, MAX_LINK_CENTER_TO_CENTER_IN, MAX_LINK_GAP_IN } from '@/model/constants'
+import { MARKER_RADIUS_IN, MAX_LINK_CENTER_TO_CENTER_IN } from '@/model/constants'
 import { dist } from '@/geometry/vec'
 import { circleInsidePolygon, circleNearBBox, distPointPolygonBoundary, pointInPolygon } from '@/geometry/polygon'
 
@@ -59,7 +59,7 @@ export function chainViolations(
     if (dist(chain[i - 1], chain[i]) > MAX_LINK_CENTER_TO_CENTER_IN + 1e-9) {
       out.push({
         marker: i,
-        message: `Markers ${i - 1}–${i} are more than ${MAX_LINK_GAP_IN}" apart`,
+        message: `Markers ${i - 1}–${i} are more than ${MAX_LINK_CENTER_TO_CENTER_IN}" apart`,
       })
     }
   }

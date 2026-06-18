@@ -17,14 +17,8 @@ export const CONTROL_RANGE_IN = 1
  */
 export const CONTROL_CENTER_TO_CENTER_IN = 40 * IN_PER_MM + CONTROL_RANGE_IN
 
-/**
- * Max gap between sequentially numbered Tunnel markers, measured
- * edge-to-edge (KT measures between closest points of markers).
- */
-export const MAX_LINK_GAP_IN = 5
-
-/** Centre-to-centre equivalent of MAX_LINK_GAP_IN for two 20mm markers. */
-export const MAX_LINK_CENTER_TO_CENTER_IN = MAX_LINK_GAP_IN + 2 * MARKER_RADIUS_IN
+/** Centre-to-centre is the same thing as wholly within 5" for two identical 20mm markers. */
+export const MAX_LINK_CENTER_TO_CENTER_IN = 5
 
 export const MIN_LINK_CENTER_TO_CENTER_IN = 4
 
