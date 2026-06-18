@@ -101,7 +101,7 @@
   "dropZones": [
     {
       "id": "dz-a",
-      "name": "Orange (west)",
+      "name": "Grey (west)",
       "anchorEdge": "left",
       "polygon": [
         {
@@ -124,7 +124,7 @@
     },
     {
       "id": "dz-b",
-      "name": "Grey (east)",
+      "name": "Orange (east)",
       "anchorEdge": "right",
       "polygon": [
         {
