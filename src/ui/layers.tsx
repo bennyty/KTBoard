@@ -156,7 +156,6 @@ export function TunnelLayer({ chain, invalidMarkers, onMarkerPointerDown }: {
 /** Verification grid for calibration. */
 export function GridLayer({ killzone, widthIn, heightIn }: { killzone: string; widthIn: number; heightIn: number }) {
   const lines = []
-  console.log('GridLayer', killzone, widthIn, heightIn)
   switch (killzone) {
     case 'tombworld':
     case 'gallowdark':

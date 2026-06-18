@@ -16,8 +16,7 @@ import { useTunnelGenerator } from './useTunnelGenerator'
 import { makeArrow, makeCircle, makeRect, makeText, snapCircleSizeMm } from './objects'
 import { PlanTab } from './PlanTab'
 import { TunnelTab } from './TunnelTab'
-
-const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi)
+import { clamp, constrainMarker0 } from '@/rules/tunnel'
 
 /** One in-progress board gesture (placement or drag). Kept in a ref — only the
  *  draft preview needs to re-render. */
@@ -187,8 +186,11 @@ export function PlanningMode() {
         break
       case 'marker': {
         if (!markers) break
-        const clamped = { x: clamp(inches.x, 0, map.widthIn), y: clamp(inches.y, 0, map.heightIn) }
-        plan.setCurrentMarkers(markers.map((m, k) => (k === g.index ? clamped : m)))
+        const next =
+          g.index === 0
+            ? constrainMarker0(inches, dropZone.anchorEdge, map.widthIn, map.heightIn)
+            : { x: clamp(inches.x, 0, map.widthIn), y: clamp(inches.y, 0, map.heightIn) }
+        plan.setCurrentMarkers(markers.map((m, k) => (k === g.index ? next : m)))
         break
       }
     }

@@ -1,7 +1,30 @@
-import type { Chain, Vec, WorldPiece } from '@/model/types'
-import { BASE_RADIUS_IN, MARKER_RADIUS_IN } from '@/model/constants'
+import type { AnchorEdge, Chain, Vec, WorldPiece } from '@/model/types'
+import { BASE_RADIUS_IN, MARKER0_EDGE_INSET_IN, MARKER_RADIUS_IN } from '@/model/constants'
 import { dist, distPointSegment } from '@/geometry/vec'
 import { circleInsidePolygon, circleNearBBox, distPointPolygonBoundary, pointInPolygon } from '@/geometry/polygon'
+
+export const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi)
+
+/**
+ * Marker 0 is the tunnel entrance: it must sit on the drop zone's anchor edge,
+ * 10mm inside the board (matching where the generator samples it). Dragging it
+ * slides it along that edge rather than freely across the board.
+ */
+export function constrainMarker0(p: Vec, anchorEdge: AnchorEdge, widthIn: number, heightIn: number): Vec {
+  const inset = MARKER0_EDGE_INSET_IN
+  switch (anchorEdge) {
+    case 'left':
+      return { x: inset, y: clamp(p.y, 0, heightIn) }
+    case 'right':
+      return { x: widthIn - inset, y: clamp(p.y, 0, heightIn) }
+    case 'top':
+      return { x: clamp(p.x, 0, widthIn), y: inset }
+    case 'bottom':
+      return { x: clamp(p.x, 0, widthIn), y: heightIn - inset }
+    default:
+      throw new Error(`Unknown anchor edge ${anchorEdge}`)
+  }
+}
 
 /**
  * Distance from a point to the TUNNEL region formed by markers 0..uptoMarker.

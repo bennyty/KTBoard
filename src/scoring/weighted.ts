@@ -45,8 +45,8 @@ export function normalizeAxis(key: keyof Scores, scores: Scores, norm: NormConte
     case 'forwardReach':
       return norm.forwardReachMax > 0 ? clamp01(scores.forwardReach / norm.forwardReachMax) : 0
     case 'centerAccess':
-      // 0 (reached on marker 0) → 1; CHAIN_LENGTH (never) → 0.
-      return clamp01((CHAIN_LENGTH - scores.centerAccess) / CHAIN_LENGTH)
+      // 2 (reached on marker 2) → 1; CHAIN_LENGTH (never) → 0.
+      return clamp01((CHAIN_LENGTH - scores.centerAccess) / (CHAIN_LENGTH - 2))
     case 'homeUnburrow':
       // Binary: 1 if the home objective is reachable within control range.
       return scores.homeUnburrow <= CONTROL_CENTER_TO_CENTER_IN ? 1 : 0

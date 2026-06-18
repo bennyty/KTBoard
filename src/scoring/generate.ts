@@ -1,4 +1,4 @@
-import type { AnnotatedMap, Chain, KillzoneCatalogue, Scores, TunnelCandidate, Vec, WorldPiece } from '@/model/types'
+import type { AnchorEdge, AnnotatedMap, Chain, KillzoneCatalogue, Scores, TunnelCandidate, Vec, WorldPiece } from '@/model/types'
 import { SCORE_AXES } from '@/model/types'
 import {
   CHAIN_LENGTH,
@@ -14,6 +14,7 @@ import { kMedoids } from './kmedoids'
 import { hashString, mulberry32 } from './rng'
 import { DEFAULT_WEIGHTS, makeNormContext, weightedScore } from './weighted'
 import type { WeightConfig } from './weighted'
+import { constrainMarker0 } from '@/rules/tunnel'
 
 /** Pareto candidates shown (k-medoid-sampled from the front). */
 export const PARETO_CANDIDATES = 5
@@ -74,24 +75,12 @@ export function resolveMapPieces(map: AnnotatedMap, catalogue: KillzoneCatalogue
 function sampleMarker0(
   rng: () => number,
   map: AnnotatedMap,
-  dropZone: { polygon: Vec[]; anchorEdge: string },
+  dropZone: { polygon: Vec[]; anchorEdge: AnchorEdge },
 ): Vec | null {
   const inset = MARKER0_EDGE_INSET_IN
   for (let tries = 0; tries < 20; tries++) {
-    let p: Vec
-    switch (dropZone.anchorEdge) {
-      case 'left':
-        p = { x: inset, y: rng() * map.heightIn }
-        break
-      case 'right':
-        p = { x: map.widthIn - inset, y: rng() * map.heightIn }
-        break
-      case 'top':
-        p = { x: rng() * map.widthIn, y: inset }
-        break
-      default:
-        p = { x: rng() * map.widthIn, y: map.heightIn - inset }
-    }
+    let p: Vec = { x: rng() * map.widthIn, y: rng() * map.heightIn }
+    p = constrainMarker0(p, dropZone.anchorEdge, map.widthIn, map.heightIn)
     if (pointInPolygon(p, dropZone.polygon)) return p
   }
   return null
@@ -155,8 +144,10 @@ export function generateCandidates(
       // weights (greedy one-step lookahead).
       let best: Vec | null = null
       let bestScore = -Infinity
+      let firstAngle = true
       for (let c = 0; c < LINK_CANDIDATES; c++) {
-        const angle = forwardAngle + (rng() - 0.5) * Math.PI
+        const angle = forwardAngle + ((firstAngle ? 0 : rng()) - 0.5) * Math.PI
+        firstAngle = false
         const radius = Math.sqrt(rMin2 + rng() * (rMax2 - rMin2))
         const cand = { x: prev.x + radius * Math.cos(angle), y: prev.y + radius * Math.sin(angle) }
         if (!markerPlacementClear(cand, pieces, map.widthIn, map.heightIn)) continue
