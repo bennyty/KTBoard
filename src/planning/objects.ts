@@ -74,6 +74,16 @@ export function makeText(at: Vec): TextObject {
   return { id: genId(), kind: 'text', x: at.x, y: at.y, label: 'Text' }
 }
 
+/** Arrow length in killzone inches (board coordinates are already in inches). */
+export function arrowLengthIn(o: Pick<ArrowObject, 'x1' | 'y1' | 'x2' | 'y2'>): number {
+  return Math.hypot(o.x2 - o.x1, o.y2 - o.y1)
+}
+
+/** Format an inch measurement for display, e.g. `5.3"`. */
+export function formatInches(inches: number): string {
+  return `${inches.toFixed(2)}"`
+}
+
 /** Translate any object kind by (dx, dy) inches, returning a new object. */
 export function translateObject(o: SlideObject, dx: number, dy: number): SlideObject {
   if (o.kind === 'arrow') {

@@ -1,6 +1,6 @@
 import type { ArrowObject, CircleObject, RectObject, SlideObject, TextObject } from '@/model/types'
 import { IN_PER_MM } from '@/model/constants'
-import { COLOR_HEX } from '@/planning/objects'
+import { arrowLengthIn, COLOR_HEX, formatInches } from '@/planning/objects'
 
 /** Renders Slide Objects in killzone-inch coordinates (inside the Board's scaling <g>). */
 
@@ -67,7 +67,7 @@ function RectShape({ o, selected }: { o: RectObject; selected: boolean }) {
   )
 }
 
-function ArrowShape({ o, selected }: { o: ArrowObject; selected: boolean }) {
+function ArrowShape({ o, selected, showLength }: { o: ArrowObject; selected: boolean; showLength?: boolean }) {
   const hex = COLOR_HEX[o.color]
   const stroke = strokeFor(hex)
   const dx = o.x2 - o.x1
@@ -83,6 +83,9 @@ function ArrowShape({ o, selected }: { o: ArrowObject; selected: boolean }) {
   const barb = `${o.x2},${o.y2} ${baseX - uy * halfW},${baseY + ux * halfW} ${baseX + uy * halfW},${baseY - ux * halfW}`
   const midX = (o.x1 + o.x2) / 2
   const midY = (o.y1 + o.y2) / 2
+  // Length readout sits just above the head
+  const lenLabelX = o.x2
+  const lenLabelY = o.y2 - 0.4
   return (
     <g>
       <line x1={o.x1} y1={o.y1} x2={baseX} y2={baseY} stroke={stroke} strokeWidth={0.1} strokeLinecap="round" />
@@ -91,6 +94,7 @@ function ArrowShape({ o, selected }: { o: ArrowObject; selected: boolean }) {
         <line x1={o.x1} y1={o.y1} x2={o.x2} y2={o.y2} stroke={SELECT} strokeWidth={0.04} strokeDasharray="0.16 0.12" />
       )}
       <ObjectLabel x={midX} y={midY - 0.25} text={o.label} color={stroke} />
+      {showLength && <ObjectLabel x={lenLabelX} y={lenLabelY} text={formatInches(arrowLengthIn(o))} />}
     </g>
   )
 }
@@ -104,14 +108,14 @@ function TextShape({ o, selected }: { o: TextObject; selected: boolean }) {
   )
 }
 
-function Shape({ o, selected }: { o: SlideObject; selected: boolean }) {
+function Shape({ o, selected, showArrowLength }: { o: SlideObject; selected: boolean; showArrowLength?: boolean }) {
   switch (o.kind) {
     case 'circle':
       return <CircleShape o={o} selected={selected} />
     case 'rect':
       return <RectShape o={o} selected={selected} />
     case 'arrow':
-      return <ArrowShape o={o} selected={selected} />
+      return <ArrowShape o={o} selected={selected} showLength={showArrowLength} />
     case 'text':
       return <TextShape o={o} selected={selected} />
   }
@@ -186,7 +190,7 @@ export function ObjectsLayer({
       })}
       {draft && (
         <g style={{ opacity: 0.6, pointerEvents: 'none' }}>
-          <Shape o={draft} selected={false} />
+          <Shape o={draft} selected={false} showArrowLength />
         </g>
       )}
     </g>

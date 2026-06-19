@@ -303,6 +303,7 @@ export function PlanningMode() {
             updateObject={plan.updateObject}
             deleteObject={plan.deleteObject}
             setLastRectPreset={plan.setLastRectPreset}
+            addObject={plan.addObject}
             slides={plan.plan.slides}
             currentSlideId={plan.currentSlideId}
             selectSlide={plan.selectSlide}

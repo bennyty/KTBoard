@@ -156,6 +156,7 @@ export interface ArrowObject extends BaseObject {
   x2: number
   y2: number
   color: ObjectColor
+  showLength?: boolean
 }
 
 /** Free text anchored at a position. */

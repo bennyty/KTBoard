@@ -3,7 +3,7 @@ import { twJoin, twMerge } from 'tailwind-merge'
 import type { ObjectColor, SlideObject, Slide } from '@/model/types'
 import { OBJECT_COLORS } from '@/model/types'
 import { RECT_PRESETS } from '@/model/constants'
-import { COLOR_HEX, OBJECT_KIND_LABELS } from './objects'
+import { arrowLengthIn, COLOR_HEX, formatInches, makeText, OBJECT_KIND_LABELS } from './objects'
 import type { Tool } from './usePlan'
 import { Button, Field, Hint, Input, List, Row, Section, Select } from '@/ui/components'
 
@@ -68,11 +68,13 @@ function ObjectProps({
   updateObject,
   deleteObject,
   setLastRectPreset,
+  addObject,
 }: {
   object: SlideObject
   updateObject: (id: string, patch: Partial<SlideObject>) => void
   deleteObject: (id: string) => void
   setLastRectPreset: (i: number) => void
+  addObject: (object: SlideObject) => void
 }) {
   const patch = (p: Partial<SlideObject>) => updateObject(object.id, p)
   const presetIndex =
@@ -102,6 +104,21 @@ function ObjectProps({
             onChange={(e) => patch({ sizeMm: Number(e.target.value) })}
           />
         </Field>
+      )}
+
+      {object.kind === 'arrow' && (
+          <Button
+            onClick={() => {
+              const dx = object.x2 - object.x1
+              const dy = object.y2 - object.y1
+              const len = Math.hypot(dx, dy) || 1
+              // Drop the label just past the head, offset perpendicular to clear the line.
+              const at = { x: object.x2 - (dy / len) * 0.6, y: object.y2 + (dx / len) * 0.6 }
+              addObject({ ...makeText(at), label: formatInches(arrowLengthIn(object)) })
+            }}
+          >
+            Add ' {formatInches(arrowLengthIn(object))} ' text
+          </Button>
       )}
 
       {object.kind === 'rect' && (
@@ -157,6 +174,7 @@ export function PlanTab({
   updateObject,
   deleteObject,
   setLastRectPreset,
+  addObject,
   slides,
   currentSlideId,
   selectSlide,
@@ -173,6 +191,7 @@ export function PlanTab({
   updateObject: (id: string, patch: Partial<SlideObject>) => void
   deleteObject: (id: string) => void
   setLastRectPreset: (i: number) => void
+  addObject: (object: SlideObject) => void
   slides: Slide[]
   currentSlideId: string
   selectSlide: (id: string) => void
@@ -210,6 +229,7 @@ export function PlanTab({
           updateObject={updateObject}
           deleteObject={deleteObject}
           setLastRectPreset={setLastRectPreset}
+          addObject={addObject}
         />
       )}
 
