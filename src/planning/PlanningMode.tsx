@@ -344,14 +344,6 @@ export function PlanningMode() {
           <DropZoneLayer dropZones={map.dropZones} activeId={dropZone.id} />
           <TerrainLayer pieces={pieces} />
           <ObjectiveLayer objectives={map.objectives} homeId={ctx.homeObjective?.id} />
-          <ObjectsLayer
-            objects={currentSlide.objects}
-            selectedId={selectedObjectId ?? undefined}
-            interactive={interactive}
-            draft={draft}
-            onObjectPointerDown={onObjectPointerDown}
-            onArrowHandlePointerDown={onArrowHandlePointerDown}
-          />
           {markers && showTremorscytheAura && <TunnelTremorscytheAuraLayer chain={markers} />}
           {markers && showUnburrowReach && <TunnelUnburrowReachLayer chain={markers} />}
           {markers && (
@@ -361,6 +353,14 @@ export function PlanningMode() {
               onMarkerPointerDown={interactive ? onMarkerPointerDown : undefined}
             />
           )}
+          <ObjectsLayer
+            objects={currentSlide.objects}
+            selectedId={selectedObjectId ?? undefined}
+            interactive={interactive}
+            draft={draft}
+            onObjectPointerDown={onObjectPointerDown}
+            onArrowHandlePointerDown={onArrowHandlePointerDown}
+          />
         </Board>
       </main>
     </div>
