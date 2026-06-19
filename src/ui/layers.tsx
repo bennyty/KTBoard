@@ -1,4 +1,4 @@
-import type { Chain, DropZone, Objective, Vec, WorldPiece } from '@/model/types'
+import type { Chain, DropZone, Objective, PieceKind, Vec, WorldPiece } from '@/model/types'
 import {
   COVERAGE_DISK_RADIUS_IN,
   COVERAGE_RANGE_IN,
@@ -6,11 +6,30 @@ import {
   OBJECTIVE_RADIUS_IN,
   UNBURROW_CONTROL_RANGE_IN,
 } from '@/model/constants'
+import { gridFor } from '@/geometry/grid'
 
 /** All layer components render in killzone-inch coordinates; the parent
  *  board wraps them in the pixel-scaling <g transform>. */
 
 const polyPoints = (poly: Vec[]) => poly.map((p) => `${p.x},${p.y}`).join(' ')
+
+function terrainFill(piece: WorldPiece): string {
+  switch (piece.kind) {
+    case 'stronghold':
+      return 'rgba(40,40,48,0.45)'
+    case 'wall':
+      return 'rgba(150,150,160,0.85)'
+    case 'pillar':
+      return 'rgba(110,110,125,0.85)'
+    default:
+      return 'rgba(60,70,60,0.5)'
+  }
+}
+
+function terrainStroke(piece: WorldPiece, selectedId?: string): string {
+  if (piece.kind === 'wall' || piece.kind === 'pillar') { return 'transparent' }
+  return piece.pieceId === selectedId ? '#ffd54a' : 'rgba(230,230,230,0.8)'
+}
 
 export function TerrainLayer({ pieces, selectedId, onPiecePointerDown }: {
   pieces: WorldPiece[]
@@ -19,16 +38,16 @@ export function TerrainLayer({ pieces, selectedId, onPiecePointerDown }: {
 }) {
   return (
     <g>
-      {pieces.map((piece) => (
+      {pieces.map((piece, i) => (
         <g
-          key={piece.pieceId}
+          key={`${piece.pieceId}-${i}`}
           onPointerDown={onPiecePointerDown ? (e) => onPiecePointerDown(piece.pieceId, e) : undefined}
           style={onPiecePointerDown ? { cursor: 'grab' } : undefined}
         >
           <polygon
             points={polyPoints(piece.outer)}
-            fill={piece.kind === 'stronghold' ? 'rgba(40,40,48,0.45)' : 'rgba(60,70,60,0.5)'}
-            stroke={piece.pieceId === selectedId ? '#ffd54a' : 'rgba(230,230,230,0.8)'}
+            fill={terrainFill(piece)}
+            stroke={terrainStroke(piece, selectedId)}
             strokeWidth={0.05}
           />
           {piece.innerFloor && (
@@ -222,30 +241,41 @@ export function TunnelLayer({ chain, invalidMarkers, onMarkerPointerDown }: {
   )
 }
 
-/** Verification grid for calibration. */
-export function GridLayer({ killzone, widthIn, heightIn }: { killzone: string; widthIn: number; heightIn: number }) {
+/** Verification grid for calibration, and (density=2) the half-grid snap lattice
+ *  for placing walls and pillars. */
+export function GridLayer({
+  killzone,
+  widthIn,
+  heightIn,
+  density = 1,
+}: {
+  killzone: string
+  widthIn: number
+  heightIn: number
+  density?: 1 | 2
+}) {
   const lines = []
-  switch (killzone) {
-    case 'tombworld':
-    case 'gallowdark':
-      const widthStep = widthIn / 7 // 7 squares on the floor
-      const heightStep = heightIn / 6 // 6 squares on the floor
-      for (let x = 0; x <= widthIn; x++) {
-        lines.push(<line key={`v${x}`} x1={x * widthStep} y1={0} x2={x * widthStep} y2={heightIn} />)
-      }
-      for (let y = 0; y <= heightIn; y++) {
-        lines.push(<line key={`h${y}`} x1={0} y1={y * heightStep} x2={widthIn} y2={y * heightStep} />)
-      }
-      return <g stroke="rgba(80,220,120,0.5)" strokeWidth={0.02}>{lines}</g>
-    case 'volkus':
-      for (let x = 0; x <= widthIn; x++) {
-        lines.push(<line key={`v${x}`} x1={x} y1={0} x2={x} y2={heightIn} />)
-      }
-      for (let y = 0; y <= heightIn; y++) {
-        lines.push(<line key={`h${y}`} x1={0} y1={y} x2={widthIn} y2={y} />)
-      }
-      return <g stroke="rgba(80,220,120,0.5)" strokeWidth={0.02}>{lines}</g>
-    default:
-      return null
+  const grid = gridFor(killzone)
+  if (grid) {
+    const step = grid.stepIn / density
+    let n = 0
+    for (let x = grid.offsetIn; x <= widthIn + 1e-6; x += step, n++) {
+      lines.push(<line key={`v${n}`} x1={x} y1={0} x2={x} y2={heightIn} />)
+    }
+    n = 0
+    for (let y = grid.offsetIn; y <= heightIn + 1e-6; y += step, n++) {
+      lines.push(<line key={`h${n}`} x1={0} y1={y} x2={widthIn} y2={y} />)
+    }
+    return <g stroke="rgba(80,220,120,0.5)" strokeWidth={0.02}>{lines}</g>
   }
+  if (killzone === 'volkus') {
+    for (let x = 0; x <= widthIn; x++) {
+      lines.push(<line key={`v${x}`} x1={x} y1={0} x2={x} y2={heightIn} />)
+    }
+    for (let y = 0; y <= heightIn; y++) {
+      lines.push(<line key={`h${y}`} x1={0} y1={y} x2={widthIn} y2={y} />)
+    }
+    return <g stroke="rgba(80,220,120,0.5)" strokeWidth={0.02}>{lines}</g>
+  }
+  return null
 }
