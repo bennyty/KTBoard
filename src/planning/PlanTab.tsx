@@ -68,12 +68,14 @@ function ObjectProps({
   updateObject,
   deleteObject,
   setLastRectPreset,
+  setLastColor,
   addObject,
 }: {
   object: SlideObject
   updateObject: (id: string, patch: Partial<SlideObject>) => void
   deleteObject: (id: string) => void
   setLastRectPreset: (i: number) => void
+  setLastColor: (c: ObjectColor) => void
   addObject: (object: SlideObject) => void
 }) {
   const patch = (p: Partial<SlideObject>) => updateObject(object.id, p)
@@ -90,7 +92,13 @@ function ObjectProps({
 
       {object.kind !== 'text' && (
         <Field label="Color">
-          <ColorPicker value={object.color} onChange={(c) => patch({ color: c })} />
+          <ColorPicker
+            value={object.color}
+            onChange={(c) => {
+              setLastColor(c)
+              patch({ color: c })
+            }}
+          />
         </Field>
       )}
 
@@ -174,6 +182,7 @@ export function PlanTab({
   updateObject,
   deleteObject,
   setLastRectPreset,
+  setLastColor,
   addObject,
   slides,
   currentSlideId,
@@ -191,6 +200,7 @@ export function PlanTab({
   updateObject: (id: string, patch: Partial<SlideObject>) => void
   deleteObject: (id: string) => void
   setLastRectPreset: (i: number) => void
+  setLastColor: (c: ObjectColor) => void
   addObject: (object: SlideObject) => void
   slides: Slide[]
   currentSlideId: string
@@ -229,6 +239,7 @@ export function PlanTab({
           updateObject={updateObject}
           deleteObject={deleteObject}
           setLastRectPreset={setLastRectPreset}
+          setLastColor={setLastColor}
           addObject={addObject}
         />
       )}

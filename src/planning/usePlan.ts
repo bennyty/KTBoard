@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { Chain, Plan, Slide, SlideObject } from '@/model/types'
+import type { Chain, ObjectColor, Plan, Slide, SlideObject } from '@/model/types'
 import { getMap, maps } from '@/data/registry'
-import { genId, translateObject } from './objects'
+import { DEFAULT_OBJECT_COLOR, genId, translateObject } from './objects'
 import { readPlanFromUrl, writePlanToUrl } from './urlState'
 
 export type Tool = 'select' | 'circle' | 'rect' | 'arrow' | 'text'
@@ -37,6 +37,8 @@ export interface PlanController {
   selectedObjectId: string | null
   tool: Tool
   lastRectPreset: number
+  /** Colour of the most recently chosen object, used as the default for new objects. */
+  lastColor: ObjectColor
   locked: boolean
 
   setPlanName(name: string): void
@@ -59,6 +61,7 @@ export interface PlanController {
 
   setTool(tool: Tool): void
   setLastRectPreset(index: number): void
+  setLastColor(color: ObjectColor): void
   toggleLock(): void
 }
 
@@ -74,6 +77,7 @@ export function usePlan(): PlanController {
   const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null)
   const [tool, setTool] = useState<Tool>('select')
   const [lastRectPreset, setLastRectPreset] = useState(0)
+  const [lastColor, setLastColor] = useState<ObjectColor>(DEFAULT_OBJECT_COLOR)
 
   // Debounced URL write so rapid drags don't thrash history.replaceState.
   useEffect(() => {
@@ -253,6 +257,7 @@ export function usePlan(): PlanController {
     selectedObjectId,
     tool,
     lastRectPreset,
+    lastColor,
     locked,
     setPlanName,
     setMap,
@@ -271,6 +276,7 @@ export function usePlan(): PlanController {
     deleteObject,
     setTool,
     setLastRectPreset,
+    setLastColor,
     toggleLock,
   }
 }

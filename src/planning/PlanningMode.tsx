@@ -32,7 +32,7 @@ type Gesture =
 
 export function PlanningMode() {
   const plan = usePlan()
-  const { locked, tool, lastRectPreset, currentSlide, selectedObjectId } = plan
+  const { locked, tool, lastRectPreset, lastColor, currentSlide, selectedObjectId } = plan
 
   const map = getMap(plan.plan.mapId) ?? maps[0]
   const catalogue = getCatalogue(map.killzone)!
@@ -140,19 +140,19 @@ export function PlanningMode() {
         break
       case 'circle': {
         gesture.current = { kind: 'circle', center: inches }
-        const c = makeCircle(inches, CIRCLE_DEFAULT_SIZE_MM)
+        const c = makeCircle(inches, CIRCLE_DEFAULT_SIZE_MM, lastColor)
         setDraft({ ...c, label: `${CIRCLE_DEFAULT_SIZE_MM}mm` })
         e.currentTarget.setPointerCapture(e.pointerId)
         break
       }
       case 'rect':
         gesture.current = { kind: 'rect', center: inches }
-        setDraft(makeRect(inches, 0, lastRectPreset))
+        setDraft(makeRect(inches, 0, lastRectPreset, lastColor))
         e.currentTarget.setPointerCapture(e.pointerId)
         break
       case 'arrow':
         gesture.current = { kind: 'arrow', start: inches }
-        setDraft(makeArrow(inches, inches))
+        setDraft(makeArrow(inches, inches, lastColor))
         e.currentTarget.setPointerCapture(e.pointerId)
         break
       case 'text':
@@ -206,18 +206,18 @@ export function PlanningMode() {
     if (g?.kind === 'circle') {
       const radius = Math.hypot(inches.x - g.center.x, inches.y - g.center.y)
       const sizeMm = radius < 0.1 ? CIRCLE_DEFAULT_SIZE_MM : snapCircleSizeMm(radius)
-      plan.addObject(makeCircle(g.center, sizeMm))
+      plan.addObject(makeCircle(g.center, sizeMm, lastColor))
       plan.setTool('select')
     } else if (g?.kind === 'rect') {
       const dx = inches.x - g.center.x
       const dy = inches.y - g.center.y
       const deg = Math.hypot(dx, dy) < 0.1 ? 0 : (Math.atan2(dy, dx) * 180) / Math.PI
-      plan.addObject(makeRect(g.center, deg, lastRectPreset))
+      plan.addObject(makeRect(g.center, deg, lastRectPreset, lastColor))
       plan.setTool('select')
     } else if (g?.kind === 'arrow') {
       // Ignore an accidental zero-length drag.
       if (Math.hypot(inches.x - g.start.x, inches.y - g.start.y) >= 0.2) {
-        plan.addObject(makeArrow(g.start, inches))
+        plan.addObject(makeArrow(g.start, inches, lastColor))
       }
       plan.setTool('select')
     }
@@ -303,6 +303,7 @@ export function PlanningMode() {
             updateObject={plan.updateObject}
             deleteObject={plan.deleteObject}
             setLastRectPreset={plan.setLastRectPreset}
+            setLastColor={plan.setLastColor}
             addObject={plan.addObject}
             slides={plan.plan.slides}
             currentSlideId={plan.currentSlideId}

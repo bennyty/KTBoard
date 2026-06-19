@@ -27,7 +27,7 @@ export const COLOR_HEX: Record<ObjectColor, string> = {
   yellow: '#e2c23b',
   green: '#3bdc6e',
   white: '#f0f0f0',
-  black: '#15151c',
+  black: '#101010',
 }
 
 export const DEFAULT_OBJECT_COLOR: ObjectColor = 'red'
@@ -47,11 +47,11 @@ export function snapCircleSizeMm(radiusIn: number): number {
   return best
 }
 
-export function makeCircle(center: Vec, sizeMm = CIRCLE_DEFAULT_SIZE_MM): CircleObject {
-  return { id: genId(), kind: 'circle', x: center.x, y: center.y, sizeMm, color: DEFAULT_OBJECT_COLOR, label: '' }
+export function makeCircle(center: Vec, sizeMm = CIRCLE_DEFAULT_SIZE_MM, color: ObjectColor = DEFAULT_OBJECT_COLOR): CircleObject {
+  return { id: genId(), kind: 'circle', x: center.x, y: center.y, sizeMm, color, label: '' }
 }
 
-export function makeRect(center: Vec, rotationDeg: number, presetIndex: number): RectObject {
+export function makeRect(center: Vec, rotationDeg: number, presetIndex: number, color: ObjectColor = DEFAULT_OBJECT_COLOR): RectObject {
   const preset = RECT_PRESETS[presetIndex] ?? RECT_PRESETS[0]
   return {
     id: genId(),
@@ -61,13 +61,13 @@ export function makeRect(center: Vec, rotationDeg: number, presetIndex: number):
     rotationDeg,
     lengthMm: preset.lengthMm,
     widthMm: preset.widthMm,
-    color: DEFAULT_OBJECT_COLOR,
+    color,
     label: preset.name,
   }
 }
 
-export function makeArrow(start: Vec, end: Vec): ArrowObject {
-  return { id: genId(), kind: 'arrow', x1: start.x, y1: start.y, x2: end.x, y2: end.y, color: DEFAULT_OBJECT_COLOR, label: '' }
+export function makeArrow(start: Vec, end: Vec, color: ObjectColor = DEFAULT_OBJECT_COLOR): ArrowObject {
+  return { id: genId(), kind: 'arrow', x1: start.x, y1: start.y, x2: end.x, y2: end.y, color, label: '' }
 }
 
 export function makeText(at: Vec): TextObject {
