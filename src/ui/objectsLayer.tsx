@@ -93,7 +93,7 @@ function ArrowShape({ o, selected, showLength }: { o: ArrowObject; selected: boo
       {selected && (
         <line x1={o.x1} y1={o.y1} x2={o.x2} y2={o.y2} stroke={SELECT} strokeWidth={0.04} strokeDasharray="0.16 0.12" />
       )}
-      <ObjectLabel x={midX} y={midY - 0.25} text={o.label} color={stroke} />
+      <ObjectLabel x={midX} y={midY - 0.25} text={o.label} />
       {showLength && <ObjectLabel x={lenLabelX} y={lenLabelY} text={formatInches(arrowLengthIn(o))} />}
     </g>
   )
