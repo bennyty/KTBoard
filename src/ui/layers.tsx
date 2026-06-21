@@ -67,13 +67,20 @@ export function TerrainLayer({ pieces, selectedId, onPiecePointerDown }: {
 export function DropZoneLayer({ dropZones, activeId }: { dropZones: DropZone[]; activeId?: string }) {
   return (
     <g>
+      <defs>
+        {/* Define the striped pattern */}
+        <pattern id="striped" width="2" height="2" patternTransform="rotate(55)" patternUnits="userSpaceOnUse">
+          <rect width="1" height="2" fill="rgba(80,160,255,0.1)" />
+          <rect x="1" width="1" height="2" fill="transparent" />
+        </pattern>
+      </defs>
       {dropZones.map((dz) => (
         <polygon
           key={dz.id}
           points={polyPoints(dz.polygon)}
-          fill={dz.id === activeId ? 'rgba(80,160,255,0.18)' : 'rgba(120,120,120,0.08)'}
+          fill={dz.id === activeId ? 'url(#striped)' : 'transparent'}
           stroke={dz.id === activeId ? 'rgba(80,160,255,0.9)' : 'rgba(150,150,150,0.5)'}
-          strokeWidth={0.06}
+          strokeWidth={0.05}
           strokeDasharray="0.3 0.18"
         />
       ))}
