@@ -1,5 +1,5 @@
 import type { PieceDef, Vec } from '@/model/types'
-import { GRIDS, PILLAR_SIZE_IN, WALL_LENGTH_IN, WALL_THICKNESS_IN } from '@/model/constants'
+import { GRIDS, TW_PILLAR_SIZE_IN, WALL_LENGTH_IN, WALL_THICKNESS_IN } from '@/model/constants'
 
 export interface Grid {
   offsetIn: number
@@ -65,7 +65,7 @@ export function makeWallDef(): PieceDef {
 }
 
 export function makePillarDef(): PieceDef {
-  const h = PILLAR_SIZE_IN / 2
+  const h = TW_PILLAR_SIZE_IN / 2
   return {
     id: PILLAR_DEF_ID,
     name: 'Pillar',
