@@ -454,8 +454,10 @@ export function AnnotationMode() {
   const pieceName = (id: string) => draftCatalogue.pieces.find((p) => p.id === id)?.name ?? id
 
   return (
-    <div className="flex min-h-0 flex-1">
-      <Sidebar>
+    <div className="flex flex-col md:flex-row flex-1 md:min-h-0">
+      <Sidebar className="
+        order-last md:order-first
+        basis-0 grow md:max-w-fit">
         <Section title="Annotation (dev)">
           <Field label="Base">
             <Select
@@ -927,7 +929,10 @@ export function AnnotationMode() {
         )}
       </Sidebar>
 
-      <main className="flex min-w-0 flex-1 items-center justify-center p-3">
+      <main className="
+          h-9/12 p-3 md:h-full md:min-h-0
+          grow-3
+          flex items-center justify-center">
         <Board
           map={draftMap}
           fullImage

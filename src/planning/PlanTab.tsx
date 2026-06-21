@@ -272,28 +272,28 @@ export function PlanTab({
                 onChange={(e) => renameSlide(s.id, e.target.value)}
               />
               <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                <div className="flex flex-col gap-0.5">
-                  <Button className="px-1.5 py-0.5 leading-none text-xs" title="Move up" disabled={disabled || i === 0} onClick={() => moveSlide(s.id, -1)}>
+                <div className="grid grid-rows-2 grid-flow-col gap-0.5">
+                  <Button className="leading-none text-xs" title="Move up" disabled={disabled || i === 0} onClick={() => moveSlide(s.id, -1)}>
                     ↑
                   </Button>
-                  <Button className="px-1.5 py-0.5 leading-none text-xs" title="Move down" disabled={disabled || i === slides.length - 1} onClick={() => moveSlide(s.id, 1)}>
+                  <Button className="leading-none text-xs" title="Move down" disabled={disabled || i === slides.length - 1} onClick={() => moveSlide(s.id, 1)}>
                     ↓
                   </Button>
+                  <Button className="leading-none text-xs" title="Duplicate" disabled={disabled} onClick={() => duplicateSlide(s.id)}>
+                    ⧉
+                  </Button>
+                  <Button
+                    variant="danger"
+                    className="leading-none text-xs"
+                    title="Delete"
+                    disabled={disabled}
+                    onClick={() => {
+                      if (window.confirm(`Delete "${s.name}"? This can't be undone.`)) deleteSlide(s.id)
+                    }}
+                  >
+                    ✕
+                  </Button>
                 </div>
-                <Button className="px-1.5 py-0.5 leading-none" title="Duplicate" disabled={disabled} onClick={() => duplicateSlide(s.id)}>
-                  ⧉
-                </Button>
-                <Button
-                  variant="danger"
-                  className="px-1.5 py-0.5 leading-none"
-                  title="Delete"
-                  disabled={disabled}
-                  onClick={() => {
-                    if (window.confirm(`Delete "${s.name}"? This can't be undone.`)) deleteSlide(s.id)
-                  }}
-                >
-                  ✕
-                </Button>
               </div>
             </li>
           ))}

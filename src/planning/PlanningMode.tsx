@@ -251,9 +251,11 @@ export function PlanningMode() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1">
-      <Sidebar>
-        <Section className="border-b border-black pb-3">
+    <div className="flex flex-col flex-1 md:flex-row md:min-h-0">
+      <Sidebar className="
+        order-last md:order-first
+        basis-0 grow md:max-w-fit">
+        <Section className="border-b border-bg pb-3">
           <Field label="Plan name">
             <Input value={plan.plan.name} disabled={locked} onChange={(e) => plan.setPlanName(e.target.value)} />
           </Field>
@@ -333,7 +335,10 @@ export function PlanningMode() {
         )}
       </Sidebar>
 
-      <main className="flex min-w-0 flex-1 items-center justify-center p-3">
+      <main className="
+          h-9/12 p-3 md:h-full md:min-h-0
+          grow-3
+          flex items-center justify-center">
         <Board
           map={map}
           className={locked ? 'cursor-not-allowed' : undefined}

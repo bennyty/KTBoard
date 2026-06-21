@@ -5,7 +5,8 @@ export function Sidebar({ className, ...props }: React.HTMLAttributes<HTMLElemen
   return (
     <aside
       className={twMerge(
-        'flex w-80 min-w-80 flex-col gap-4 overflow-y-auto border-r border-black bg-panel p-3',
+        'flex flex-col gap-4',
+        'border-t border-bg bg-panel p-3 md:w-80 md:min-h-0 md:min-w-50 md:overflow-y-auto md:border-t-0 md:border-r',
         className,
       )}
       {...props}
