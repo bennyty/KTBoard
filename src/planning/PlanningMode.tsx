@@ -11,7 +11,7 @@ import { Board, mapTransform } from '@/ui/Board'
 import { clientToSvg } from '@/ui/svgPointer'
 import { DropZoneLayer, ObjectiveLayer, TerrainLayer, TunnelTremorscytheAuraLayer, TunnelLayer, TunnelUnburrowReachLayer } from '@/ui/layers'
 import { ObjectsLayer } from '@/ui/objectsLayer'
-import { usePlan } from './usePlan'
+import { isPlanEmpty, usePlan } from './usePlan'
 import { useTunnelGenerator } from './useTunnelGenerator'
 import { makeArrow, makeCircle, makeRect, makeText, snapCircleSizeMm } from './objects'
 import { PlanTab } from './PlanTab'
@@ -55,6 +55,14 @@ export function PlanningMode() {
   const [draft, setDraft] = useState<SlideObject | null>(null)
   const [wiggle, setWiggle] = useState(false)
   const gesture = useRef<Gesture | null>(null)
+
+  // Switching map or drop zone replaces the whole plan, so confirm first when the
+  // user has work that would be discarded. The Select stays controlled, so a cancel
+  // leaves the dropdown on its current value.
+  function confirmDiscard(what: string): boolean {
+    if (isPlanEmpty(plan.plan)) return true
+    return window.confirm(`Changing the ${what} will clear all the slides. Continue?`)
+  }
 
   /** Nudge the lock button so a click on the locked canvas points the user at it. */
   function nudgeLock() {
@@ -260,7 +268,11 @@ export function PlanningMode() {
             <Input value={plan.plan.name} disabled={locked} onChange={(e) => plan.setPlanName(e.target.value)} />
           </Field>
           <Field label="Map">
-            <Select value={map.id} disabled={locked} onChange={(e) => plan.setMap(e.target.value)}>
+            <Select
+              value={map.id}
+              disabled={locked}
+              onChange={(e) => confirmDiscard('map') && plan.setMap(e.target.value)}
+            >
               {maps.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
@@ -270,7 +282,11 @@ export function PlanningMode() {
             </Select>
           </Field>
           <Field label="Drop zone">
-            <Select value={dropZone.id} disabled={locked} onChange={(e) => plan.setDropZone(e.target.value)}>
+            <Select
+              value={dropZone.id}
+              disabled={locked}
+              onChange={(e) => confirmDiscard('drop zone') && plan.setDropZone(e.target.value)}
+            >
               {map.dropZones.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.name}

@@ -65,7 +65,7 @@ export interface PlanController {
   toggleLock(): void
 }
 
-function isPlanEmpty(plan: Plan): boolean {
+export function isPlanEmpty(plan: Plan): boolean {
   return plan.slides.length === 1 && !plan.slides[0].markers && plan.slides[0].objects.length === 0
 }
 
