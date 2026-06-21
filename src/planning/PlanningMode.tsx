@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { SlideObject, Vec } from '@/model/types'
 import { CIRCLE_DEFAULT_SIZE_MM } from '@/model/constants'
-import { getCatalogue, getMap, maps } from '@/data/registry'
+import { DEFAULT_MAP, getCatalogue, getMap, maps } from '@/data/registry'
 import { resolveMapPieces } from '@/scoring/generate'
 import { makeNormContext } from '@/scoring/weighted'
 import { makeScoringContext, scoreChain } from '@/scoring/score'
@@ -34,7 +34,7 @@ export function PlanningMode() {
   const plan = usePlan()
   const { locked, tool, lastRectPreset, lastColor, currentSlide, selectedObjectId } = plan
 
-  const map = getMap(plan.plan.mapId) ?? maps[0]
+  const map = getMap(plan.plan.mapId) ?? DEFAULT_MAP
   const catalogue = getCatalogue(map.killzone)!
   const dropZone = map.dropZones.find((d) => d.id === plan.plan.dropZoneId) ?? map.dropZones[0]
 
@@ -273,11 +273,15 @@ export function PlanningMode() {
               disabled={locked}
               onChange={(e) => confirmDiscard('map') && plan.setMap(e.target.value)}
             >
-              {maps.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                  {m.draft ? ' (draft annotation)' : ''}
-                </option>
+              {maps.map((group) => (
+                <optgroup key={group.name} label={group.name}>
+                  {group.maps.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                      {m.draft ? ' (draft annotation)' : ''}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </Select>
           </Field>
@@ -304,11 +308,11 @@ export function PlanningMode() {
           {!locked && <Hint className="mx-auto">All changes are saved automatically, share the url!</Hint>}
         </Section>
 
-        <div className="flex flex-wrap gap-1">
-          <Button className="px-2 py-1 text-xs" selected={tab === 'plan'} onClick={() => setTab('plan')}>
+        <div className="flex gap-1 ">
+          <Button className="px-2 py-1 flex-1" selected={tab === 'plan'} onClick={() => setTab('plan')}>
             Plan
           </Button>
-          <Button className="px-2 py-1 text-xs" selected={tab === 'tunnel'} onClick={() => setTab('tunnel')}>
+          <Button className="px-2 py-1 flex-1" selected={tab === 'tunnel'} onClick={() => setTab('tunnel')}>
             Tunnel
           </Button>
         </div>

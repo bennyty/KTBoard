@@ -1,18 +1,18 @@
 import type { AnnotatedMap, KillzoneCatalogue } from '@/model/types'
 import volkusCatalogueJson from './volkus-catalogue.json'
 import twCatalogueJson from './tombworld-catalogue.json'
-import volkus1Json from './2024-volkus-1.json'
-import volkus2Json from './2024-volkus-2.json'
-import volkus3Json from './2024-volkus-3.json'
-import volkus4Json from './2024-volkus-4.json'
-import volkus5Json from './2024-volkus-5.json'
-import volkus6Json from './2024-volkus-6.json'
-import volkus7Json from './2025-volkus-1.json'
-import volkus8Json from './2025-volkus-2.json'
-import volkus9Json from './2025-volkus-3.json'
-import volkus10Json from './2025-volkus-4.json'
-import volkus11Json from './2025-volkus-5.json'
-import volkus12Json from './2025-volkus-6.json'
+import volkus1 from './2024-volkus-1.json'
+import volkus2 from './2024-volkus-2.json'
+import volkus3 from './2024-volkus-3.json'
+import volkus4 from './2024-volkus-4.json'
+import volkus5 from './2024-volkus-5.json'
+import volkus6 from './2024-volkus-6.json'
+import volkus7 from './2025-volkus-1.json'
+import volkus8 from './2025-volkus-2.json'
+import volkus9 from './2025-volkus-3.json'
+import volkus10 from './2025-volkus-4.json'
+import volkus11 from './2025-volkus-5.json'
+import volkus12 from './2025-volkus-6.json'
 import tw1 from './tombworld-1.json'
 import tw2 from './tombworld-2.json'
 import tw3 from './tombworld-3.json'
@@ -26,31 +26,57 @@ export const catalogues: Record<string, KillzoneCatalogue> = {
   tombworld: twCatalogueJson as KillzoneCatalogue
 }
 
-export const maps: AnnotatedMap[] = [
-  volkus7Json as AnnotatedMap,
-  volkus8Json as AnnotatedMap,
-  volkus9Json as AnnotatedMap,
-  volkus10Json as AnnotatedMap,
-  volkus11Json as AnnotatedMap,
-  volkus12Json as AnnotatedMap,
-  tw1 as AnnotatedMap,
-  tw2 as AnnotatedMap,
-  tw3 as AnnotatedMap,
-  tw4 as AnnotatedMap,
-  tw5 as AnnotatedMap,
-  tw6 as AnnotatedMap,
-  volkus1Json as AnnotatedMap,
-  volkus2Json as AnnotatedMap,
-  volkus3Json as AnnotatedMap,
-  volkus4Json as AnnotatedMap,
-  volkus5Json as AnnotatedMap,
-  volkus6Json as AnnotatedMap,
-  one_obj_map as AnnotatedMap,
+export interface MapGroup {
+  name: string
+  maps: AnnotatedMap[]
+}
+
+export const maps: MapGroup[] = [
+  {
+    name: 'Volkus',
+    maps: [
+      volkus7 as AnnotatedMap,
+      volkus8 as AnnotatedMap,
+      volkus9 as AnnotatedMap,
+      volkus10 as AnnotatedMap,
+      volkus11 as AnnotatedMap,
+      volkus12 as AnnotatedMap,
+    ]
+  },
+  {
+    name: 'Tombworld',
+    maps: [
+      tw1 as AnnotatedMap,
+      tw2 as AnnotatedMap,
+      tw3 as AnnotatedMap,
+      tw4 as AnnotatedMap,
+      tw5 as AnnotatedMap,
+      tw6 as AnnotatedMap,
+    ]
+  },
+  {
+    name: 'Archived Maps',
+    maps: [
+      volkus1 as AnnotatedMap,
+      volkus2 as AnnotatedMap,
+      volkus3 as AnnotatedMap,
+      volkus4 as AnnotatedMap,
+      volkus5 as AnnotatedMap,
+      volkus6 as AnnotatedMap,
+    ]
+  },
 ]
 
 export function getMap(id: string): AnnotatedMap | undefined {
-  return maps.find((m) => m.id === id)
+  for (const mapGroup of maps) {
+    const map = mapGroup.maps.find((m) => m.id === id)
+    if (map) {
+      return map
+    }
+  }
 }
+
+export const DEFAULT_MAP = volkus7 as AnnotatedMap
 
 export function getCatalogue(killzone: string): KillzoneCatalogue | undefined {
   return catalogues[killzone]

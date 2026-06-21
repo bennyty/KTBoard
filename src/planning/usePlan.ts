@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Chain, ObjectColor, Plan, Slide, SlideObject } from '@/model/types'
-import { getMap, maps } from '@/data/registry'
+import { DEFAULT_MAP, getMap, maps } from '@/data/registry'
 import { DEFAULT_OBJECT_COLOR, genId, translateObject } from './objects'
 import { readPlanFromUrl, writePlanToUrl } from './urlState'
 
@@ -15,8 +15,7 @@ function freshPlan(mapId: string, dropZoneId: string, name = 'New Plan'): Plan {
 }
 
 function defaultPlan(): Plan {
-  const map = maps[0]
-  return freshPlan(map.id, map.dropZones[0].id)
+  return freshPlan(DEFAULT_MAP.id, DEFAULT_MAP.dropZones[0].id)
 }
 
 /** Deep-copy a slide, assigning fresh ids to the slide and every object. */

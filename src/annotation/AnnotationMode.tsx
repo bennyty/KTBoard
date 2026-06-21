@@ -12,7 +12,7 @@ import {
   type Vec,
 } from '@/model/types'
 import { IN_PER_MM } from '@/model/constants'
-import { catalogues, maps } from '@/data/registry'
+import { catalogues, DEFAULT_MAP, getMap, maps } from '@/data/registry'
 import { calibrate, inchesToPx } from '@/geometry/transform'
 import { pointInPolygon, polygonCentroid, polygonToLocal, resolvePiece } from '@/geometry/polygon'
 import {
@@ -130,9 +130,9 @@ const blankMap: AnnotatedMap = {
 }
 
 export function AnnotationMode() {
-  const [draftMap, setDraftMap] = useState<AnnotatedMap>(() => structuredClone(maps[0]))
+  const [draftMap, setDraftMap] = useState<AnnotatedMap>(() => structuredClone(DEFAULT_MAP))
   const [draftCatalogue, setDraftCatalogue] = useState<KillzoneCatalogue>(() =>
-    structuredClone(catalogues[maps[0].killzone]),
+    structuredClone(catalogues[DEFAULT_MAP.killzone]),
   )
   const [tab, setTab] = useState<Tab>('pieces')
 
@@ -550,7 +550,7 @@ export function AnnotationMode() {
                 if (e.target.value === '__blank') {
                   setDraftMap(structuredClone(blankMap))
                 } else {
-                  const m = maps.find((x) => x.id === e.target.value)
+                  const m = getMap(e.target.value)
                   if (m) {
                     setDraftMap(structuredClone(m))
                     setDraftCatalogue(structuredClone(catalogues[m.killzone]))
@@ -558,10 +558,14 @@ export function AnnotationMode() {
                 }
               }}
             >
-              {maps.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
+              {maps.map((group) => (
+                <optgroup key={group.name} label={group.name}>
+                  {group.maps.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
               <option value="__blank">Blank (Volkus image)</option>
             </Select>
