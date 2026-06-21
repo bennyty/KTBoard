@@ -14,7 +14,16 @@ import {
 import { IN_PER_MM } from '@/model/constants'
 import { catalogues, maps } from '@/data/registry'
 import { calibrate, inchesToPx } from '@/geometry/transform'
-import { polygonCentroid, polygonToLocal, resolvePiece } from '@/geometry/polygon'
+import { pointInPolygon, polygonCentroid, polygonToLocal, resolvePiece } from '@/geometry/polygon'
+import {
+  PILLAR_DEF_ID,
+  WALL_DEF_ID,
+  gridFor,
+  makePillarDef,
+  makeWallDef,
+  snapPillar,
+  snapWall,
+} from '@/geometry/grid'
 import { rotateDeg, sub, add } from '@/geometry/vec'
 import { Board, mapTransform } from '@/ui/Board'
 import { DropZoneLayer, GridLayer, ObjectiveLayer, TerrainLayer } from '@/ui/layers'
@@ -34,7 +43,7 @@ import {
   Textarea,
 } from '@/ui/components'
 
-type Tab = 'calibrate' | 'pieces' | 'place' | 'zones' | 'objectives' | 'export'
+type Tab = 'calibrate' | 'pieces' | 'place' | 'zones' | 'objectives' | 'walls' | 'export'
 
 const LOUPE_R = 2
 const LOUPE_ZOOM = 4
@@ -156,6 +165,10 @@ export function AnnotationMode() {
   const [importError, setImportError] = useState<string | null>(null)
   const [draggingVertex, setDraggingVertex] = useState(false)
 
+  // Grid-aligned walls & pillars
+  const [wallMode, setWallMode] = useState<'wall' | 'pillar'>('wall')
+  const grid = gridFor(draftMap.killzone)
+
   const imgSize = useImageSize(draftMap.image)
 
   const pieces = useMemo(() => {
@@ -167,6 +180,37 @@ export function AnnotationMode() {
   }, [draftMap, draftCatalogue])
 
   const t = mapTransform(draftMap)
+
+  // Seed the canonical wall/pillar defs into the catalogue when the walls tab
+  // is opened (covers blank / gallowdark catalogues that lack them).
+  useEffect(() => {
+    if (tab !== 'walls') return
+    setDraftCatalogue((c) => {
+      const have = new Set(c.pieces.map((p) => p.id))
+      const missing: PieceDef[] = []
+      if (!have.has(WALL_DEF_ID)) missing.push(makeWallDef())
+      if (!have.has(PILLAR_DEF_ID)) missing.push(makePillarDef())
+      return missing.length ? { ...c, pieces: [...c.pieces, ...missing] } : c
+    })
+  }, [tab])
+
+  /** Index of the wall/pillar placement whose footprint contains `inches`, or -1.
+   *  Scoped to wall/pillar kinds so real terrain is never hit by the eraser. */
+  function wallPillarHitIndex(inches: Vec): number {
+    const defs = new Map(draftCatalogue.pieces.map((p) => [p.id, p]))
+    return draftMap.placements.findIndex((pl) => {
+      const def = defs.get(pl.pieceId)
+      if (!def || (def.kind !== 'wall' && def.kind !== 'pillar')) return false
+      return pointInPolygon(inches, resolvePiece(def, pl).outer)
+    })
+  }
+
+  function removeWallsAndPillars() {
+    const wpIds = new Set(
+      draftCatalogue.pieces.filter((p) => p.kind === 'wall' || p.kind === 'pillar').map((p) => p.id),
+    )
+    setDraftMap((m) => ({ ...m, placements: m.placements.filter((pl) => !wpIds.has(pl.pieceId)) }))
+  }
 
   function patchMap(patch: Partial<AnnotatedMap>) {
     setDraftMap((m) => ({ ...m, ...patch }))
@@ -329,6 +373,26 @@ export function AnnotationMode() {
       } else {
         setTraceVertices((v) => [...v, inches])
       }
+    } else if (tab === 'walls' && grid) {
+      const hit = wallPillarHitIndex(inches)
+      if (hit !== -1) {
+        setDraftMap((m) => ({ ...m, placements: m.placements.filter((_, k) => k !== hit) }))
+      } else if (wallMode === 'pillar') {
+        const c = snapPillar(inches, grid)
+        setDraftMap((m) => ({
+          ...m,
+          placements: [...m.placements, { pieceId: PILLAR_DEF_ID, x: c.x, y: c.y, rotationDeg: 0 }],
+        }))
+      } else {
+        const { center, rotationDeg } = snapWall(inches, grid)
+        setDraftMap((m) => ({
+          ...m,
+          placements: [
+            ...m.placements,
+            { pieceId: WALL_DEF_ID, x: center.x, y: center.y, rotationDeg },
+          ],
+        }))
+      }
     } else if (tab === 'zones') setZoneVertices((v) => [...v, inches])
     else if (tab === 'objectives' && !dragObjective.current) {
       const id = `obj-${Date.now() % 100000}`
@@ -453,6 +517,27 @@ export function AnnotationMode() {
   const selectedDef = draftCatalogue.pieces.find((p) => p.id === selectedPieceId)
   const pieceName = (id: string) => draftCatalogue.pieces.find((p) => p.id === id)?.name ?? id
 
+  // Wall/pillar hover: when over an existing piece, show the eraser highlight;
+  // otherwise show the snap ghost for the active mode.
+  const wallHoverIndex = tab === 'walls' && cursorIn && grid ? wallPillarHitIndex(cursorIn) : -1
+  const wallHoverPiece =
+    wallHoverIndex !== -1
+      ? (() => {
+          const pl = draftMap.placements[wallHoverIndex]
+          const def = draftCatalogue.pieces.find((p) => p.id === pl.pieceId)
+          return def ? resolvePiece(def, pl) : null
+        })()
+      : null
+  const wallGhostPiece =
+    tab === 'walls' && cursorIn && grid && wallHoverIndex === -1
+      ? wallMode === 'pillar'
+        ? resolvePiece(makePillarDef(), { pieceId: PILLAR_DEF_ID, ...snapPillar(cursorIn, grid), rotationDeg: 0 })
+        : (() => {
+            const { center, rotationDeg } = snapWall(cursorIn, grid)
+            return resolvePiece(makeWallDef(), { pieceId: WALL_DEF_ID, x: center.x, y: center.y, rotationDeg })
+          })()
+      : null
+
   return (
     <div className="flex flex-col md:flex-row flex-1 md:min-h-0">
       <Sidebar className="
@@ -488,11 +573,13 @@ export function AnnotationMode() {
             <Input value={draftMap.killzone} onChange={(e) => patchMap({ killzone: e.target.value })} />
           </Field>
           <nav className="flex flex-wrap gap-1">
-            {(['pieces', 'place', 'zones', 'objectives', 'calibrate', 'export'] as Tab[]).map((x) => (
-              <Button key={x} className="px-2 py-1 text-xs" selected={tab === x} onClick={() => setTab(x)}>
-                {x}
-              </Button>
-            ))}
+            {(['pieces', 'place', 'zones', 'objectives', 'walls', 'calibrate', 'export'] as Tab[])
+              .filter((x) => x !== 'walls' || grid)
+              .map((x) => (
+                <Button key={x} className="px-2 py-1 text-xs" selected={tab === x} onClick={() => setTab(x)}>
+                  {x}
+                </Button>
+              ))}
           </nav>
         </Section>
 
@@ -894,6 +981,28 @@ export function AnnotationMode() {
           </Section>
         )}
 
+        {tab === 'walls' && (
+          <Section title="Walls & pillars">
+            <Row>
+              <Button selected={wallMode === 'wall'} onClick={() => setWallMode('wall')}>
+                Wall
+              </Button>
+              <Button selected={wallMode === 'pillar'} onClick={() => setWallMode('pillar')}>
+                Pillar
+              </Button>
+            </Row>
+            <Hint>
+              Click an empty grid spot to place; click an existing wall/pillar to delete. Everything
+              snaps to the half-grid. Footprint sizes live in <code>src/model/constants.ts</code>.
+            </Hint>
+            <Row>
+              <Button variant="danger" onClick={removeWallsAndPillars}>
+                Clear all walls &amp; pillars
+              </Button>
+            </Row>
+          </Section>
+        )}
+
         {tab === 'export' && (
           <Section title="Export / import">
             <Field label="Map ID">
@@ -952,6 +1061,32 @@ export function AnnotationMode() {
             onObjectivePointerDown={tab === 'objectives' ? onObjectivePointerDown : undefined}
           />
           {showGrid && tab === 'calibrate' && <GridLayer killzone={draftMap.killzone} widthIn={draftMap.widthIn} heightIn={draftMap.heightIn} />}
+          {tab === 'walls' && (
+            <GridLayer
+              killzone={draftMap.killzone}
+              widthIn={draftMap.widthIn}
+              heightIn={draftMap.heightIn}
+              density={2}
+            />
+          )}
+          {wallGhostPiece && (
+            <polygon
+              points={wallGhostPiece.outer.map((p) => `${p.x},${p.y}`).join(' ')}
+              fill="rgba(255,220,80,0.35)"
+              stroke="#ffd54a"
+              strokeWidth={0.04}
+              style={{ pointerEvents: 'none' }}
+            />
+          )}
+          {wallHoverPiece && (
+            <polygon
+              points={wallHoverPiece.outer.map((p) => `${p.x},${p.y}`).join(' ')}
+              fill="rgba(226,59,59,0.3)"
+              stroke="#e23b3b"
+              strokeWidth={0.05}
+              style={{ pointerEvents: 'none' }}
+            />
+          )}
           {tab === 'pieces' && traceShape === 'rectangle' && traceVertices.length === 1 && cursorIn && (
             <polygon
               points={rectFromCorners(traceVertices[0], cursorIn)

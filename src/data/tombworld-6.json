@@ -1,0 +1,379 @@
+{
+  "id": "tombworld-6",
+  "name": "Tomb World 6",
+  "killzone": "tombworld",
+  "image": "/KTBoard/maps/tombworld/tw_06.png",
+  "widthIn": 27.6875,
+  "heightIn": 23.875,
+  "pxPerInchX": 95.3,
+  "pxPerInchY": 95.7,
+  "originPx": {
+    "x": 31,
+    "y": 27
+  },
+  "draft": false,
+  "placements": [
+    {
+      "pieceId": "piece-1781845408586",
+      "x": 26.232259215988364,
+      "y": 15.726987426183813,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "piece-1781845443318",
+      "x": 1.194486292812024,
+      "y": 11.121728142476256,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "piece-1781845472249",
+      "x": 23.43391648744861,
+      "y": 8.138783973337091,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781845505666",
+      "x": 15.754678236850285,
+      "y": 8.047520726950317,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781845532533",
+      "x": 17.172507914516128,
+      "y": 15.6756645634132,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781845636484",
+      "x": 8.093566452969036,
+      "y": 10.069141082753708,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1781845636485",
+      "x": 21.53302120511955,
+      "y": 17.78535380009697,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 2.40625,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 6.21875,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 10.03125,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 13.84375,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 17.65625,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 21.46875,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 25.28125,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 21.46875,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 17.65625,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 13.84375,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 11.9375,
+      "y": 10.03125,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 11.9375,
+      "y": 6.21875,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 6.21875,
+      "y": 10.03125,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 2.40625,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 6.21875,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 10.03125,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 11.9375,
+      "y": 13.84375,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 11.9375,
+      "y": 17.65625,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 13.84375,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 17.65625,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 19.5625,
+      "y": 17.65625,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 19.5625,
+      "y": 13.84375,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 21.46875,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-wall",
+      "x": 25.28125,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 0.5,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 4.3125,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 11.9375,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 19.5625,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 27.1875,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 11.9375,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 15.75,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 19.5625,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 6.21875,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 6.21875,
+      "y": 8.125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 0.5,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 8.125,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 11.9375,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 11.9375,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 19.5625,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 27.1875,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tw-pillar",
+      "x": 23.375,
+      "y": 11.9375,
+      "rotationDeg": 0
+    }
+  ],
+  "dropZones": [
+      {
+      "id": "dz-98964",
+      "name": "Grey (north)",
+      "polygon": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 4.3125
+        },
+        {
+          "x": 27.6875,
+          "y": 4.3125
+        },
+        {
+          "x": 27.6875,
+          "y": 0
+        }
+      ],
+      "anchorEdge": "left"
+    },
+    {
+      "id": "dz-17664",
+      "name": "Orange (south)",
+      "polygon": [
+        {
+          "x": 0,
+          "y": 19.5625
+        },
+        {
+          "x": 0,
+          "y": 23.875
+        },
+        {
+          "x": 27.6875,
+          "y": 23.875 
+        },
+        {
+          "x": 27.6875,
+          "y": 19.5625
+        }
+      ],
+      "anchorEdge": "right"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "obj-west",
+      "role": "other",
+      "center": {
+        "x": 15.771619131532571,
+        "y": 15.772555783749125
+      }
+    },
+    {
+      "id": "obj-east",
+      "role": "other",
+      "center": {
+        "x": 19.610008394105236,
+        "y": 8.100946178755168
+      }
+    },
+    {
+      "id": "obj-south",
+      "role": "center",
+      "center": {
+        "x": 3.0670912906230434,
+        "y": 11.909833052813571
+      }
+    }
+  ]
+}

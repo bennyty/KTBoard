@@ -9,7 +9,7 @@ export interface Vec {
 /** Vertices in order; closed implicitly (last connects to first). */
 export type Polygon = Vec[]
 
-export const PIECE_KINDS = ['stronghold', 'ruin', 'rubble'] as const
+export const PIECE_KINDS = ['stronghold', 'ruin', 'rubble', 'wall', 'pillar'] as const
 export type PieceKind = typeof PIECE_KINDS[number]
 
 export interface PieceDef {
@@ -25,9 +25,6 @@ export interface PieceDef {
 }
 
 export interface KillzoneCatalogue {
-  killzone: string
-  widthIn: number
-  heightIn: number
   pieces: PieceDef[]
 }
 

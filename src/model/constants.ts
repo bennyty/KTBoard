@@ -59,6 +59,20 @@ export const CIRCLE_PRESET_SIZES_MM = [20, 25, 28, 32, 40, 50, 60] as const
 /** Diameter used for a Circle placed with a bare click (no drag). */
 export const CIRCLE_DEFAULT_SIZE_MM = 32
 
+// --- Grid-aligned walls & pillars (tombworld / gallowdark) ---
+// PLACEHOLDER footprint sizes — replace with measured values. Editing these
+// reshapes every placed wall/pillar on reload (defs are built from them).
+export const WALL_LENGTH_IN = 3.8125 // one normal cell-edge
+export const WALL_THICKNESS_IN = 4.27 * IN_PER_MM
+export const TW_PILLAR_SIZE_IN = 13.5 * IN_PER_MM
+
+/** Grid lattice per killzone: lines sit at offsetIn + n·stepIn. The wall/pillar
+ *  snap lattice is the half-grid (stepIn / 2). */
+export const GRIDS: Record<string, { offsetIn: number; stepIn: number }> = {
+  tombworld: { offsetIn: 0.5, stepIn: 3.8125 },
+  gallowdark: { offsetIn: 0.5, stepIn: 3.8125 },
+}
+
 /** Named Rectangle presets (in-game equipment footprints), length × width in mm. */
 export const RECT_PRESETS = [
   { name: 'Light Barricade', lengthMm: 50, widthMm: 8 },
