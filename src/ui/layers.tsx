@@ -101,10 +101,9 @@ export function ObjectiveLayer({ objectives, homeId, onObjectivePointerDown, sel
           key={o.id}
           onPointerDown={onObjectivePointerDown ? (e) => onObjectivePointerDown(o.id, e) : undefined}
           style={onObjectivePointerDown ? { cursor: 'grab' } : undefined}
+          transform={`translate(${o.center.x},${o.center.y})`}
         >
           <circle
-            cx={o.center.x}
-            cy={o.center.y}
             r={COVERAGE_DISK_RADIUS_IN}
             fill="none"
             stroke="rgba(255,140,40,0.35)"
@@ -112,18 +111,16 @@ export function ObjectiveLayer({ objectives, homeId, onObjectivePointerDown, sel
             strokeDasharray="0.18 0.12"
           />
           <circle
-            cx={o.center.x}
-            cy={o.center.y}
             r={OBJECTIVE_RADIUS_IN}
             fill={o.role === 'center' ? 'rgba(255,90,40,0.85)' : 'rgba(255,150,40,0.8)'}
             stroke={o.id === selectedId ? '#fff' : o.id === homeId ? '#7fd4ff' : '#30231a'}
             strokeWidth={o.id === homeId || o.id === selectedId ? 0.12 : 0.05}
           />
           <text
-            x={o.center.x}
-            y={o.center.y + 0.14}
             textAnchor="middle"
-            fontSize={0.42}
+            alignmentBaseline="middle"
+            dominantBaseline="middle"
+            fontSize={0.5}
             fill="#1b1208"
             style={{ pointerEvents: 'none', fontWeight: 700 }}
           >

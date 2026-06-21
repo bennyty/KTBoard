@@ -14,7 +14,7 @@ export function ListItem({ selected, className, ...props }: ListItemProps) {
   return (
     <li
       className={twMerge(
-        'flex flex-wrap items-center justify-between gap-1.5 rounded-md bg-panel-2 px-1.5 py-1 text-sm',
+        'flex flex-wrap items-center justify-between gap-1.5 rounded-md bg-panel-2 px-1.5 py-1',
         '[&>input]:min-w-0 [&>input]:flex-1',
         selected && 'outline outline-accent',
         className,

@@ -12,5 +12,5 @@ export function Hint({
 
 /** Inline error message. */
 export function ErrorText({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={twMerge('text-sm text-danger', className)} {...props} />
+  return <div className={twMerge('text-danger', className)} {...props} />
 }

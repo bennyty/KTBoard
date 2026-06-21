@@ -6,7 +6,7 @@ export function SectionHeading({ className, ...props }: React.HTMLAttributes<HTM
   return (
     <h2
       className={twMerge(
-        'm-0 text-sm font-bold uppercase tracking-tighter text-muted',
+        'm-0 font-bold uppercase text-vintage text-muted',
         className,
       )}
       {...props}

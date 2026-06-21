@@ -10,7 +10,7 @@ import { Button, ErrorText, Field, Hint, Section } from '@/ui/components'
 
 const AXIS_LABELS = Object.fromEntries(SCORE_AXES.map((a) => [a.key, a.label])) as Record<keyof Scores, string>
 
-const TH = 'px-0.5 py-px text-xs font-semibold uppercase tracking-tighter text-muted'
+const TH = 'px-0.5 py-px text-xs font-semibold uppercase text-muted'
 const TD = 'px-0.5 py-px text-muted'
 const TD_NUM = 'px-0.5 py-px text-right tabular-nums text-muted'
 const TD_STRONG = 'px-0.5 py-px text-right tabular-nums text-text'
@@ -127,7 +127,7 @@ export function TunnelTab({
       {(gen.weightedCandidates.length > 0 || gen.paretoCandidates.length > 0) && (
         <Section>
           <details className="flex flex-col gap-2">
-            <summary className="cursor-pointer text-sm uppercase tracking-tighter text-muted">Weight tuning</summary>
+            <summary className="cursor-pointer uppercase text-muted">Weight tuning</summary>
             <Hint>Adjust the weighted-sum priorities. Weighted options regenerate automatically; Pareto options stay fixed.</Hint>
             {SCORE_AXES.map(({ key, label }) => (
               <Field key={key} className="gap-1">
@@ -154,7 +154,7 @@ export function TunnelTab({
       {markers && (
         <Section title="Current tunnel">
           {violations.length > 0 ? (
-            <ul className="m-0 list-disc pl-4 text-sm text-orange-300">
+            <ul className="m-0 list-disc pl-4 text-orange-300">
               {violations.map((v, i) => (
                 <li key={i}>{v.message}</li>
               ))}

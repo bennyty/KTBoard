@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Germania+One&family=Oswald:wght@200..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Germania+One&family=Oswald:wght@200..700&display=swap');
 @import 'tailwindcss';
 
 /* Design tokens. Exposed to utilities as bg-bg, text-muted, border-edge, etc. */
@@ -11,6 +13,9 @@
   --color-accent-2: #50a0ff;
   --color-danger: #e23b3b;
   --color-edge: #3a3a48;
+
+  --font-sans: 'Oswald', system-ui, sans-serif;
+  --font-vintage: 'Germania One', sans-serif;
 
   /* Locked plan: the lock button wiggles to draw the eye. */
   --animate-wiggle: wiggle 0.4s ease;
