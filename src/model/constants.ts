@@ -63,8 +63,10 @@ export const CIRCLE_DEFAULT_SIZE_MM = 32
 // PLACEHOLDER footprint sizes — replace with measured values. Editing these
 // reshapes every placed wall/pillar on reload (defs are built from them).
 export const WALL_LENGTH_IN = 3.8125 // one normal cell-edge
-export const WALL_THICKNESS_IN = 4.27 * IN_PER_MM
+export const TW_WALL_THICKNESS_IN = 4.27 * IN_PER_MM
+export const GD_WALL_THICKNESS_IN = 5.15 * IN_PER_MM
 export const TW_PILLAR_SIZE_IN = 13.5 * IN_PER_MM
+export const GD_PILLAR_SIZE_IN = 25.75 * IN_PER_MM
 
 /** Grid lattice per killzone: lines sit at offsetIn + n·stepIn. The wall/pillar
  *  snap lattice is the half-grid (stepIn / 2). */

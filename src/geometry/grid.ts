@@ -1,5 +1,5 @@
 import type { PieceDef, Vec } from '@/model/types'
-import { GRIDS, TW_PILLAR_SIZE_IN, WALL_LENGTH_IN, WALL_THICKNESS_IN } from '@/model/constants'
+import { GRIDS, TW_PILLAR_SIZE_IN, WALL_LENGTH_IN, TW_WALL_THICKNESS_IN, GD_PILLAR_SIZE_IN, GD_WALL_THICKNESS_IN } from '@/model/constants'
 
 export interface Grid {
   offsetIn: number
@@ -42,17 +42,17 @@ export function snapWall(cursor: Vec, grid: Grid): { center: Vec; rotationDeg: 0
   return { center, rotationDeg }
 }
 
-export const WALL_DEF_ID = 'tw-wall'
-export const PILLAR_DEF_ID = 'tw-pillar'
+export const WALL_DEF_ID = '-wall'
+export const PILLAR_DEF_ID = '-pillar'
 
 /** Canonical wall/pillar defs, built from the named constants so a single edit
  *  reshapes every placed instance. Mirrors the committed entries in
  *  tombworld-catalogue.json; seeded into catalogues that lack them. */
-export function makeWallDef(): PieceDef {
+export function makeWallDef(killzone: string): PieceDef {
   const hl = WALL_LENGTH_IN / 2
-  const ht = WALL_THICKNESS_IN / 2
+  const ht = (killzone === 'gallowdark' ? GD_WALL_THICKNESS_IN : TW_WALL_THICKNESS_IN) / 2
   return {
-    id: WALL_DEF_ID,
+    id: killzone + WALL_DEF_ID,
     name: 'Wall',
     kind: 'wall',
     outer: [
@@ -64,10 +64,10 @@ export function makeWallDef(): PieceDef {
   }
 }
 
-export function makePillarDef(): PieceDef {
-  const h = TW_PILLAR_SIZE_IN / 2
+export function makePillarDef(killzone: string): PieceDef {
+  const h = (killzone === 'gallowdark' ? GD_PILLAR_SIZE_IN : TW_PILLAR_SIZE_IN) / 2
   return {
-    id: PILLAR_DEF_ID,
+    id: killzone + PILLAR_DEF_ID,
     name: 'Pillar',
     kind: 'pillar',
     outer: [

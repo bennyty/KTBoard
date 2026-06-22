@@ -600,7 +600,7 @@
       ]
     },
     {
-      "id": "tw-wall",
+      "id": "tombworld-wall",
       "name": "Wall",
       "kind": "wall",
       "outer": [
@@ -623,7 +623,7 @@
       ]
     },
     {
-      "id": "tw-pillar",
+      "id": "tombworld-pillar",
       "name": "Pillar",
       "kind": "pillar",
       "outer": [

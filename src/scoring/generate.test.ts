@@ -13,7 +13,7 @@ describe('generateCandidates on Volkus 1', () => {
   it('produces violation-free Pareto and weighted plans for each drop zone', () => {
     for (const dz of map.dropZones) {
       const result = generateCandidates(map, catalogue, dz.id, 200)
-      expect(result.valid).toBeGreaterThan(100)
+      expect(result.valid).toBe(191) // 191 valid tunnels among 200 attempts, with the default RNG seed
       expect(result.paretoCandidates.length).toBeGreaterThanOrEqual(1)
       expect(result.paretoCandidates.length).toBeLessThanOrEqual(5)
       expect(result.weightedCandidates.length).toBeGreaterThanOrEqual(1)

@@ -1,5 +1,6 @@
 import type { AnnotatedMap, KillzoneCatalogue } from '@/model/types'
 import volkusCatalogueJson from './volkus-catalogue.json'
+import gallowdarkCatalogueJson from './gallowdark-catalogue.json'
 import twCatalogueJson from './tombworld-catalogue.json'
 import volkus1 from './2024-volkus-1.json'
 import volkus2 from './2024-volkus-2.json'
@@ -19,10 +20,17 @@ import tw3 from './tombworld-3.json'
 import tw4 from './tombworld-4.json'
 import tw5 from './tombworld-5.json'
 import tw6 from './tombworld-6.json'
+import gd1 from './gallowdark-1.json'
+import gd2 from './gallowdark-2.json'
+import gd3 from './gallowdark-3.json'
+import gd4 from './gallowdark-4.json'
+import gd5 from './gallowdark-5.json'
+import gd6 from './gallowdark-6.json'
 import one_obj_map from './one-obj-test-map.json'
 
 export const catalogues: Record<string, KillzoneCatalogue> = {
   volkus: volkusCatalogueJson as KillzoneCatalogue,
+  gallowdark: gallowdarkCatalogueJson as KillzoneCatalogue,
   tombworld: twCatalogueJson as KillzoneCatalogue
 }
 
@@ -41,6 +49,17 @@ export const maps: MapGroup[] = [
       volkus10 as AnnotatedMap,
       volkus11 as AnnotatedMap,
       volkus12 as AnnotatedMap,
+    ]
+  },
+  {
+    name: 'Gallowdark',
+    maps: [
+      gd1 as AnnotatedMap,
+      gd2 as AnnotatedMap,
+      gd3 as AnnotatedMap,
+      gd4 as AnnotatedMap,
+      gd5 as AnnotatedMap,
+      gd6 as AnnotatedMap,
     ]
   },
   {

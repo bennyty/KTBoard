@@ -22,6 +22,7 @@ import {
   makePillarDef,
   makeWallDef,
   snapPillar,
+  snapToFineIntersection,
   snapWall,
 } from '@/geometry/grid'
 import { rotateDeg, sub, add } from '@/geometry/vec'
@@ -188,8 +189,8 @@ export function AnnotationMode() {
     setDraftCatalogue((c) => {
       const have = new Set(c.pieces.map((p) => p.id))
       const missing: PieceDef[] = []
-      if (!have.has(WALL_DEF_ID)) missing.push(makeWallDef())
-      if (!have.has(PILLAR_DEF_ID)) missing.push(makePillarDef())
+      if (!have.has(draftMap.killzone + WALL_DEF_ID)) missing.push(makeWallDef(draftMap.killzone))
+      if (!have.has(draftMap.killzone + PILLAR_DEF_ID)) missing.push(makePillarDef(draftMap.killzone))
       return missing.length ? { ...c, pieces: [...c.pieces, ...missing] } : c
     })
   }, [tab])
@@ -381,7 +382,7 @@ export function AnnotationMode() {
         const c = snapPillar(inches, grid)
         setDraftMap((m) => ({
           ...m,
-          placements: [...m.placements, { pieceId: PILLAR_DEF_ID, x: c.x, y: c.y, rotationDeg: 0 }],
+          placements: [...m.placements, { pieceId: draftMap.killzone + PILLAR_DEF_ID, x: c.x, y: c.y, rotationDeg: 0 }],
         }))
       } else {
         const { center, rotationDeg } = snapWall(inches, grid)
@@ -389,7 +390,7 @@ export function AnnotationMode() {
           ...m,
           placements: [
             ...m.placements,
-            { pieceId: WALL_DEF_ID, x: center.x, y: center.y, rotationDeg },
+            { pieceId: draftMap.killzone + WALL_DEF_ID, x: center.x, y: center.y, rotationDeg },
           ],
         }))
       }
@@ -404,25 +405,27 @@ export function AnnotationMode() {
     }
   }
 
-  function onBoardPointerMove(inches: Vec) {
-    setCursorIn(inches)
+  function onBoardPointerMove(pointerPos: Vec) {
+    setCursorIn(pointerPos)
     if (dragTraceVertexIndex.current !== null) {
       const i = dragTraceVertexIndex.current
-      setTraceVertices((v) => v.map((p, k) => (k === i ? inches : p)))
+      setTraceVertices((v) => v.map((p, k) => (k === i ? pointerPos : p)))
       return
     }
     if (dragPiece.current) {
       const { pieceId, offset } = dragPiece.current
-      const pos = add(inches, offset)
+      const pos = add(pointerPos, offset)
       setDraftMap((m) => ({
         ...m,
         placements: m.placements.map((pl) => (pl.pieceId === pieceId ? { ...pl, x: pos.x, y: pos.y } : pl)),
       }))
     } else if (dragObjective.current) {
       const id = dragObjective.current
+      // On gridded killzones, snap the objective centre to grid intersections.
+      const center = grid ? snapToFineIntersection(pointerPos, grid) : pointerPos
       setDraftMap((m) => ({
         ...m,
-        objectives: m.objectives.map((o) => (o.id === id ? { ...o, center: inches } : o)),
+        objectives: m.objectives.map((o) => (o.id === id ? { ...o, center } : o)),
       }))
     }
   }
@@ -531,10 +534,10 @@ export function AnnotationMode() {
   const wallGhostPiece =
     tab === 'walls' && cursorIn && grid && wallHoverIndex === -1
       ? wallMode === 'pillar'
-        ? resolvePiece(makePillarDef(), { pieceId: PILLAR_DEF_ID, ...snapPillar(cursorIn, grid), rotationDeg: 0 })
+        ? resolvePiece(makePillarDef(draftMap.killzone), { pieceId: draftMap.killzone + PILLAR_DEF_ID, ...snapPillar(cursorIn, grid), rotationDeg: 0 })
         : (() => {
             const { center, rotationDeg } = snapWall(cursorIn, grid)
-            return resolvePiece(makeWallDef(), { pieceId: WALL_DEF_ID, x: center.x, y: center.y, rotationDeg })
+            return resolvePiece(makeWallDef(draftMap.killzone), { pieceId: draftMap.killzone + WALL_DEF_ID, x: center.x, y: center.y, rotationDeg })
           })()
       : null
 

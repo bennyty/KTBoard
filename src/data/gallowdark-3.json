@@ -1,0 +1,343 @@
+{
+  "id": "gallowdark-3",
+  "name": "Gallowdark 3",
+  "killzone": "gallowdark",
+  "image": "/KTBoard/maps/gallowdark/itd_03.png",
+  "widthIn": 27.6875,
+  "heightIn": 23.875,
+  "pxPerInchX": 95.3,
+  "pxPerInchY": 95.7,
+  "originPx": {
+    "x": 31,
+    "y": 27
+  },
+  "draft": true,
+  "placements": [
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 10.03125,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 13.84375,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 17.65625,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 21.46875,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 25.28125,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 8.125,
+      "y": 6.21875,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 8.125,
+      "y": 10.03125,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 13.84375,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 17.65625,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 19.5625,
+      "y": 6.21875,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 19.5625,
+      "y": 10.03125,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 19.5625,
+      "y": 13.84375,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 19.5625,
+      "y": 17.65625,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 11.9375,
+      "y": 13.84375,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 8.125,
+      "y": 13.84375,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 6.21875,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 2.40625,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 2.40625,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 6.21875,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 8.125,
+      "y": 17.65625,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 10.03125,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 11.9375,
+      "y": 17.65625,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 21.46875,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 25.28125,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 8.125,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 15.75,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 23.375,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 27.1875,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 19.5625,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 19.5625,
+      "y": 8.125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 11.9375,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 15.75,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 19.5625,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 8.125,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 0.5,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 0.5,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 8.125,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 11.9375,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 19.5625,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 19.5625,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 23.375,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 27.1875,
+      "y": 19.5625,
+      "rotationDeg": 0
+    }
+  ],
+  "dropZones": [
+    {
+      "id": "dz-98964",
+      "name": "Orange (north)",
+      "polygon": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 4.3125
+        },
+        {
+          "x": 27.6875,
+          "y": 4.3125
+        },
+        {
+          "x": 27.6875,
+          "y": 0
+        }
+      ],
+      "anchorEdge": "top"
+    },
+    {
+      "id": "dz-17664",
+      "name": "Grey (south)",
+      "polygon": [
+        {
+          "x": 0,
+          "y": 19.5625
+        },
+        {
+          "x": 0,
+          "y": 23.875
+        },
+        {
+          "x": 27.6875,
+          "y": 23.875
+        },
+        {
+          "x": 27.6875,
+          "y": 19.5625
+        }
+      ],
+      "anchorEdge": "bottom"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "obj-west",
+      "role": "other",
+      "center": {
+        "x": 4.3125,
+        "y": 15.75
+      }
+    },
+    {
+      "id": "obj-east",
+      "role": "other",
+      "center": {
+        "x": 13.84375,
+        "y": 8.125
+      }
+    },
+    {
+      "id": "obj-south",
+      "role": "center",
+      "center": {
+        "x": 23.375,
+        "y": 11.9375
+      }
+    }
+  ]
+}
