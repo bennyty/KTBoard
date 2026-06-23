@@ -11,8 +11,14 @@ function strokeFor(color: string): string {
   return color === COLOR_HEX.black ? '#9a9aa6' : color
 }
 
+const LABEL_LINE_HEIGHT = 0.6
+
 function ObjectLabel({ x, y, text, color }: { x: number; y: number; text: string; color?: string }) {
   if (!text) return null
+  // Newlines split the label across multiple centred lines. The block is
+  // vertically centred on `y` so single-line labels are unaffected.
+  const lines = text.split('\n').filter((line) => line.trim().length > 0)
+  const startDy = -((lines.length - 1) / 2) * LABEL_LINE_HEIGHT
   return (
     <text
       x={x}
@@ -24,7 +30,11 @@ function ObjectLabel({ x, y, text, color }: { x: number; y: number; text: string
       strokeWidth={0.04}
       style={{ paintOrder: 'stroke', pointerEvents: 'none', fontWeight: 600 }}
     >
-      {text}
+      {lines.map((line, i) => (
+        <tspan key={i} x={x} dy={i === 0 ? startDy : LABEL_LINE_HEIGHT}>
+          {line}
+        </tspan>
+      ))}
     </text>
   )
 }

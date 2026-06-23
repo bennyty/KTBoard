@@ -5,7 +5,7 @@ import { OBJECT_COLORS } from '@/model/types'
 import { RECT_PRESETS } from '@/model/constants'
 import { arrowLengthIn, COLOR_HEX, formatInches, makeText, OBJECT_KIND_LABELS } from './objects'
 import type { Tool } from './usePlan'
-import { Button, Field, Hint, Input, List, Row, Section, Select } from '@/ui/components'
+import { Button, Field, Hint, Input, List, Row, Section, Select, Textarea } from '@/ui/components'
 
 const ICON: Record<Tool, ReactElement> = {
   select: (
@@ -87,7 +87,15 @@ function ObjectProps({
   return (
     <Section title={OBJECT_KIND_LABELS[object.kind]} className="rounded-md bg-panel-2 p-2.5">
       <Field label="Label">
-        <Input value={object.label} onChange={(e) => patch({ label: e.target.value })} />
+        {object.kind === 'text' ? (
+          <Textarea
+            rows={3}
+            value={object.label}
+            onChange={(e) => patch({ label: e.target.value })}
+          />
+        ) : (
+          <Input value={object.label} onChange={(e) => patch({ label: e.target.value })} />
+        )}
       </Field>
 
       {object.kind !== 'text' && (
