@@ -132,35 +132,17 @@ export function ObjectiveLayer({ objectives, homeId, onObjectivePointerDown, sel
   )
 }
 
-/** The set of points within COVERAGE_RANGE_IN of the TUNNEL. The tunnel region
- *  is the chain stroked at MARKER_RADIUS_IN (see distToTunnel); widening that
- *  stroke by COVERAGE_RANGE_IN yields exactly the 2" aura, rounded caps and all. */
-export function TunnelTremorscytheAuraLayer({ chain }: { chain: Chain }) {
+/** The boundary of the points within radius of the TUNNEL.
+ *  Drawn as either a stroked polyline or an outline only (no fill). */
+export function TunnelAuraLayer({ chain, radius, fill = false }: { chain: Chain; radius: number; fill?: boolean }) {
   const path = chain.map((m) => `${m.x},${m.y}`).join(' ')
-  return (
-    <polyline
-      points={path}
-      fill="none"
-      stroke="rgba(150,90,220,0.18)"
-      strokeWidth={(MARKER_RADIUS_IN + COVERAGE_RANGE_IN) * 2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  )
-}
-
-/** The boundary of the points within REACH_RANGE_IN of the TUNNEL, drawn as an
- *  outline only (no fill). A stroked polyline fills the whole band, so we mask it
- *  with a slightly narrower band to leave just the perimeter ring. */
-export function TunnelUnburrowReachLayer({ chain }: { chain: Chain }) {
-  const path = chain.map((m) => `${m.x},${m.y}`).join(' ')
-  const width = (MARKER_RADIUS_IN + UNBURROW_CONTROL_RANGE_IN) * 2
+  const width = radius * 2
   const outline = 0.02
   return (
     <g>
-      <defs>
+      {fill && <defs>
         <mask
-          id="tunnel-reach-outline"
+          id={`tunnel-reach-outline-${radius}`}
           // The mask region must cover the full stroked band. objectBoundingBox (default) ignores stroke width, clipping the band to the centerline bbox
           maskUnits="userSpaceOnUse"
         >
@@ -181,15 +163,15 @@ export function TunnelUnburrowReachLayer({ chain }: { chain: Chain }) {
             strokeLinejoin="round"
           />
         </mask>
-      </defs>
+      </defs>}
       <polyline
         points={path}
         fill="none"
-        stroke="rgba(150,90,220,0.9)"
+        stroke="rgba(150,90,220,0.3)"
         strokeWidth={width}
         strokeLinecap="round"
         strokeLinejoin="round"
-        mask="url(#tunnel-reach-outline)"
+        {...(fill && { mask: `url(#tunnel-reach-outline-${radius})` })}
       />
     </g>
   )

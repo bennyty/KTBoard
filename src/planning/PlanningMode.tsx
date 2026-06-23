@@ -8,7 +8,7 @@ import { chainViolations } from '@/rules/validity'
 import { pxToInches } from '@/geometry/transform'
 import { Board, mapTransform } from '@/ui/Board'
 import { clientToSvg } from '@/ui/svgPointer'
-import { DropZoneLayer, ObjectiveLayer, TerrainLayer, TunnelTremorscytheAuraLayer, TunnelLayer, TunnelUnburrowReachLayer } from '@/ui/layers'
+import { DropZoneLayer, ObjectiveLayer, TerrainLayer, TunnelLayer, TunnelAuraLayer } from '@/ui/layers'
 import { ObjectsLayer } from '@/ui/objectsLayer'
 import { isPlanEmpty, usePlan } from './usePlan'
 import { useTunnelGenerator } from './useTunnelGenerator'
@@ -18,6 +18,7 @@ import { TunnelTab } from './TunnelTab'
 import { clamp, constrainMarker0 } from '@/rules/tunnel'
 import { Button, Field, Hint, Input, Section, Select, Sidebar } from '@/ui/components'
 import { twJoin } from 'tailwind-merge'
+import { BASE_RADIUS_IN, MARKER_RADIUS_IN, UNBURROW_CONTROL_RANGE_IN } from '@/model/constants'
 
 /** One in-progress board gesture (placement or drag). Kept in a ref — only the
  *  draft preview needs to re-render. */
@@ -49,8 +50,7 @@ export function PlanningMode() {
   })
 
   const [tab, setTab] = useState<'plan' | 'tunnel'>('plan')
-  const [showTremorscytheAura, setShowTremorscytheAura] = useState(false)
-  const [showUnburrowReach, setShowUnburrowReach] = useState(false)
+  const [showTunnelRange, setShowTunnelRange] = useState<[boolean, boolean, boolean]>([false, false, false])
   const [draft, setDraft] = useState<SlideObject | null>(null)
   const [wiggle, setWiggle] = useState(false)
   const gesture = useRef<Gesture | null>(null)
@@ -347,10 +347,8 @@ export function PlanningMode() {
             disabled={locked}
             onRemoveTunnel={() => plan.setCurrentMarkers(null)}
             draftMap={!!map.draft}
-            showTremorscytheAura={showTremorscytheAura}
-            setShowTremorscytheAura={setShowTremorscytheAura}
-            showUnburrowReach={showUnburrowReach}
-            setShowUnburrowReach={setShowUnburrowReach}
+            showTunnelRange={showTunnelRange}
+            setShowTunnelRange={setShowTunnelRange}
           />
         )}
       </Sidebar>
@@ -369,8 +367,9 @@ export function PlanningMode() {
           <DropZoneLayer dropZones={map.dropZones} activeId={dropZone.id} />
           <TerrainLayer pieces={pieces} />
           <ObjectiveLayer objectives={map.objectives} homeId={ctx.homeObjective?.id} />
-          {markers && showTremorscytheAura && <TunnelTremorscytheAuraLayer chain={markers} />}
-          {markers && showUnburrowReach && <TunnelUnburrowReachLayer chain={markers} />}
+          {markers && showTunnelRange[0] && <TunnelAuraLayer chain={markers} radius={MARKER_RADIUS_IN + (BASE_RADIUS_IN*2)} />}
+          {markers && showTunnelRange[1] && <TunnelAuraLayer chain={markers} radius={MARKER_RADIUS_IN + 2} fill />}
+          {markers && showTunnelRange[2] && <TunnelAuraLayer chain={markers} radius={MARKER_RADIUS_IN + UNBURROW_CONTROL_RANGE_IN} fill />}
           {markers && (
             <TunnelLayer
               chain={markers}

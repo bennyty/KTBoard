@@ -38,10 +38,8 @@ export function TunnelTab({
   disabled,
   onRemoveTunnel,
   draftMap,
-  showTremorscytheAura,
-  setShowTremorscytheAura,
-  showUnburrowReach,
-  setShowUnburrowReach,
+  showTunnelRange,
+  setShowTunnelRange,
 }: {
   gen: TunnelGenerator
   markers: Chain | null
@@ -51,10 +49,8 @@ export function TunnelTab({
   disabled: boolean
   onRemoveTunnel(): void
   draftMap: boolean
-  showTremorscytheAura: boolean
-  setShowTremorscytheAura(value: boolean): void
-  showUnburrowReach: boolean
-  setShowUnburrowReach(value: boolean): void
+  showTunnelRange: [boolean, boolean, boolean]
+  setShowTunnelRange(value: typeof showTunnelRange): void
 }) {
   const { weights } = gen
 
@@ -195,16 +191,24 @@ export function TunnelTab({
           <Field row label={<input
             type="checkbox"
             className="accent-accent"
-            checked={showTremorscytheAura}
-            onChange={(e) => setShowTremorscytheAura(e.target.checked)}
+            checked={showTunnelRange[0]}
+            onChange={(e) => setShowTunnelRange([e.target.checked, showTunnelRange[1], showTunnelRange[2]])}
           />}>
-            Show 2″ range
+            Show base unburrow range
           </Field>
           <Field row label={<input
             type="checkbox"
             className="accent-accent"
-            checked={showUnburrowReach}
-            onChange={(e) => setShowUnburrowReach(e.target.checked)}
+            checked={showTunnelRange[1]}
+            onChange={(e) => setShowTunnelRange([showTunnelRange[0], e.target.checked, showTunnelRange[2]])}
+          />}>
+            Show 2″ Tremorscythe range
+          </Field>
+          <Field row label={<input
+            type="checkbox"
+            className="accent-accent"
+            checked={showTunnelRange[2]}
+            onChange={(e) => setShowTunnelRange([showTunnelRange[0], showTunnelRange[1], e.target.checked])}
           />}>
             Show base + 1″ reach
           </Field>
