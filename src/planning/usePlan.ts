@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Chain, ObjectColor, Plan, Slide, SlideObject } from '@/model/types'
 import { DEFAULT_MAP, getMap, maps } from '@/data/registry'
+import { CIRCLE_DEFAULT_SIZE_MM } from '@/model/constants'
 import { DEFAULT_OBJECT_COLOR, genId, translateObject } from './objects'
 import { readPlanFromUrl, writePlanToUrl } from './urlState'
 
@@ -38,6 +39,8 @@ export interface PlanController {
   lastRectPreset: number
   /** Colour of the most recently chosen object, used as the default for new objects. */
   lastColor: ObjectColor
+  /** Size (mm) of the most recently placed circle, reused as the default for new circles. */
+  lastCircleSizeMm: number
   locked: boolean
 
   setPlanName(name: string): void
@@ -61,6 +64,7 @@ export interface PlanController {
   setTool(tool: Tool): void
   setLastRectPreset(index: number): void
   setLastColor(color: ObjectColor): void
+  setLastCircleSizeMm(sizeMm: number): void
   toggleLock(): void
 }
 
@@ -77,6 +81,7 @@ export function usePlan(): PlanController {
   const [tool, setTool] = useState<Tool>('select')
   const [lastRectPreset, setLastRectPreset] = useState(0)
   const [lastColor, setLastColor] = useState<ObjectColor>(DEFAULT_OBJECT_COLOR)
+  const [lastCircleSizeMm, setLastCircleSizeMm] = useState(CIRCLE_DEFAULT_SIZE_MM)
 
   // Debounced URL write so rapid drags don't thrash history.replaceState.
   useEffect(() => {
@@ -257,6 +262,7 @@ export function usePlan(): PlanController {
     tool,
     lastRectPreset,
     lastColor,
+    lastCircleSizeMm,
     locked,
     setPlanName,
     setMap,
@@ -276,6 +282,7 @@ export function usePlan(): PlanController {
     setTool,
     setLastRectPreset,
     setLastColor,
+    setLastCircleSizeMm,
     toggleLock,
   }
 }

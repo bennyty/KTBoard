@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { SlideObject, Vec } from '@/model/types'
-import { CIRCLE_DEFAULT_SIZE_MM } from '@/model/constants'
 import { DEFAULT_MAP, getCatalogue, getMap, maps } from '@/data/registry'
 import { resolveMapPieces } from '@/scoring/generate'
 import { makeNormContext } from '@/scoring/weighted'
@@ -32,7 +31,7 @@ type Gesture =
 
 export function PlanningMode() {
   const plan = usePlan()
-  const { locked, tool, lastRectPreset, lastColor, currentSlide, selectedObjectId } = plan
+  const { locked, tool, lastRectPreset, lastColor, lastCircleSizeMm, currentSlide, selectedObjectId } = plan
 
   const map = getMap(plan.plan.mapId) ?? DEFAULT_MAP
   const catalogue = getCatalogue(map.killzone)!
@@ -148,8 +147,8 @@ export function PlanningMode() {
         break
       case 'circle': {
         gesture.current = { kind: 'circle', center: inches }
-        const c = makeCircle(inches, CIRCLE_DEFAULT_SIZE_MM, lastColor)
-        setDraft({ ...c, label: `${CIRCLE_DEFAULT_SIZE_MM}mm` })
+        const c = makeCircle(inches, lastCircleSizeMm, lastColor)
+        setDraft({ ...c, label: `${lastCircleSizeMm}mm` })
         e.currentTarget.setPointerCapture(e.pointerId)
         break
       }
@@ -176,7 +175,7 @@ export function PlanningMode() {
     switch (g.kind) {
       case 'circle': {
         const radius = Math.hypot(inches.x - g.center.x, inches.y - g.center.y)
-        const sizeMm = radius < 0.1 ? CIRCLE_DEFAULT_SIZE_MM : snapCircleSizeMm(radius)
+        const sizeMm = radius < 0.1 ? lastCircleSizeMm : snapCircleSizeMm(radius)
         setDraft((d) => (d && d.kind === 'circle' ? { ...d, sizeMm, label: `${sizeMm}mm` } : d))
         break
       }
@@ -213,8 +212,9 @@ export function PlanningMode() {
     gesture.current = null
     if (g?.kind === 'circle') {
       const radius = Math.hypot(inches.x - g.center.x, inches.y - g.center.y)
-      const sizeMm = radius < 0.1 ? CIRCLE_DEFAULT_SIZE_MM : snapCircleSizeMm(radius)
+      const sizeMm = radius < 0.1 ? lastCircleSizeMm : snapCircleSizeMm(radius)
       plan.addObject(makeCircle(g.center, sizeMm, lastColor))
+      plan.setLastCircleSizeMm(sizeMm)
       plan.setTool('select')
     } else if (g?.kind === 'rect') {
       const dx = inches.x - g.center.x
