@@ -94,13 +94,43 @@ export interface Scores {
 }
 
 /** Display/iteration order follows the weighted-sum priority. */
-export const SCORE_AXES: { key: keyof Scores; label: string; higherIsBetter: boolean }[] = [
-  { key: 'objectiveDistance', label: 'Objective distance', higherIsBetter: true },
-  { key: 'forwardReach', label: 'Forward reach', higherIsBetter: true },
-  { key: 'centerAccess', label: 'Center obj access', higherIsBetter: false },
-  { key: 'homeUnburrow', label: 'Home obj unburrow', higherIsBetter: false },
-  { key: 'coverage', label: 'Objectives completely covered', higherIsBetter: true },
-  { key: 'zigzag', label: 'Zigzag', higherIsBetter: true },
+export const SCORE_AXES: { key: keyof Scores; label: string; higherIsBetter: boolean; help: string }[] = [
+  {
+    key: 'objectiveDistance',
+    label: 'Distance to objectives',
+    higherIsBetter: true,
+    help: 'Sum of how close the tunnel passes to each objective. Passing nearer to more objectives scores higher.'
+  },
+  {
+    key: 'forwardReach',
+    label: 'Forward reach',
+    higherIsBetter: true,
+    help: 'Farthest distance any tunnel marker extends out from your map edge.',
+  },
+  {
+    key: 'centerAccess',
+    label: 'Access to mid objective',
+    higherIsBetter: false,
+    help: 'The earliest marker (0-4) at which the partial tunnel reaches within unburrow-range of the centre objective.',
+  },
+  {
+    key: 'homeUnburrow',
+    label: 'Home obj unburrow',
+    higherIsBetter: false,
+    help: 'Shortest distance from a legal unburrow location on the tunnel to your home objective.',
+  },
+  {
+    key: 'coverage',
+    label: 'Objectives covered by Tremorscythe',
+    higherIsBetter: true,
+    help: 'Number of objectives whose entire control range sit wholly within 2" of the tunnel, i.e. fully covered by the Tremorscythe interrupt.',
+  },
+  {
+    key: 'zigzag',
+    label: 'Terrain crossings',
+    higherIsBetter: true,
+    help: 'Number of distinct terrain pieces the tunnel crosses on its between-marker segments.',
+  },
 ]
 
 /** A scored tunnel chain produced by the generator. Not a Plan — the user

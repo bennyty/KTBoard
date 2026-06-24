@@ -103,6 +103,10 @@ export function usePlan(): PlanController {
     return () => clearTimeout(t)
   }, [plan])
 
+  useEffect(() => {
+    document.title = `KTBoard - ${plan.name}`
+  }, [plan.name])
+
   const currentSlide = useMemo(
     () => plan.slides.find((s) => s.id === currentSlideId) ?? plan.slides[0],
     [plan.slides, currentSlideId],

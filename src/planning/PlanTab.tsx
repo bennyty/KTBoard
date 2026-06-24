@@ -143,7 +143,7 @@ function ObjectProps({
 
       {object.kind === 'rect' && (
         <>
-          <Field label="Type">
+          <Field label="Terrain preset">
             <Select
               value={presetIndex}
               onChange={(e) => {

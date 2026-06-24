@@ -68,7 +68,7 @@ export function TunnelTab({
             >
               <div className="flex items-baseline justify-between gap-1.5 font-semibold">
                 <span>
-                  Option {i + 1} · <strong>{weightedScore(candidate.scores, weights, norm).toFixed(1)}</strong>
+                  Score: {weightedScore(candidate.scores, weights, norm).toFixed(1)}
                 </span>
                 <span className="flex flex-wrap justify-end gap-1">
                   {candidate.wins.map((w) => (
@@ -120,15 +120,15 @@ export function TunnelTab({
         )}
       </Section>
 
-      {(gen.weightedCandidates.length > 0 || gen.paretoCandidates.length > 0) && (
+      {(
         <Section>
           <details className="flex flex-col gap-2">
             <summary className="cursor-pointer uppercase text-muted">Weight tuning</summary>
-            <Hint>Adjust the weighted-sum priorities. Weighted options regenerate automatically; Pareto options stay fixed.</Hint>
-            {SCORE_AXES.map(({ key, label }) => (
+            <Hint>Adjust the priorities. Tunnels will regenerate automatically (with a lower number of generations). Consider "regenerating" after finalizing weights for slightly better results.</Hint>
+            {SCORE_AXES.map(({ key, label, help }) => (
               <Field key={key} className="gap-1">
                 <span className="flex items-baseline justify-between">
-                  {label}
+                  <span className="cursor-help" title={help}>{label}</span>
                   <span className="text-text tabular-nums">{weights[key]}</span>
                 </span>
                 <input
@@ -166,11 +166,11 @@ export function TunnelTab({
                 </tr>
               </thead>
               <tbody>
-                {SCORE_AXES.map(({ key, label }) => {
+                {SCORE_AXES.map(({ key, label, help }) => {
                   const normalized = normalizeAxis(key, currentScores, norm)
                   return (
                     <tr key={key}>
-                      <td className={TD}>{label}</td>
+                      <td className={twJoin(TD, 'cursor-help')} title={help}>{label}</td>
                       <td className={TD_NUM}>{formatScore(key, currentScores[key])}</td>
                       <td className={TD_NUM}>{normalized.toFixed(2)}</td>
                       <td className={TD_STRONG}>{(weights[key] * normalized).toFixed(2)}</td>
@@ -212,18 +212,18 @@ export function TunnelTab({
           />}>
             Show base + 1″ reach
           </Field>
-          <Hint>Drag markers on the board to refine.</Hint>
+          <Hint>Generated tunnels are just a suggestion/starting point. Drag markers on the board to refine.</Hint>
         </Section>
       )}
 
       {gen.weightedCandidates.length > 0 && (
-        <Section title={`Weighted options (${gen.weightedCandidates.length})`}>
+        <Section title={"Weighted tunnels"}>
           {renderCandidates('weighted', gen.weightedCandidates, gen.tuning)}
         </Section>
       )}
 
       {gen.paretoCandidates.length > 0 && (
-        <Section title={`Pareto options (${gen.paretoCandidates.length})`}>
+        <Section title={"Variety tunnels"}>
           {renderCandidates('pareto', gen.paretoCandidates)}
         </Section>
       )}
