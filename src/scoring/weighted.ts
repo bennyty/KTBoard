@@ -17,11 +17,11 @@ export type WeightConfig = Record<keyof Scores, number>
  *  See docs/adr/0002-weighted-sum-experiment.md. */
 export const DEFAULT_WEIGHTS: WeightConfig = {
   objectiveDistance: 6,
-  forwardReach: 7,
+  forwardReach: 8,
   centerAccess: 5,
   homeUnburrow: 4,
-  coverage: 8,
-  zigzag: 2,
+  coverage: 7,
+  zigzag: 0,
 }
 
 /** Per-map normalisation bounds that don't come from constants. */
