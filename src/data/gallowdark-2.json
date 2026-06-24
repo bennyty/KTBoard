@@ -11,7 +11,7 @@
     "x": 31,
     "y": 27
   },
-  "draft": true,
+  "draft": false,
   "placements": [
     {
       "pieceId": "gallowdark-wall",
