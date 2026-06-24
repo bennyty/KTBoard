@@ -1,3 +1,4 @@
+import LZString from 'lz-string'
 import { describe, expect, it } from 'vitest'
 import type { Plan } from '@/model/types'
 import { decodePlan, encodePlan } from './planCodec'
@@ -71,6 +72,29 @@ describe('planCodec', () => {
   it('returns null for garbage input', () => {
     expect(decodePlan('not-valid-lzstring!!!')).toBeNull()
     expect(decodePlan('')).toBeNull()
+  })
+
+  it('embeds a numeric codec version as the first element', () => {
+    const json = LZString.decompressFromEncodedURIComponent(encodePlan(samplePlan))!
+    const parsed = JSON.parse(json)
+    expect(parsed[0]).toBe(1)
+  })
+
+  it('decodes legacy (unversioned) plans for backwards compatibility', () => {
+    // Plans shared before versioning led with the name string, not a version.
+    const legacy = JSON.stringify(['Old Plan', 'volkus-1', 'dz-a', [['Turn 1', 0, []]]])
+    const encoded = LZString.compressToEncodedURIComponent(legacy)
+    const decoded = decodePlan(encoded)
+    expect(decoded).not.toBeNull()
+    expect(decoded!.name).toBe('Old Plan')
+    expect(decoded!.mapId).toBe('volkus-1')
+    expect(decoded!.slides).toHaveLength(1)
+  })
+
+  it('returns null for an unknown future codec version', () => {
+    const future = JSON.stringify([999, 'Future Plan', 'volkus-1', 'dz-a', [['Turn 1', 0, []]]])
+    const encoded = LZString.compressToEncodedURIComponent(future)
+    expect(decodePlan(encoded)).toBeNull()
   })
 
   it('produces a compact encoding for a realistic plan', () => {
