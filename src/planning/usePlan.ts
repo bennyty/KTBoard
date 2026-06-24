@@ -19,6 +19,17 @@ function defaultPlan(): Plan {
   return freshPlan(DEFAULT_MAP.id, DEFAULT_MAP.dropZones[0].id)
 }
 
+/** Two objects are "the same" for clone-dedupe purposes when every field but the
+ *  id matches. Same kind guarantees the same set of keys. */
+function objectsEqualIgnoringId(a: SlideObject, b: SlideObject): boolean {
+  if (a.kind !== b.kind) return false
+  const { id: _aId, ...aRest } = a
+  const { id: _bId, ...bRest } = b
+  return (Object.keys(aRest) as (keyof typeof aRest)[]).every(
+    (k) => aRest[k] === (bRest as typeof aRest)[k],
+  )
+}
+
 /** Deep-copy a slide, assigning fresh ids to the slide and every object. */
 function cloneSlide(slide: Slide, name: string): Slide {
   return {
@@ -57,6 +68,9 @@ export interface PlanController {
 
   selectObject(id: string | null): void
   addObject(object: SlideObject): void
+  /** Copy the object onto every other slide, skipping slides that already have an
+   *  identical copy. */
+  cloneObjectToAllSlides(id: string): void
   updateObject(id: string, patch: Partial<SlideObject>): void
   translateObjectBy(id: string, dx: number, dy: number): void
   deleteObject(id: string): void
@@ -219,6 +233,22 @@ export function usePlan(): PlanController {
     [updateCurrentSlide],
   )
 
+  const cloneObjectToAllSlides = useCallback(
+    (id: string) => {
+      const source = currentSlide.objects.find((o) => o.id === id)
+      if (!source) return
+      setPlan((p) => ({
+        ...p,
+        slides: p.slides.map((s) => {
+          if (s.id === currentSlideId) return s
+          if (s.objects.some((o) => objectsEqualIgnoringId(o, source))) return s
+          return { ...s, objects: [...s.objects, { ...source, id: genId() }] }
+        }),
+      }))
+    },
+    [currentSlide, currentSlideId],
+  )
+
   const updateObject = useCallback(
     (id: string, patch: Partial<SlideObject>) => {
       updateCurrentSlide((s) => ({
@@ -276,6 +306,7 @@ export function usePlan(): PlanController {
     setCurrentMarkers,
     selectObject,
     addObject,
+    cloneObjectToAllSlides,
     updateObject,
     translateObjectBy,
     deleteObject,

@@ -262,7 +262,7 @@ export function PlanningMode() {
     <div className="flex flex-col flex-1 md:flex-row md:min-h-0">
       <Sidebar className="
         order-last md:order-first
-        basis-0 grow md:max-w-fit">
+        basis-0 grow min-w-fit">
         <Section className="border-b border-bg pb-3">
           <Field label="Plan name">
             <Input value={plan.plan.name} disabled={locked} onChange={(e) => plan.setPlanName(e.target.value)} />
@@ -327,6 +327,7 @@ export function PlanningMode() {
             setLastRectPreset={plan.setLastRectPreset}
             setLastColor={plan.setLastColor}
             addObject={plan.addObject}
+            cloneObjectToAllSlides={plan.cloneObjectToAllSlides}
             slides={plan.plan.slides}
             currentSlideId={plan.currentSlideId}
             selectSlide={plan.selectSlide}

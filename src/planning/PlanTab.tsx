@@ -70,6 +70,8 @@ function ObjectProps({
   setLastRectPreset,
   setLastColor,
   addObject,
+  cloneObjectToAllSlides,
+  canCloneToSlides,
 }: {
   object: SlideObject
   updateObject: (id: string, patch: Partial<SlideObject>) => void
@@ -77,6 +79,8 @@ function ObjectProps({
   setLastRectPreset: (i: number) => void
   setLastColor: (c: ObjectColor) => void
   addObject: (object: SlideObject) => void
+  cloneObjectToAllSlides: (id: string) => void
+  canCloneToSlides: boolean
 }) {
   const patch = (p: Partial<SlideObject>) => updateObject(object.id, p)
   const presetIndex =
@@ -176,6 +180,15 @@ function ObjectProps({
         </>
       )}
 
+      {canCloneToSlides && (
+        <Button
+          onClick={() => cloneObjectToAllSlides(object.id)}
+          title="Copy this object onto every other slide that doesn't already have it"
+        >
+          Clone to all slides
+        </Button>
+      )}
+
       <Button variant="danger" onClick={() => deleteObject(object.id)} title="Delete (Del)">
         Delete object
       </Button>
@@ -192,6 +205,7 @@ export function PlanTab({
   setLastRectPreset,
   setLastColor,
   addObject,
+  cloneObjectToAllSlides,
   slides,
   currentSlideId,
   selectSlide,
@@ -210,6 +224,7 @@ export function PlanTab({
   setLastRectPreset: (i: number) => void
   setLastColor: (c: ObjectColor) => void
   addObject: (object: SlideObject) => void
+  cloneObjectToAllSlides: (id: string) => void
   slides: Slide[]
   currentSlideId: string
   selectSlide: (id: string) => void
@@ -249,6 +264,8 @@ export function PlanTab({
           setLastRectPreset={setLastRectPreset}
           setLastColor={setLastColor}
           addObject={addObject}
+          cloneObjectToAllSlides={cloneObjectToAllSlides}
+          canCloneToSlides={slides.length > 1}
         />
       )}
 
