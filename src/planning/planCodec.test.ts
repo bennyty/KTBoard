@@ -1,6 +1,7 @@
 import LZString from 'lz-string'
 import { describe, expect, it } from 'vitest'
-import type { Plan } from '@/model/types'
+import type { Plan, SlideObject } from '@/model/types'
+import { OBJECT_COLORS } from '@/model/types'
 import { decodePlan, encodePlan } from './planCodec'
 
 const samplePlan: Plan = {
@@ -46,7 +47,7 @@ describe('planCodec', () => {
     const s0 = decoded!.slides[0]
     expect(s0.name).toBe('Turn 1 — Burrow Home')
     expect(s0.markers).toHaveLength(5)
-    expect(s0.markers![0].x).toBeCloseTo(1.234, 3)
+    expect(s0.markers![0].x).toBeCloseTo(1.23, 3)
     expect(s0.objects).toHaveLength(4)
 
     const circle = s0.objects[0]
@@ -126,5 +127,93 @@ describe('planCodec', () => {
     const encoded = encodePlan(big)
     // 6 slides × ~12 objects should stay well under a messaging-app URL limit.
     expect(encoded.length).toBeLessThan(2000)
+  })
+})
+
+// How much fits in a shareable URL before the ADR-0003 ~2000-char ceiling.
+// The shareable payload is the `#p=...` hash, so the URL length is the encoded
+// blob plus the `#p=` prefix. Objects are a realistic mix of all four kinds
+// (varied coords/colours/labels) rather than identical circles, so LZ-string
+// can't over-compress and the numbers reflect plausible plans. These are
+// characterisation tests: if the codec changes the capacity and you have to
+// retune the bounds, that is the signal working as intended.
+const URL_LIMIT = 2000
+const HASH_PREFIX = 'https://bennyty.github.io/KTBoard/#p='.length
+
+function makeObject(i: number): SlideObject {
+  const x = Math.round((((i * 1.37) % 40) * 1000)) / 1000
+  const y = Math.round((((i * 2.11) % 30) * 1000)) / 1000
+  const color = OBJECT_COLORS[i % OBJECT_COLORS.length]
+  switch (i % 4) {
+    case 0:
+      return { id: `o${i}`, kind: 'circle', x, y, sizeMm: 40, color, label: `unit ${i}` }
+    case 1:
+      return { id: `o${i}`, kind: 'rect', x, y, rotationDeg: (i * 7) % 360, lengthMm: 50, widthMm: 8, color, label: `barricade ${i}` }
+    case 2:
+      return { id: `o${i}`, kind: 'arrow', x1: x, y1: y, x2: x + 9, y2: y + 4, color, label: `move ${i}` }
+    default:
+      return { id: `o${i}`, kind: 'text', x, y, label: `note ${i}` }
+  }
+}
+
+function makePlan(slideCount: number, objectsPerSlide: number): Plan {
+  let n = 0
+  return {
+    name: 'Volkus Alpha Gameplan',
+    mapId: 'volkus-1',
+    dropZoneId: 'dz-a',
+    slides: Array.from({ length: slideCount }, (_, s) => ({
+      id: `s${s}`,
+      name: `Turn ${s + 1}`,
+      markers: [
+        { x: 1, y: 2 },
+        { x: 3, y: 4 },
+        { x: 5, y: 6 },
+        { x: 7, y: 8 },
+        { x: 9, y: 10 },
+      ],
+      objects: Array.from({ length: objectsPerSlide }, () => makeObject(n++)),
+    })),
+  }
+}
+
+const urlLength = (plan: Plan) => HASH_PREFIX + encodePlan(plan).length
+
+/** Largest objectsPerSlide whose URL still fits the limit, for a given slide count. */
+function maxObjectsPerSlide(slideCount: number): number {
+  let n = 0
+  while (urlLength(makePlan(slideCount, n + 1)) <= URL_LIMIT) n++
+  return n
+}
+
+/** Largest slide count whose URL still fits the limit, at a given objectsPerSlide. */
+function maxSlides(objectsPerSlide: number): number {
+  let n = 0
+  while (urlLength(makePlan(n + 1, objectsPerSlide)) <= URL_LIMIT) n++
+  return n
+}
+
+describe('planCodec URL capacity', () => {
+  it('keeps a realistic 6-slide × 12-object plan under the limit', () => {
+    expect(urlLength(makePlan(6, 12))).toBeLessThanOrEqual(URL_LIMIT)
+  })
+
+  it('fits ~94 objects on a single slide before exceeding the limit', () => {
+    const n = maxObjectsPerSlide(1)
+    expect(n).toBe(93)
+    // Boundary is real: this many fits, one more does not.
+    expect(urlLength(makePlan(1, n))).toBeLessThanOrEqual(URL_LIMIT)
+    expect(urlLength(makePlan(1, n + 1))).toBeGreaterThan(URL_LIMIT)
+  })
+
+  it('fits 7 slides of 12 objects each before exceeding the limit', () => {
+    const n = maxSlides(12)
+    expect(n).toBe(7)
+    expect(urlLength(makePlan(n, 12))).toBeLessThanOrEqual(URL_LIMIT)
+    expect(urlLength(makePlan(n + 1, 12))).toBeGreaterThan(URL_LIMIT)
+  })
+
+  it('exceeds the limit for an oversized plan (8 slides × 18 objects)', () => {
+    expect(urlLength(makePlan(8, 18))).toBeGreaterThan(URL_LIMIT)
   })
 })

@@ -17,7 +17,7 @@ import { genId } from './objects'
 
 const PLAN_CODEC_VERSION = 1
 
-const ROUND = 1000
+const ROUND = 100
 const r = (n: number) => Math.round(n * ROUND) / ROUND
 
 const KIND_TAG = { circle: 0, rect: 1, arrow: 2, text: 3 } as const
