@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { SlideObject, Vec } from '@/model/types'
-import { DEFAULT_MAP, getCatalogue, getMap, maps } from '@/data/registry'
+import { DEFAULT_MAP, getCatalogue, getMap } from '@/data/registry'
 import { resolveMapPieces } from '@/scoring/generate'
 import { makeNormContext } from '@/scoring/weighted'
 import { makeScoringContext, scoreChain } from '@/scoring/score'
@@ -10,13 +10,13 @@ import { Board, mapTransform } from '@/ui/Board'
 import { clientToSvg } from '@/ui/svgPointer'
 import { DropZoneLayer, ObjectiveLayer, TerrainLayer, TunnelLayer, TunnelAuraLayer } from '@/ui/layers'
 import { ObjectsLayer } from '@/ui/objectsLayer'
-import { isPlanEmpty, usePlan } from './usePlan'
+import { isSlideEmpty, usePlan } from './usePlan'
 import { useTunnelGenerator } from './useTunnelGenerator'
 import { makeArrow, makeCircle, makeRect, makeText, snapCircleSizeMm } from './objects'
 import { PlanTab } from './PlanTab'
 import { TunnelTab } from './TunnelTab'
 import { clamp, constrainMarker0 } from '@/rules/tunnel'
-import { Button, Field, Hint, Input, Section, Select, Sidebar } from '@/ui/components'
+import { Button, Field, Hint, Input, Section, Sidebar } from '@/ui/components'
 import { twJoin } from 'tailwind-merge'
 import { BASE_RADIUS_IN, MARKER_RADIUS_IN, UNBURROW_CONTROL_RANGE_IN } from '@/model/constants'
 
@@ -34,9 +34,9 @@ export function PlanningMode() {
   const plan = usePlan()
   const { locked, tool, lastRectPreset, lastColor, lastCircleSizeMm, currentSlide, selectedObjectId } = plan
 
-  const map = getMap(plan.plan.mapId) ?? DEFAULT_MAP
+  const map = getMap(currentSlide.mapId) ?? DEFAULT_MAP
   const catalogue = getCatalogue(map.killzone)!
-  const dropZone = map.dropZones.find((d) => d.id === plan.plan.dropZoneId) ?? map.dropZones[0]
+  const dropZone = map.dropZones.find((d) => d.id === currentSlide.dropZoneId) ?? map.dropZones[0]
 
   const pieces = useMemo(() => resolveMapPieces(map, catalogue), [map, catalogue])
   const ctx = useMemo(() => makeScoringContext(map, pieces, dropZone), [map, pieces, dropZone])
@@ -55,12 +55,20 @@ export function PlanningMode() {
   const [wiggle, setWiggle] = useState(false)
   const gesture = useRef<Gesture | null>(null)
 
-  // Switching map or drop zone replaces the whole plan, so confirm first when the
-  // user has work that would be discarded. The Select stays controlled, so a cancel
-  // leaves the dropdown on its current value.
+  // Switching map or drop zone clears the current slide's terrain-anchored
+  // content, so confirm first when that slide has work to lose. The Select stays
+  // controlled, so a cancel leaves the dropdown on its current value.
   function confirmDiscard(what: string): boolean {
-    if (isPlanEmpty(plan.plan)) return true
-    return window.confirm(`Changing the ${what} will clear all the slides. Continue?`)
+    if (isSlideEmpty(currentSlide)) return true
+    return window.confirm(`Changing the ${what} will clear this slide. Continue?`)
+  }
+
+  function changeMap(mapId: string) {
+    if (confirmDiscard('map')) plan.setMap(mapId)
+  }
+
+  function changeDropZone(dropZoneId: string) {
+    if (confirmDiscard('drop zone')) plan.setDropZone(dropZoneId)
   }
 
   /** Nudge the lock button so a click on the locked canvas points the user at it. */
@@ -267,37 +275,6 @@ export function PlanningMode() {
           <Field label="Plan name">
             <Input value={plan.plan.name} disabled={locked} onChange={(e) => plan.setPlanName(e.target.value)} />
           </Field>
-          <Field label="Map">
-            <Select
-              value={map.id}
-              disabled={locked}
-              onChange={(e) => confirmDiscard('map') && plan.setMap(e.target.value)}
-            >
-              {maps.map((group) => (
-                <optgroup key={group.name} label={group.name}>
-                  {group.maps.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name}
-                      {m.draft ? ' (draft annotation)' : ''}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </Select>
-          </Field>
-          <Field label="Drop zone">
-            <Select
-              value={dropZone.id}
-              disabled={locked}
-              onChange={(e) => confirmDiscard('drop zone') && plan.setDropZone(e.target.value)}
-            >
-              {map.dropZones.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
           <Button
             className={twJoin(locked && 'border-danger bg-danger', wiggle && 'animate-wiggle')}
             onClick={plan.toggleLock}
@@ -319,6 +296,10 @@ export function PlanningMode() {
 
         {tab === 'plan' ? (
           <PlanTab
+            map={map}
+            dropZone={dropZone}
+            setMap={changeMap}
+            setDropZone={changeDropZone}
             tool={tool}
             setTool={plan.setTool}
             selectedObject={plan.selectedObject}

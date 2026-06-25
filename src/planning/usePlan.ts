@@ -1,22 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Chain, ObjectColor, Plan, Slide, SlideObject } from '@/model/types'
-import { DEFAULT_MAP, getMap, maps } from '@/data/registry'
+import { DEFAULT_MAP, getMap } from '@/data/registry'
 import { CIRCLE_DEFAULT_SIZE_MM } from '@/model/constants'
 import { DEFAULT_OBJECT_COLOR, genId, translateObject } from './objects'
 import { readPlanFromUrl, writePlanToUrl } from './urlState'
 
 export type Tool = 'select' | 'circle' | 'rect' | 'arrow' | 'text'
 
-function emptySlide(name: string): Slide {
-  return { id: genId(), name, markers: null, objects: [] }
-}
-
-function freshPlan(mapId: string, dropZoneId: string, name = 'New Plan'): Plan {
-  return { name, mapId, dropZoneId, slides: [emptySlide('Slide 1')] }
+function emptySlide(name: string, mapId: string, dropZoneId: string): Slide {
+  return { id: genId(), name, mapId, dropZoneId, markers: null, objects: [] }
 }
 
 function defaultPlan(): Plan {
-  return freshPlan(DEFAULT_MAP.id, DEFAULT_MAP.dropZones[0].id)
+  return { name: 'New Plan', slides: [emptySlide('Slide 1', DEFAULT_MAP.id, DEFAULT_MAP.dropZones[0].id)] }
 }
 
 /** Two objects are "the same" for clone-dedupe purposes when every field but the
@@ -35,6 +31,8 @@ function cloneSlide(slide: Slide, name: string): Slide {
   return {
     id: genId(),
     name,
+    mapId: slide.mapId,
+    dropZoneId: slide.dropZoneId,
     markers: slide.markers ? slide.markers.map((m) => ({ ...m })) : null,
     objects: slide.objects.map((o) => ({ ...o, id: genId() })),
   }
@@ -82,8 +80,12 @@ export interface PlanController {
   toggleLock(): void
 }
 
+export function isSlideEmpty(slide: Slide): boolean {
+  return !slide.markers && slide.objects.length === 0
+}
+
 export function isPlanEmpty(plan: Plan): boolean {
-  return plan.slides.length === 1 && !plan.slides[0].markers && plan.slides[0].objects.length === 0
+  return plan.slides.length === 1 && isSlideEmpty(plan.slides[0])
 }
 
 export function usePlan(): PlanController {
@@ -126,27 +128,30 @@ export function usePlan(): PlanController {
 
   const setPlanName = useCallback((name: string) => setPlan((p) => ({ ...p, name })), [])
 
-  const resetTo = useCallback(
+  // Changing a slide's map or drop zone invalidates its terrain-anchored content,
+  // so the slide is cleared back to empty (its name is kept).
+  const resetCurrentSlide = useCallback(
     (mapId: string, dropZoneId: string) => {
-      const next = freshPlan(mapId, dropZoneId, plan.name)
       setSelectedObjectId(null)
       setTool('select')
-      setPlan(next)
-      setCurrentSlideId(next.slides[0].id)
+      updateCurrentSlide((s) => ({ id: s.id, name: s.name, mapId, dropZoneId, markers: null, objects: [] }))
     },
-    [plan.name],
+    [updateCurrentSlide],
   )
 
   const setMap = useCallback(
     (mapId: string) => {
       const map = getMap(mapId)
       if (!map) return
-      resetTo(mapId, map.dropZones[0].id)
+      resetCurrentSlide(mapId, map.dropZones[0].id)
     },
-    [resetTo],
+    [resetCurrentSlide],
   )
 
-  const setDropZone = useCallback((dropZoneId: string) => resetTo(plan.mapId, dropZoneId), [resetTo, plan.mapId])
+  const setDropZone = useCallback(
+    (dropZoneId: string) => resetCurrentSlide(currentSlide.mapId, dropZoneId),
+    [resetCurrentSlide, currentSlide.mapId],
+  )
 
   const selectSlide = useCallback((id: string) => {
     setCurrentSlideId(id)
@@ -156,7 +161,9 @@ export function usePlan(): PlanController {
   // Slide ids are minted outside the setPlan updater so the updater stays pure
   // (it re-runs under StrictMode, which would otherwise mint divergent ids).
   const addSlide = useCallback(() => {
-    const slide = emptySlide(`Slide ${plan.slides.length + 1}`)
+    // A new slide inherits the current slide's map and drop zone — a plan most
+    // often steps through turns on one board, and the user can switch per slide.
+    const slide = emptySlide(`Slide ${plan.slides.length + 1}`, currentSlide.mapId, currentSlide.dropZoneId)
     setPlan((p) => {
       const idx = p.slides.findIndex((s) => s.id === currentSlideId)
       const slides = [...p.slides]
@@ -165,7 +172,7 @@ export function usePlan(): PlanController {
     })
     setCurrentSlideId(slide.id)
     setSelectedObjectId(null)
-  }, [plan.slides.length, currentSlideId])
+  }, [plan.slides.length, currentSlideId, currentSlide.mapId, currentSlide.dropZoneId])
 
   const duplicateSlide = useCallback(
     (id: string) => {
@@ -188,8 +195,10 @@ export function usePlan(): PlanController {
   const deleteSlide = useCallback(
     (id: string) => {
       if (plan.slides.length === 1) {
-        // Never leave a plan with zero slides; reset the lone slide instead.
-        const only = emptySlide('Slide 1')
+        // Never leave a plan with zero slides; reset the lone slide instead,
+        // keeping its map/drop zone.
+        const prev = plan.slides[0]
+        const only = emptySlide('Slide 1', prev.mapId, prev.dropZoneId)
         setPlan((p) => ({ ...p, slides: [only] }))
         setCurrentSlideId(only.id)
         setSelectedObjectId(null)

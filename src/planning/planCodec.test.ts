@@ -6,12 +6,12 @@ import { decodePlan, encodePlan } from './planCodec'
 
 const samplePlan: Plan = {
   name: 'Volkus Alpha Gameplan',
-  mapId: 'volkus-1',
-  dropZoneId: 'dz-a',
   slides: [
     {
       id: 'slideA',
       name: 'Turn 1 — Burrow Home',
+      mapId: 'volkus-1',
+      dropZoneId: 'dz-a',
       markers: [
         { x: 1.234, y: 2.345 },
         { x: 5, y: 6 },
@@ -29,6 +29,8 @@ const samplePlan: Plan = {
     {
       id: 'slideB',
       name: 'Turn 2',
+      mapId: 'gallowdark-1',
+      dropZoneId: 'dz-b',
       markers: null,
       objects: [],
     },
@@ -40,12 +42,14 @@ describe('planCodec', () => {
     const decoded = decodePlan(encodePlan(samplePlan))
     expect(decoded).not.toBeNull()
     expect(decoded!.name).toBe(samplePlan.name)
-    expect(decoded!.mapId).toBe(samplePlan.mapId)
-    expect(decoded!.dropZoneId).toBe(samplePlan.dropZoneId)
     expect(decoded!.slides).toHaveLength(2)
 
     const s0 = decoded!.slides[0]
     expect(s0.name).toBe('Turn 1 — Burrow Home')
+    expect(s0.mapId).toBe('volkus-1')
+    expect(s0.dropZoneId).toBe('dz-a')
+    expect(decoded!.slides[1].mapId).toBe('gallowdark-1')
+    expect(decoded!.slides[1].dropZoneId).toBe('dz-b')
     expect(s0.markers).toHaveLength(5)
     expect(s0.markers![0].x).toBeCloseTo(1.23, 3)
     expect(s0.objects).toHaveLength(4)
@@ -78,22 +82,36 @@ describe('planCodec', () => {
   it('embeds a numeric codec version as the first element', () => {
     const json = LZString.decompressFromEncodedURIComponent(encodePlan(samplePlan))!
     const parsed = JSON.parse(json)
-    expect(parsed[0]).toBe(1)
+    expect(parsed[0]).toBe(2)
   })
 
-  it('decodes legacy (unversioned) plans for backwards compatibility', () => {
-    // Plans shared before versioning led with the name string, not a version.
-    const legacy = JSON.stringify(['Old Plan', 'volkus-1', 'dz-a', [['Turn 1', 0, []]]])
+  it('decodes legacy (unversioned) plans, lifting plan map/drop zone onto slides', () => {
+    // Plans shared before versioning led with the name string, not a version,
+    // and kept a single plan-level map/drop zone.
+    const legacy = JSON.stringify(['Old Plan', 'volkus-1', 'dz-a', [['Turn 1', 0, []], ['Turn 2', 0, []]]])
     const encoded = LZString.compressToEncodedURIComponent(legacy)
     const decoded = decodePlan(encoded)
     expect(decoded).not.toBeNull()
     expect(decoded!.name).toBe('Old Plan')
-    expect(decoded!.mapId).toBe('volkus-1')
-    expect(decoded!.slides).toHaveLength(1)
+    expect(decoded!.slides).toHaveLength(2)
+    // Every slide inherits the old plan-level map/drop zone.
+    for (const s of decoded!.slides) {
+      expect(s.mapId).toBe('volkus-1')
+      expect(s.dropZoneId).toBe('dz-a')
+    }
+  })
+
+  it('decodes version 1 plans, lifting plan map/drop zone onto slides', () => {
+    const v1 = JSON.stringify([1, 'V1 Plan', 'volkus-1', 'dz-a', [['Turn 1', 0, []]]])
+    const encoded = LZString.compressToEncodedURIComponent(v1)
+    const decoded = decodePlan(encoded)
+    expect(decoded).not.toBeNull()
+    expect(decoded!.slides[0].mapId).toBe('volkus-1')
+    expect(decoded!.slides[0].dropZoneId).toBe('dz-a')
   })
 
   it('returns null for an unknown future codec version', () => {
-    const future = JSON.stringify([999, 'Future Plan', 'volkus-1', 'dz-a', [['Turn 1', 0, []]]])
+    const future = JSON.stringify([999, 'Future Plan', [['Turn 1', 'volkus-1', 'dz-a', 0, []]]])
     const encoded = LZString.compressToEncodedURIComponent(future)
     expect(decodePlan(encoded)).toBeNull()
   })
@@ -101,11 +119,11 @@ describe('planCodec', () => {
   it('produces a compact encoding for a realistic plan', () => {
     const big: Plan = {
       name: 'Big Plan',
-      mapId: 'volkus-1',
-      dropZoneId: 'dz-a',
       slides: Array.from({ length: 6 }, (_, s) => ({
         id: `s${s}`,
         name: `Slide ${s + 1}`,
+        mapId: 'volkus-1',
+        dropZoneId: 'dz-a',
         markers: [
           { x: 1, y: 2 },
           { x: 3, y: 4 },
@@ -160,11 +178,11 @@ function makePlan(slideCount: number, objectsPerSlide: number): Plan {
   let n = 0
   return {
     name: 'Volkus Alpha Gameplan',
-    mapId: 'volkus-1',
-    dropZoneId: 'dz-a',
     slides: Array.from({ length: slideCount }, (_, s) => ({
       id: `s${s}`,
       name: `Turn ${s + 1}`,
+      mapId: 'volkus-1',
+      dropZoneId: 'dz-a',
       markers: [
         { x: 1, y: 2 },
         { x: 3, y: 4 },
@@ -206,9 +224,9 @@ describe('planCodec URL capacity', () => {
     expect(urlLength(makePlan(1, n + 1))).toBeGreaterThan(URL_LIMIT)
   })
 
-  it('fits 7 slides of 12 objects each before exceeding the limit', () => {
+  it('fits 6 slides of 12 objects each before exceeding the limit', () => {
     const n = maxSlides(12)
-    expect(n).toBe(7)
+    expect(n).toBe(6)
     expect(urlLength(makePlan(n, 12))).toBeLessThanOrEqual(URL_LIMIT)
     expect(urlLength(makePlan(n + 1, 12))).toBeGreaterThan(URL_LIMIT)
   })

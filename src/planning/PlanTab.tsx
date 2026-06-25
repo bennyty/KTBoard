@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react'
 import { twJoin, twMerge } from 'tailwind-merge'
-import type { ObjectColor, SlideObject, Slide } from '@/model/types'
+import type { AnnotatedMap, DropZone, ObjectColor, SlideObject, Slide } from '@/model/types'
 import { OBJECT_COLORS } from '@/model/types'
 import { RECT_PRESETS } from '@/model/constants'
+import { maps } from '@/data/registry'
 import { arrowLengthIn, COLOR_HEX, formatInches, makeText, OBJECT_KIND_LABELS } from './objects'
 import type { Tool } from './usePlan'
 import { Button, Field, Hint, Input, List, Row, Section, Select, Textarea } from '@/ui/components'
@@ -197,6 +198,10 @@ function ObjectProps({
 }
 
 export function PlanTab({
+  map,
+  dropZone,
+  setMap,
+  setDropZone,
   tool,
   setTool,
   selectedObject,
@@ -216,6 +221,10 @@ export function PlanTab({
   renameSlide,
   disabled,
 }: {
+  map: AnnotatedMap
+  dropZone: DropZone
+  setMap: (id: string) => void
+  setDropZone: (id: string) => void
   tool: Tool
   setTool: (t: Tool) => void
   selectedObject: SlideObject | null
@@ -237,6 +246,33 @@ export function PlanTab({
 }) {
   return (
     <>
+      <Section title="Map &amp; drop zone">
+        <Field label="Map">
+          <Select value={map.id} disabled={disabled} onChange={(e) => setMap(e.target.value)}>
+            {maps.map((group) => (
+              <optgroup key={group.name} label={group.name}>
+                {group.maps.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                    {m.draft ? ' (draft annotation)' : ''}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </Select>
+        </Field>
+        <Field label="Drop zone">
+          <Select value={dropZone.id} disabled={disabled} onChange={(e) => setDropZone(e.target.value)}>
+            {map.dropZones.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Hint>Set per slide — each slide can use a different map and drop zone.</Hint>
+      </Section>
+
       <Section title="Tools">
         <div className="flex flex-nowrap gap-1">
           {TOOLS.map(({ tool: t, label, key }) => (

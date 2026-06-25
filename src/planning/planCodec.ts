@@ -13,9 +13,16 @@ import { genId } from './objects'
  * change to the layout can keep decoding plans shared under older versions.
  * Plans shared before versioning existed begin with the plan name (a string)
  * rather than a number, and are decoded as version 0.
+ *
+ * Version history:
+ *   0/1 — map and drop zone live on the Plan; body is [name, mapId, dropZoneId,
+ *         slides], each slide [name, markers, objects].
+ *   2   — map and drop zone moved onto each Slide; body is [name, slides], each
+ *         slide [name, mapId, dropZoneId, markers, objects]. Older plans decode
+ *         by copying the plan-level map/drop zone onto every slide.
  */
 
-const PLAN_CODEC_VERSION = 1
+const PLAN_CODEC_VERSION = 2
 
 const ROUND = 100
 const r = (n: number) => Math.round(n * ROUND) / ROUND
@@ -23,8 +30,8 @@ const r = (n: number) => Math.round(n * ROUND) / ROUND
 const KIND_TAG = { circle: 0, rect: 1, arrow: 2, text: 3 } as const
 
 type CompactObject = (number | string)[]
-type CompactSlide = [string, number[] | 0, CompactObject[]]
-type CompactPlanBody = [string, string, string, CompactSlide[]]
+type CompactSlide = [string, string, string, number[] | 0, CompactObject[]]
+type CompactPlanBody = [string, CompactSlide[]]
 type CompactPlan = [number, ...CompactPlanBody]
 
 function colorIndex(c: ObjectColor): number {
@@ -47,11 +54,11 @@ function encodeObject(o: SlideObject): CompactObject {
 
 function encodeSlide(s: Slide): CompactSlide {
   const markers: number[] | 0 = s.markers ? s.markers.flatMap((m) => [r(m.x), r(m.y)]) : 0
-  return [s.name, markers, s.objects.map(encodeObject)]
+  return [s.name, s.mapId, s.dropZoneId, markers, s.objects.map(encodeObject)]
 }
 
 export function encodePlan(plan: Plan): string {
-  const compact: CompactPlan = [PLAN_CODEC_VERSION, plan.name, plan.mapId, plan.dropZoneId, plan.slides.map(encodeSlide)]
+  const compact: CompactPlan = [PLAN_CODEC_VERSION, plan.name, plan.slides.map(encodeSlide)]
   return LZString.compressToEncodedURIComponent(JSON.stringify(compact))
 }
 
@@ -105,15 +112,32 @@ function decodeMarkers(v: unknown): Chain | null {
   return chain
 }
 
-function decodeSlide(a: unknown): Slide | null {
-  if (!Array.isArray(a) || !isStr(a[0]) || !Array.isArray(a[2])) return null
+function decodeObjects(raw: unknown): SlideObject[] | null {
+  if (!Array.isArray(raw)) return null
   const objects: SlideObject[] = []
-  for (const raw of a[2]) {
-    const o = decodeObject(raw)
+  for (const r of raw) {
+    const o = decodeObject(r)
     if (!o) return null
     objects.push(o)
   }
-  return { id: genId(), name: a[0], markers: decodeMarkers(a[1]), objects }
+  return objects
+}
+
+/** Version 2 slide: [name, mapId, dropZoneId, markers, objects]. */
+function decodeSlide(a: unknown): Slide | null {
+  if (!Array.isArray(a) || !isStr(a[0]) || !isStr(a[1]) || !isStr(a[2])) return null
+  const objects = decodeObjects(a[4])
+  if (!objects) return null
+  return { id: genId(), name: a[0], mapId: a[1], dropZoneId: a[2], markers: decodeMarkers(a[3]), objects }
+}
+
+/** Legacy (v0/v1) slide: [name, markers, objects]; map/drop zone come from the
+ *  plan level and are copied onto every slide. */
+function decodeLegacySlide(a: unknown, mapId: string, dropZoneId: string): Slide | null {
+  if (!Array.isArray(a) || !isStr(a[0])) return null
+  const objects = decodeObjects(a[2])
+  if (!objects) return null
+  return { id: genId(), name: a[0], mapId, dropZoneId, markers: decodeMarkers(a[1]), objects }
 }
 
 export function decodePlan(encoded: string): Plan | null {
@@ -129,27 +153,41 @@ export function decodePlan(encoded: string): Plan | null {
   // Versioned plans lead with a numeric codec version; legacy plans lead with
   // the plan name (a string) and are treated as version 0.
   const version = isNum(parsed[0]) ? parsed[0] : 0
-  const body = version === 0 ? parsed : parsed.slice(1)
   switch (version) {
     case 0:
     case 1:
-      return decodePlanBody(body)
+      return decodeLegacyBody(version === 0 ? parsed : parsed.slice(1))
+    case 2:
+      return decodeV2Body(parsed.slice(1))
     default:
       return null
   }
 }
 
-// The body layout `[name, mapId, dropZoneId, slides]` is shared by versions
-// 0 and 1; only the version prefix differs. Add a new decoder branch above if
-// a future version changes this shape.
-function decodePlanBody(body: unknown[]): Plan | null {
-  if (!isStr(body[0]) || !isStr(body[1]) || !isStr(body[2]) || !Array.isArray(body[3])) return null
+/** v2 body: [name, slides] where each slide carries its own map/drop zone. */
+function decodeV2Body(body: unknown[]): Plan | null {
+  if (!isStr(body[0]) || !Array.isArray(body[1])) return null
   const slides: Slide[] = []
-  for (const raw of body[3]) {
+  for (const raw of body[1]) {
     const s = decodeSlide(raw)
     if (!s) return null
     slides.push(s)
   }
   if (slides.length === 0) return null
-  return { name: body[0], mapId: body[1], dropZoneId: body[2], slides }
+  return { name: body[0], slides }
+}
+
+// The body layout `[name, mapId, dropZoneId, slides]` is shared by versions 0
+// and 1; only the version prefix differs. The plan-level map/drop zone is
+// copied onto each slide to lift the plan into the current (per-slide) shape.
+function decodeLegacyBody(body: unknown[]): Plan | null {
+  if (!isStr(body[0]) || !isStr(body[1]) || !isStr(body[2]) || !Array.isArray(body[3])) return null
+  const slides: Slide[] = []
+  for (const raw of body[3]) {
+    const s = decodeLegacySlide(raw, body[1], body[2])
+    if (!s) return null
+    slides.push(s)
+  }
+  if (slides.length === 0) return null
+  return { name: body[0], slides }
 }

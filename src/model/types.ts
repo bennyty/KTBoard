@@ -196,20 +196,22 @@ export interface TextObject extends BaseObject {
 export type SlideObject = CircleObject | RectObject | ArrowObject | TextObject
 export type ObjectKind = SlideObject['kind']
 
-/** One independent board state within a Plan: an optional tunnel plus Objects. */
+/** One independent board state within a Plan: its own map and drop zone, an
+ *  optional tunnel, plus Objects. Each Slide may sit on a different map. */
 export interface Slide {
   id: string
   name: string
+  mapId: string
+  dropZoneId: string
   /** Five Tunnel markers, or null if this Slide has no tunnel. */
   markers: Chain | null
   objects: SlideObject[]
 }
 
-/** A named, URL-shareable collection of Slides for one (map, drop zone) pair. */
+/** A named, URL-shareable collection of Slides. Each Slide carries its own
+ *  (map, drop zone), so a single Plan can span several killzones. */
 export interface Plan {
   name: string
-  mapId: string
-  dropZoneId: string
   slides: Slide[]
 }
 
