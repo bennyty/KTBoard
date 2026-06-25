@@ -51,7 +51,7 @@ describe('planCodec', () => {
     expect(decoded!.slides[1].mapId).toBe('gallowdark-1')
     expect(decoded!.slides[1].dropZoneId).toBe('dz-b')
     expect(s0.markers).toHaveLength(5)
-    expect(s0.markers![0].x).toBeCloseTo(1.23, 3)
+    expect(s0.markers![0].x).toBeCloseTo(1.234, 3)
     expect(s0.objects).toHaveLength(4)
 
     const circle = s0.objects[0]
