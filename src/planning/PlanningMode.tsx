@@ -34,6 +34,8 @@ export function PlanningMode() {
   const plan = usePlan()
   const { locked, tool, lastRectPreset, lastColor, lastCircleSizeMm, currentSlide, selectedObjectId } = plan
 
+  const slides = plan.plan.slides
+  const slideIndex = slides.findIndex((s) => s.id === plan.currentSlideId)
   const map = getMap(currentSlide.mapId) ?? DEFAULT_MAP
   const catalogue = getCatalogue(map.killzone)!
   const dropZone = map.dropZones.find((d) => d.id === currentSlide.dropZoneId) ?? map.dropZones[0]
@@ -243,7 +245,7 @@ export function PlanningMode() {
   function onObjectPointerDown(id: string, e: React.PointerEvent) {
     plan.selectObject(id)
     gesture.current = { kind: 'moveObject', id, last: evToInches(e) }
-    ;(e.currentTarget as Element).closest('svg')?.setPointerCapture(e.pointerId)
+      ; (e.currentTarget as Element).closest('svg')?.setPointerCapture(e.pointerId)
     e.stopPropagation()
     e.preventDefault()
   }
@@ -251,7 +253,7 @@ export function PlanningMode() {
   function onArrowHandlePointerDown(id: string, end: 'start' | 'end', e: React.PointerEvent) {
     plan.selectObject(id)
     gesture.current = { kind: 'arrowHandle', id, end }
-    ;(e.currentTarget as Element).closest('svg')?.setPointerCapture(e.pointerId)
+      ; (e.currentTarget as Element).closest('svg')?.setPointerCapture(e.pointerId)
     e.stopPropagation()
     e.preventDefault()
   }
@@ -261,7 +263,7 @@ export function PlanningMode() {
     gesture.current = { kind: 'marker', index }
     plan.selectObject(null)
     gen.clearSelection()
-    ;(e.currentTarget as Element).closest('svg')?.setPointerCapture(e.pointerId)
+      ; (e.currentTarget as Element).closest('svg')?.setPointerCapture(e.pointerId)
     e.stopPropagation()
     e.preventDefault()
   }
@@ -276,13 +278,13 @@ export function PlanningMode() {
             <Input value={plan.plan.name} disabled={locked} onChange={(e) => plan.setPlanName(e.target.value)} />
           </Field>
           <div className="flex gap-1">
-          <Button
+            <Button
               className={twJoin('flex-1', locked && 'border-danger bg-danger', wiggle && 'animate-wiggle')}
-            onClick={plan.toggleLock}
-            onAnimationEnd={() => setWiggle(false)}
-          >
-            {locked ? '🔒 Locked — click to edit' : '🔓 Unlocked'}
-          </Button>
+              onClick={plan.toggleLock}
+              onAnimationEnd={() => setWiggle(false)}
+            >
+              {locked ? '🔒 Locked — click to edit' : '🔓 Unlocked'}
+            </Button>
             <Button
               className="px-2"
               title="Clear plan"
@@ -294,7 +296,7 @@ export function PlanningMode() {
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
                 {/* Icon from Material Symbols by Google - https://github.com/google/material-design-icons/blob/master/LICENSE */}
-                <path fill="currentColor" d="m9.4 16.5l2.6-2.6l2.6 2.6l1.4-1.4l-2.6-2.6L16 9.9l-1.4-1.4l-2.6 2.6l-2.6-2.6L8 9.9l2.6 2.6L8 15.1zM7 21q-.825 0-1.412-.587T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413T17 21z"/>
+                <path fill="currentColor" d="m9.4 16.5l2.6-2.6l2.6 2.6l1.4-1.4l-2.6-2.6L16 9.9l-1.4-1.4l-2.6 2.6l-2.6-2.6L8 9.9l2.6 2.6L8 15.1zM7 21q-.825 0-1.412-.587T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413T17 21z" />
               </svg>
             </Button>
           </div>
@@ -354,36 +356,70 @@ export function PlanningMode() {
       <main className="
           h-9/12 p-3 md:h-full md:min-h-0
           grow-3
-          flex items-center justify-center">
-        <Board
-          map={map}
-          className={locked ? 'cursor-not-allowed' : undefined}
-          onPointerDown={onBoardPointerDown}
-          onPointerMove={onBoardPointerMove}
-          onPointerUp={onBoardPointerUp}
-        >
-          <DropZoneLayer dropZones={map.dropZones} activeId={dropZone.id} />
-          <TerrainLayer pieces={pieces} />
-          <ObjectiveLayer objectives={map.objectives} homeId={ctx.homeObjective?.id} />
-          {markers && showTunnelRange[0] && <TunnelAuraLayer chain={markers} radius={MARKER_RADIUS_IN + (BASE_RADIUS_IN*2)} />}
-          {markers && showTunnelRange[1] && <TunnelAuraLayer chain={markers} radius={MARKER_RADIUS_IN + 2} fill />}
-          {markers && showTunnelRange[2] && <TunnelAuraLayer chain={markers} radius={MARKER_RADIUS_IN + UNBURROW_CONTROL_RANGE_IN} fill />}
-          {markers && (
-            <TunnelLayer
-              chain={markers}
-              invalidMarkers={invalidMarkers}
-              onMarkerPointerDown={interactive ? onMarkerPointerDown : undefined}
+          flex flex-col min-h-0">
+        <div className="flex items-center justify-between gap-2 pb-2">
+          <Button
+            className="px-8"
+            title="Previous slide"
+            aria-label="Previous slide"
+            disabled={slideIndex <= 0}
+            onClick={() => slideIndex > 0 && plan.selectSlide(slides[slideIndex - 1].id)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+            {/* Icon from Material Symbols by Google - https://github.com/google/material-design-icons/blob/master/LICENSE */}
+            <path fill="currentColor" d="m10 18l-6-6l6-6l1.4 1.45L7.85 11H20v2H7.85l3.55 3.55z" />
+            </svg>
+          </Button>
+          <span className="min-w-0 truncate text-center font-semibold text-text">
+            {currentSlide.name}
+            <span className="ml-2 text-muted font-normal">
+              {slideIndex + 1} / {slides.length}
+            </span>
+          </span>
+          <Button
+            className="px-8"
+            title="Next slide"
+            aria-label="Next slide"
+            disabled={slideIndex >= slides.length - 1}
+            onClick={() => slideIndex < slides.length - 1 && plan.selectSlide(slides[slideIndex + 1].id)}
+          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+          {/* Icon from Material Symbols by Google - https://github.com/google/material-design-icons/blob/master/LICENSE */}
+          <path fill="currentColor" d="m14 18l-1.4-1.45L16.15 13H4v-2h12.15L12.6 7.45L14 6l6 6z"/>
+          </svg>
+          </Button>
+        </div>
+        <div className="flex flex-1 min-h-0 items-center justify-center">
+          <Board
+            map={map}
+            className={locked ? 'cursor-not-allowed' : undefined}
+            onPointerDown={onBoardPointerDown}
+            onPointerMove={onBoardPointerMove}
+            onPointerUp={onBoardPointerUp}
+          >
+            <DropZoneLayer dropZones={map.dropZones} activeId={dropZone.id} />
+            <TerrainLayer pieces={pieces} />
+            <ObjectiveLayer objectives={map.objectives} homeId={ctx.homeObjective?.id} />
+            {markers && showTunnelRange[0] && <TunnelAuraLayer chain={markers} radius={MARKER_RADIUS_IN + (BASE_RADIUS_IN * 2)} />}
+            {markers && showTunnelRange[1] && <TunnelAuraLayer chain={markers} radius={MARKER_RADIUS_IN + 2} fill />}
+            {markers && showTunnelRange[2] && <TunnelAuraLayer chain={markers} radius={MARKER_RADIUS_IN + UNBURROW_CONTROL_RANGE_IN} fill />}
+            {markers && (
+              <TunnelLayer
+                chain={markers}
+                invalidMarkers={invalidMarkers}
+                onMarkerPointerDown={interactive ? onMarkerPointerDown : undefined}
+              />
+            )}
+            <ObjectsLayer
+              objects={currentSlide.objects}
+              selectedId={selectedObjectId ?? undefined}
+              interactive={interactive}
+              draft={draft}
+              onObjectPointerDown={onObjectPointerDown}
+              onArrowHandlePointerDown={onArrowHandlePointerDown}
             />
-          )}
-          <ObjectsLayer
-            objects={currentSlide.objects}
-            selectedId={selectedObjectId ?? undefined}
-            interactive={interactive}
-            draft={draft}
-            onObjectPointerDown={onObjectPointerDown}
-            onArrowHandlePointerDown={onArrowHandlePointerDown}
-          />
-        </Board>
+          </Board>
+        </div>
       </main>
     </div>
   )
