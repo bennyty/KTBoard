@@ -53,7 +53,7 @@ export const Board = forwardRef<SVGSVGElement, BoardProps>(function Board(
     <svg
       ref={ref}
       className={twMerge(
-        'max-h-full max-w-full touch-none select-none rounded-lg bg-bg',
+        'max-h-full max-w-full touch-pinch-zoom select-none rounded-lg bg-bg',
         className,
       )}
       viewBox={viewBox}
