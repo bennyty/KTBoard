@@ -78,6 +78,8 @@ export interface PlanController {
   setLastColor(color: ObjectColor): void
   setLastCircleSizeMm(sizeMm: number): void
   toggleLock(): void
+  /** Discard the entire plan and start over from the default empty plan. */
+  resetPlan(): void
 }
 
 export function isSlideEmpty(slide: Slide): boolean {
@@ -296,6 +298,15 @@ export function usePlan(): PlanController {
     setTool('select')
   }, [])
 
+  const resetPlan = useCallback(() => {
+    const fresh = defaultPlan()
+    setPlan(fresh)
+    setCurrentSlideId(fresh.slides[0].id)
+    setSelectedObjectId(null)
+    setTool('select')
+    setLocked(false)
+  }, [])
+
   return {
     plan,
     currentSlide,
@@ -328,5 +339,6 @@ export function usePlan(): PlanController {
     setLastColor,
     setLastCircleSizeMm,
     toggleLock,
+    resetPlan,
   }
 }

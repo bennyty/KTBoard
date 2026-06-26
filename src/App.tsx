@@ -16,16 +16,16 @@ export function App() {
         <h1 className="m-0 text-2xl">
           KTBoard
         </h1>
-        <nav className="flex gap-1.5">
-          <Button selected={mode === 'planning'} onClick={() => setMode('planning')}>
-            Planning
-          </Button>
-          {isDev && (
-            <Button selected={mode === 'annotation'} onClick={() => setMode('annotation')}>
-              Annotation (dev)
-            </Button>
-          )}
-        </nav>
+        {isDev && (
+          <nav className="flex gap-1.5">
+              <Button selected={mode === 'planning'} onClick={() => setMode('planning')}>
+                Planning
+              </Button>
+              <Button selected={mode === 'annotation'} onClick={() => setMode('annotation')}>
+                Annotation (dev)
+              </Button>
+          </nav>
+        )}
         <aside className="ml-auto flex items-center gap-4">
           <a href="https://bennyty.github.io/KTdle/" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:underline">
             Try our daily game - KTdle
