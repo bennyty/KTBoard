@@ -355,7 +355,7 @@ export function PlanningMode() {
 
       <main className="
           h-9/12 p-3 md:h-full md:min-h-0
-          grow-3
+          grow-3 md:basis-0 min-w-0
           flex flex-col min-h-0">
         <div className="flex items-center justify-between gap-2 pb-2">
           <Button
