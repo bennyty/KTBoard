@@ -19,7 +19,9 @@ export function HelpModal({ onClose }: { onClose: () => void }) {
       aria-label="Help and about"
     >
       <div
-        className="relative max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-lg border border-edge bg-panel p-6 shadow-xl"
+        className="relative max-h-[85vh] w-full max-w-lg overflow-y-auto
+          border border-edge bg-panel p-6 shadow-xl rounded-lg
+          flex flex-col gap-5"
         onClick={(e) => e.stopPropagation()}
       >
         <Button
@@ -31,9 +33,9 @@ export function HelpModal({ onClose }: { onClose: () => void }) {
           ✕
         </Button>
 
-        <h2 className="m-0 mb-4 text-2xl">Help</h2>
+        <h2 className="text-2xl">Help</h2>
 
-        <section className="mb-5">
+        <section>
           <h3 className="m-0 mb-2 text-lg text-accent-2">Getting started</h3>
           <p className="m-0 mb-2 text-sm">
             KTBoard is a planning board for Kill Team.
@@ -50,6 +52,21 @@ export function HelpModal({ onClose }: { onClose: () => void }) {
             <li>Generate tunnel suggestions based on a set of configurable weighted metrics.</li>
             <li>Suggestions also include some "variety" options, these are slightly lower "scoring" but have more variety.</li>
           </ul>
+        </section>
+
+        <section>
+          <h3 className="m-0 mb-2 text-lg text-accent-2">Contact</h3>
+          <p className="m-0 text-sm">
+            Submit{' '}
+            <a
+              href="https://github.com/bennyty/KTBoard/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent-2 hover:underline"
+            >
+              feedback or bug report
+            </a>
+          </p>
         </section>
 
         <section>
