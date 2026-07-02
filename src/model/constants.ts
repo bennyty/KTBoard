@@ -94,6 +94,7 @@ export const GRIDS: Record<string, { offsetIn: number; stepIn: number }> = {
 export const RECT_PRESETS = [
   { name: 'Light Barricade', lengthMm: 50, widthMm: 8 },
   { name: 'Heavy Barricade', lengthMm: 40, widthMm: 15 },
+  { name: 'Portable', lengthMm: 19, widthMm: 4.75 },
   { name: 'Razor Wire', lengthMm: 64, widthMm: 10 },
   { name: 'Mines', lengthMm: 32, widthMm: 10 },
   { name: 'Ladder', lengthMm: 15, widthMm: 3 },
