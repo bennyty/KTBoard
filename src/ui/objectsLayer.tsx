@@ -1,5 +1,5 @@
 import type { ArrowObject, CircleObject, EllipseObject, RectObject, SlideObject, TextObject } from '@/model/types'
-import { IN_PER_MM } from '@/model/constants'
+import { CONTROL_RANGE_IN, IN_PER_MM } from '@/model/constants'
 import { arrowLengthIn, COLOR_HEX, formatInches } from '@/planning/objects'
 
 /** Renders Slide Objects in killzone-inch coordinates (inside the Board's scaling <g>). */
@@ -12,6 +12,14 @@ function strokeFor(color: string): string {
 }
 
 const LABEL_LINE_HEIGHT = 0.6
+
+/** Faint outlined band echoing a shape's boundary, offset outward by the control
+ *  range (1"). Rendered beneath the shape so the shape stays legible on top. */
+const CONTROL_RANGE_STYLE = {
+  fillOpacity: 0.05,
+  strokeWidth: 0.02,
+  strokeDasharray: '0.18 0.12',
+} as const
 
 function ObjectLabel({ x, y, text, color }: { x: number; y: number; text: string; color?: string }) {
   if (!text) return null
@@ -44,6 +52,9 @@ function CircleShape({ o, selected }: { o: CircleObject; selected: boolean }) {
   const radius = (o.sizeMm * IN_PER_MM) / 2
   return (
     <>
+      {o.showControlRange && (
+        <circle cx={o.x} cy={o.y} r={radius + CONTROL_RANGE_IN} fill={hex} stroke={strokeFor(hex)} {...CONTROL_RANGE_STYLE} />
+      )}
       <circle cx={o.x} cy={o.y} r={radius} fill={hex} fillOpacity={0.32} stroke={strokeFor(hex)} strokeWidth={0.06} />
       {selected && (
         <circle cx={o.x} cy={o.y} r={radius + 0.12} fill="none" stroke={SELECT} strokeWidth={0.05} strokeDasharray="0.18 0.12" />
@@ -59,6 +70,9 @@ function EllipseShape({ o, selected }: { o: EllipseObject; selected: boolean }) 
   const ry = (o.heightMm * IN_PER_MM) / 2
   return (
     <g transform={`translate(${o.x} ${o.y}) rotate(${o.rotationDeg})`}>
+      {o.showControlRange && (
+        <ellipse cx={0} cy={0} rx={rx + CONTROL_RANGE_IN} ry={ry + CONTROL_RANGE_IN} fill={hex} stroke={strokeFor(hex)} {...CONTROL_RANGE_STYLE} />
+      )}
       <ellipse cx={0} cy={0} rx={rx} ry={ry} fill={hex} fillOpacity={0.32} stroke={strokeFor(hex)} strokeWidth={0.06} />
       {selected && (
         <ellipse cx={0} cy={0} rx={rx + 0.12} ry={ry + 0.12} fill="none" stroke={SELECT} strokeWidth={0.05} strokeDasharray="0.18 0.12" />
@@ -74,6 +88,19 @@ function RectShape({ o, selected }: { o: RectObject; selected: boolean }) {
   const w = o.widthMm * IN_PER_MM
   return (
     <g transform={`translate(${o.x} ${o.y}) rotate(${o.rotationDeg})`}>
+      {o.showControlRange && (
+        <rect
+          x={-l / 2 - CONTROL_RANGE_IN}
+          y={-w / 2 - CONTROL_RANGE_IN}
+          width={l + 2 * CONTROL_RANGE_IN}
+          height={w + 2 * CONTROL_RANGE_IN}
+          rx={CONTROL_RANGE_IN}
+          ry={CONTROL_RANGE_IN}
+          fill={hex}
+          stroke={strokeFor(hex)}
+          {...CONTROL_RANGE_STYLE}
+        />
+      )}
       <rect x={-l / 2} y={-w / 2} width={l} height={w} fill={hex} fillOpacity={0.32} stroke={strokeFor(hex)} strokeWidth={0.06} />
       {selected && (
         <rect

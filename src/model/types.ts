@@ -161,6 +161,8 @@ export interface CircleObject extends BaseObject {
   y: number
   sizeMm: number
   color: ObjectColor
+  /** When set, draw a 1" control-range band around the shape. */
+  showControlRange?: boolean
 }
 
 /** Ellipse: centre, rotation, and the two axis diameters in mm. `widthMm` runs
@@ -173,6 +175,8 @@ export interface EllipseObject extends BaseObject {
   widthMm: number
   heightMm: number
   color: ObjectColor
+  /** When set, draw a 1" control-range band around the shape. */
+  showControlRange?: boolean
 }
 
 /** Rectangle: centre, rotation, and dimensions in mm. `lengthMm` runs along
@@ -185,6 +189,8 @@ export interface RectObject extends BaseObject {
   lengthMm: number
   widthMm: number
   color: ObjectColor
+  /** When set, draw a 1" control-range band around the shape. */
+  showControlRange?: boolean
 }
 
 /** Arrow from (x1,y1) to (x2,y2). */

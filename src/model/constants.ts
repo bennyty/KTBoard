@@ -64,11 +64,7 @@ export const CIRCLE_DEFAULT_SIZE_MM = 32
 export const ELLIPSE_PRESETS = [
   { name: 'Fenrisian Wolf', widthMm: 60, heightMm: 35 },
   { name: 'Exodite', widthMm: 75, heightMm: 42 },
-  { name: '', widthMm: 90, heightMm: 52 },
-  { name: '', widthMm: 105, heightMm: 70 },
-  { name: '', widthMm: 120, heightMm: 92 },
-  { name: '', widthMm: 170, heightMm: 105 },
-] as const
+]
 
 /** Axis diameters (mm) for an Ellipse placed with a bare click (smallest preset). */
 export const ELLIPSE_DEFAULT_WIDTH_MM = ELLIPSE_PRESETS[0].widthMm

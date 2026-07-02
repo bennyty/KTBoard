@@ -335,6 +335,22 @@ function ObjectProps({
         </>
       )}
 
+      {(object.kind === 'circle' || object.kind === 'ellipse' || object.kind === 'rect') && (
+        <Field
+          row
+          label={
+            <input
+              type="checkbox"
+              className="accent-accent"
+              checked={!!object.showControlRange}
+              onChange={(e) => patch({ showControlRange: e.target.checked })}
+            />
+          }
+        >
+          Show 1″ control range
+        </Field>
+      )}
+
       {canCloneToSlides && (
         <Button
           onClick={() => cloneObjectToAllSlides(object.id)}

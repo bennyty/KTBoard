@@ -94,6 +94,33 @@ describe('planCodec', () => {
     }
   })
 
+  it('round-trips the control-range flag on circle, ellipse and rect', () => {
+    const plan: Plan = {
+      name: 'Control range',
+      slides: [
+        {
+          id: 's',
+          name: 'S',
+          mapId: 'volkus-1',
+          dropZoneId: 'dz-a',
+          markers: null,
+          objects: [
+            { id: 'c', kind: 'circle', x: 1, y: 1, sizeMm: 40, color: 'red', label: '', showControlRange: true },
+            { id: 'e', kind: 'ellipse', x: 2, y: 2, rotationDeg: 0, widthMm: 60, heightMm: 35, color: 'red', label: '', showControlRange: true },
+            { id: 'r', kind: 'rect', x: 3, y: 3, rotationDeg: 0, lengthMm: 50, widthMm: 8, color: 'red', label: '', showControlRange: true },
+            { id: 'c2', kind: 'circle', x: 4, y: 4, sizeMm: 40, color: 'red', label: '' },
+          ],
+        },
+      ],
+    }
+    const objects = decodePlan(encodePlan(plan))!.slides[0].objects
+    expect(objects[0]).toMatchObject({ kind: 'circle', showControlRange: true })
+    expect(objects[1]).toMatchObject({ kind: 'ellipse', showControlRange: true })
+    expect(objects[2]).toMatchObject({ kind: 'rect', showControlRange: true })
+    // Omitted flag decodes as off.
+    expect(objects[3]).toMatchObject({ kind: 'circle', showControlRange: false })
+  })
+
   it('regenerates fresh ids (does not encode them)', () => {
     const decoded = decodePlan(encodePlan(samplePlan))!
     expect(decoded.slides[0].id).not.toBe('slideA')

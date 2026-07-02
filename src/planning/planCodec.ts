@@ -39,14 +39,28 @@ function colorIndex(c: ObjectColor): number {
   return i < 0 ? 0 : i
 }
 
+// The control-range flag is appended after `label` only when set, so plans that
+// don't use it encode exactly as before. Decoders read it positionally and treat
+// a missing value as off.
+const CONTROL_RANGE_FLAG = 1
+
 function encodeObject(o: SlideObject): CompactObject {
   switch (o.kind) {
-    case 'circle':
-      return [KIND_TAG.circle, r(o.x), r(o.y), o.sizeMm, colorIndex(o.color), o.label]
-    case 'ellipse':
-      return [KIND_TAG.ellipse, r(o.x), r(o.y), r(o.rotationDeg), o.widthMm, o.heightMm, colorIndex(o.color), o.label]
-    case 'rect':
-      return [KIND_TAG.rect, r(o.x), r(o.y), r(o.rotationDeg), o.lengthMm, o.widthMm, colorIndex(o.color), o.label]
+    case 'circle': {
+      const a: CompactObject = [KIND_TAG.circle, r(o.x), r(o.y), o.sizeMm, colorIndex(o.color), o.label]
+      if (o.showControlRange) a.push(CONTROL_RANGE_FLAG)
+      return a
+    }
+    case 'ellipse': {
+      const a: CompactObject = [KIND_TAG.ellipse, r(o.x), r(o.y), r(o.rotationDeg), o.widthMm, o.heightMm, colorIndex(o.color), o.label]
+      if (o.showControlRange) a.push(CONTROL_RANGE_FLAG)
+      return a
+    }
+    case 'rect': {
+      const a: CompactObject = [KIND_TAG.rect, r(o.x), r(o.y), r(o.rotationDeg), o.lengthMm, o.widthMm, colorIndex(o.color), o.label]
+      if (o.showControlRange) a.push(CONTROL_RANGE_FLAG)
+      return a
+    }
     case 'arrow':
       return [KIND_TAG.arrow, r(o.x1), r(o.y1), r(o.x2), r(o.y2), colorIndex(o.color), o.label]
     case 'text':
@@ -78,7 +92,16 @@ function decodeObject(a: unknown): SlideObject | null {
   switch (a[0]) {
     case KIND_TAG.circle:
       if (!isNum(a[1]) || !isNum(a[2]) || !isNum(a[3]) || !isStr(a[5])) return null
-      return { id: genId(), kind: 'circle', x: a[1], y: a[2], sizeMm: a[3], color: decodeColor(a[4]), label: a[5] }
+      return {
+        id: genId(),
+        kind: 'circle',
+        x: a[1],
+        y: a[2],
+        sizeMm: a[3],
+        color: decodeColor(a[4]),
+        label: a[5],
+        showControlRange: a[6] === CONTROL_RANGE_FLAG,
+      }
     case KIND_TAG.ellipse:
       if (!isNum(a[1]) || !isNum(a[2]) || !isNum(a[3]) || !isNum(a[4]) || !isNum(a[5]) || !isStr(a[7])) return null
       return {
@@ -91,6 +114,7 @@ function decodeObject(a: unknown): SlideObject | null {
         heightMm: a[5],
         color: decodeColor(a[6]),
         label: a[7],
+        showControlRange: a[8] === CONTROL_RANGE_FLAG,
       }
     case KIND_TAG.rect:
       if (!isNum(a[1]) || !isNum(a[2]) || !isNum(a[3]) || !isNum(a[4]) || !isNum(a[5]) || !isStr(a[7])) return null
@@ -104,6 +128,7 @@ function decodeObject(a: unknown): SlideObject | null {
         widthMm: a[5],
         color: decodeColor(a[6]),
         label: a[7],
+        showControlRange: a[8] === CONTROL_RANGE_FLAG,
       }
     case KIND_TAG.arrow:
       if (!isNum(a[1]) || !isNum(a[2]) || !isNum(a[3]) || !isNum(a[4]) || !isStr(a[6])) return null
