@@ -68,6 +68,32 @@ describe('planCodec', () => {
     expect(decoded!.slides[1].objects).toEqual([])
   })
 
+  it('round-trips an ellipse object', () => {
+    const plan: Plan = {
+      name: 'Ellipse',
+      slides: [
+        {
+          id: 's',
+          name: 'S',
+          mapId: 'volkus-1',
+          dropZoneId: 'dz-a',
+          markers: null,
+          objects: [
+            { id: 'e1', kind: 'ellipse', x: 3.25, y: 4.5, rotationDeg: 30.5, widthMm: 50, heightMm: 30, color: 'green', label: 'oval' },
+          ],
+        },
+      ],
+    }
+    const decoded = decodePlan(encodePlan(plan))!
+    const ellipse = decoded.slides[0].objects[0]
+    expect(ellipse.kind).toBe('ellipse')
+    expect(ellipse).toMatchObject({ widthMm: 50, heightMm: 30, color: 'green', label: 'oval' })
+    if (ellipse.kind === 'ellipse') {
+      expect(ellipse.x).toBeCloseTo(3.25, 3)
+      expect(ellipse.rotationDeg).toBeCloseTo(30.5, 3)
+    }
+  })
+
   it('regenerates fresh ids (does not encode them)', () => {
     const decoded = decodePlan(encodePlan(samplePlan))!
     expect(decoded.slides[0].id).not.toBe('slideA')

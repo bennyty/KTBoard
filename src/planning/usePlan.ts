@@ -5,7 +5,7 @@ import { CIRCLE_DEFAULT_SIZE_MM } from '@/model/constants'
 import { DEFAULT_OBJECT_COLOR, genId, translateObject } from './objects'
 import { readPlanFromUrl, writePlanToUrl } from './urlState'
 
-export type Tool = 'select' | 'circle' | 'rect' | 'arrow' | 'text'
+export type Tool = 'select' | 'circle' | 'ellipse' | 'rect' | 'arrow' | 'text'
 
 function emptySlide(name: string, mapId: string, dropZoneId: string): Slide {
   return { id: genId(), name, mapId, dropZoneId, markers: null, objects: [] }

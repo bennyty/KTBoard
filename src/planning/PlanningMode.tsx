@@ -12,22 +12,31 @@ import { DropZoneLayer, ObjectiveLayer, TerrainLayer, TunnelLayer, TunnelAuraLay
 import { ObjectsLayer } from '@/ui/objectsLayer'
 import { isSlideEmpty, usePlan } from './usePlan'
 import { useTunnelGenerator } from './useTunnelGenerator'
-import { makeArrow, makeCircle, makeRect, makeText, snapCircleSizeMm } from './objects'
+import { ellipsePresetLabel, makeArrow, makeCircle, makeEllipse, makeRect, makeText, snapCircleSizeMm, snapEllipsePreset } from './objects'
 import { PlanTab } from './PlanTab'
 import { TunnelTab } from './TunnelTab'
 import { clamp, constrainMarker0 } from '@/rules/tunnel'
 import { Button, Field, Hint, Input, Section, Sidebar } from '@/ui/components'
 import { twJoin } from 'tailwind-merge'
-import { BASE_RADIUS_IN, MARKER_RADIUS_IN, UNBURROW_CONTROL_RANGE_IN } from '@/model/constants'
+import {
+  BASE_RADIUS_IN,
+  ELLIPSE_PRESETS,
+  IN_PER_MM,
+  MARKER_RADIUS_IN,
+  UNBURROW_CONTROL_RANGE_IN,
+} from '@/model/constants'
 
 /** One in-progress board gesture (placement or drag). Kept in a ref — only the
  *  draft preview needs to re-render. */
 type Gesture =
   | { kind: 'circle'; center: Vec }
+  | { kind: 'ellipse'; center: Vec }
   | { kind: 'rect'; center: Vec }
   | { kind: 'arrow'; start: Vec }
   | { kind: 'moveObject'; id: string; last: Vec }
   | { kind: 'arrowHandle'; id: string; end: 'start' | 'end' }
+  // Rotating a placed rect/ellipse by dragging its rotation handle.
+  | { kind: 'rotateObject'; id: string; center: Vec }
   | { kind: 'marker'; index: number }
 
 export function PlanningMode() {
@@ -97,6 +106,9 @@ export function PlanningMode() {
         case 'c':
           if (!locked) plan.setTool('circle')
           break
+        case 'e':
+          if (!locked) plan.setTool('ellipse')
+          break
         case 'r':
           if (!locked) plan.setTool('rect')
           break
@@ -140,6 +152,15 @@ export function PlanningMode() {
 
   const interactive = tool === 'select' && !locked
 
+  /** Oval-base preset for an ellipse sizing drag: dx/dy off the centre give the
+   *  two axis diameters, snapped to the nearest preset. A bare click (no drag)
+   *  lands on the smallest preset. */
+  function snapEllipseFromDrag(center: Vec, at: Vec) {
+    const widthMm = (Math.abs(at.x - center.x) * 2) / IN_PER_MM
+    const heightMm = (Math.abs(at.y - center.y) * 2) / IN_PER_MM
+    return snapEllipsePreset(widthMm, heightMm)
+  }
+
   /** Convert a pointer event fired on a board child into killzone inches. */
   function evToInches(e: React.PointerEvent): Vec {
     const svg = (e.currentTarget as Element).closest('svg') as SVGSVGElement
@@ -159,6 +180,14 @@ export function PlanningMode() {
         gesture.current = { kind: 'circle', center: inches }
         const c = makeCircle(inches, lastCircleSizeMm, lastColor)
         setDraft({ ...c, label: `${lastCircleSizeMm}mm` })
+        e.currentTarget.setPointerCapture(e.pointerId)
+        break
+      }
+      case 'ellipse': {
+        gesture.current = { kind: 'ellipse', center: inches }
+        const preset = ELLIPSE_PRESETS[0]
+        const el = makeEllipse(inches, preset.widthMm, preset.heightMm, 0, lastColor)
+        setDraft({ ...el, label: ellipsePresetLabel(preset) })
         e.currentTarget.setPointerCapture(e.pointerId)
         break
       }
@@ -189,6 +218,15 @@ export function PlanningMode() {
         setDraft((d) => (d && d.kind === 'circle' ? { ...d, sizeMm, label: `${sizeMm}mm` } : d))
         break
       }
+      case 'ellipse': {
+        const preset = snapEllipseFromDrag(g.center, inches)
+        setDraft((d) =>
+          d && d.kind === 'ellipse'
+            ? { ...d, widthMm: preset.widthMm, heightMm: preset.heightMm, label: ellipsePresetLabel(preset) }
+            : d,
+        )
+        break
+      }
       case 'rect': {
         const deg = (Math.atan2(inches.y - g.center.y, inches.x - g.center.x) * 180) / Math.PI
         setDraft((d) => (d && d.kind === 'rect' ? { ...d, rotationDeg: deg } : d))
@@ -205,6 +243,11 @@ export function PlanningMode() {
       case 'arrowHandle':
         plan.updateObject(g.id, g.end === 'start' ? { x1: inches.x, y1: inches.y } : { x2: inches.x, y2: inches.y })
         break
+      case 'rotateObject': {
+        const deg = (Math.atan2(inches.y - g.center.y, inches.x - g.center.x) * 180) / Math.PI
+        plan.updateObject(g.id, { rotationDeg: deg })
+        break
+      }
       case 'marker': {
         if (!markers) break
         const next =
@@ -225,6 +268,10 @@ export function PlanningMode() {
       const sizeMm = radius < 0.1 ? lastCircleSizeMm : snapCircleSizeMm(radius)
       plan.addObject(makeCircle(g.center, sizeMm, lastColor))
       plan.setLastCircleSizeMm(sizeMm)
+      plan.setTool('select')
+    } else if (g?.kind === 'ellipse') {
+      const preset = snapEllipseFromDrag(g.center, inches)
+      plan.addObject({ ...makeEllipse(g.center, preset.widthMm, preset.heightMm, 0, lastColor), label: preset.name })
       plan.setTool('select')
     } else if (g?.kind === 'rect') {
       const dx = inches.x - g.center.x
@@ -253,6 +300,16 @@ export function PlanningMode() {
   function onArrowHandlePointerDown(id: string, end: 'start' | 'end', e: React.PointerEvent) {
     plan.selectObject(id)
     gesture.current = { kind: 'arrowHandle', id, end }
+      ; (e.currentTarget as Element).closest('svg')?.setPointerCapture(e.pointerId)
+    e.stopPropagation()
+    e.preventDefault()
+  }
+
+  function onRotateHandlePointerDown(id: string, e: React.PointerEvent) {
+    const obj = currentSlide.objects.find((o) => o.id === id)
+    if (!obj || (obj.kind !== 'rect' && obj.kind !== 'ellipse')) return
+    plan.selectObject(id)
+    gesture.current = { kind: 'rotateObject', id, center: { x: obj.x, y: obj.y } }
       ; (e.currentTarget as Element).closest('svg')?.setPointerCapture(e.pointerId)
     e.stopPropagation()
     e.preventDefault()
@@ -417,6 +474,7 @@ export function PlanningMode() {
               draft={draft}
               onObjectPointerDown={onObjectPointerDown}
               onArrowHandlePointerDown={onArrowHandlePointerDown}
+              onRotateHandlePointerDown={onRotateHandlePointerDown}
             />
           </Board>
         </div>

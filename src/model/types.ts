@@ -163,6 +163,18 @@ export interface CircleObject extends BaseObject {
   color: ObjectColor
 }
 
+/** Ellipse: centre, rotation, and the two axis diameters in mm. `widthMm` runs
+ *  along the local x-axis (set by rotation), `heightMm` along the local y-axis. */
+export interface EllipseObject extends BaseObject {
+  kind: 'ellipse'
+  x: number
+  y: number
+  rotationDeg: number
+  widthMm: number
+  heightMm: number
+  color: ObjectColor
+}
+
 /** Rectangle: centre, rotation, and dimensions in mm. `lengthMm` runs along
  *  the local facing axis (set by rotation); `widthMm` is perpendicular. */
 export interface RectObject extends BaseObject {
@@ -193,7 +205,7 @@ export interface TextObject extends BaseObject {
   y: number
 }
 
-export type SlideObject = CircleObject | RectObject | ArrowObject | TextObject
+export type SlideObject = CircleObject | EllipseObject | RectObject | ArrowObject | TextObject
 export type ObjectKind = SlideObject['kind']
 
 /** One independent board state within a Plan: its own map and drop zone, an

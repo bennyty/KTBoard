@@ -27,7 +27,7 @@ const PLAN_CODEC_VERSION = 2
 const ROUND = 1000
 const r = (n: number) => Math.round(n * ROUND) / ROUND
 
-const KIND_TAG = { circle: 0, rect: 1, arrow: 2, text: 3 } as const
+const KIND_TAG = { circle: 0, rect: 1, arrow: 2, text: 3, ellipse: 4 } as const
 
 type CompactObject = (number | string)[]
 type CompactSlide = [string, string, string, number[] | 0, CompactObject[]]
@@ -43,6 +43,8 @@ function encodeObject(o: SlideObject): CompactObject {
   switch (o.kind) {
     case 'circle':
       return [KIND_TAG.circle, r(o.x), r(o.y), o.sizeMm, colorIndex(o.color), o.label]
+    case 'ellipse':
+      return [KIND_TAG.ellipse, r(o.x), r(o.y), r(o.rotationDeg), o.widthMm, o.heightMm, colorIndex(o.color), o.label]
     case 'rect':
       return [KIND_TAG.rect, r(o.x), r(o.y), r(o.rotationDeg), o.lengthMm, o.widthMm, colorIndex(o.color), o.label]
     case 'arrow':
@@ -77,6 +79,19 @@ function decodeObject(a: unknown): SlideObject | null {
     case KIND_TAG.circle:
       if (!isNum(a[1]) || !isNum(a[2]) || !isNum(a[3]) || !isStr(a[5])) return null
       return { id: genId(), kind: 'circle', x: a[1], y: a[2], sizeMm: a[3], color: decodeColor(a[4]), label: a[5] }
+    case KIND_TAG.ellipse:
+      if (!isNum(a[1]) || !isNum(a[2]) || !isNum(a[3]) || !isNum(a[4]) || !isNum(a[5]) || !isStr(a[7])) return null
+      return {
+        id: genId(),
+        kind: 'ellipse',
+        x: a[1],
+        y: a[2],
+        rotationDeg: a[3],
+        widthMm: a[4],
+        heightMm: a[5],
+        color: decodeColor(a[6]),
+        label: a[7],
+      }
     case KIND_TAG.rect:
       if (!isNum(a[1]) || !isNum(a[2]) || !isNum(a[3]) || !isNum(a[4]) || !isNum(a[5]) || !isStr(a[7])) return null
       return {

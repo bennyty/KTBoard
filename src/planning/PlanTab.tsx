@@ -1,10 +1,10 @@
-import type { ReactElement } from 'react'
+import { useEffect, useRef, useState, type ReactElement } from 'react'
 import { twJoin, twMerge } from 'tailwind-merge'
 import type { AnnotatedMap, DropZone, ObjectColor, SlideObject, Slide } from '@/model/types'
 import { OBJECT_COLORS } from '@/model/types'
-import { RECT_PRESETS } from '@/model/constants'
+import { ELLIPSE_PRESETS, RECT_PRESETS } from '@/model/constants'
 import { maps } from '@/data/registry'
-import { arrowLengthIn, COLOR_HEX, formatInches, makeText, OBJECT_KIND_LABELS } from './objects'
+import { arrowLengthIn, COLOR_HEX, ellipsePresetLabel, formatInches, makeText, OBJECT_KIND_LABELS } from './objects'
 import type { Tool } from './usePlan'
 import { Button, Field, Hint, Input, List, Row, Section, Select, Textarea } from '@/ui/components'
 
@@ -18,6 +18,11 @@ const ICON: Record<Tool, ReactElement> = {
   circle: (
     <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
       <circle cx="8" cy="8" r="5.5" />
+    </svg>
+  ),
+  ellipse: (
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+      <ellipse cx="8" cy="8" rx="6.5" ry="4" />
     </svg>
   ),
   rect: (
@@ -37,13 +42,120 @@ const ICON: Record<Tool, ReactElement> = {
   ),
 }
 
-const TOOLS: { tool: Tool; label: string; key: string }[] = [
-  { tool: 'select', label: 'Select', key: 'V' },
+type ToolMeta = { tool: Tool; label: string; key: string }
+
+/** Circle and Ellipse share one toolbar slot: Ellipse is the rarely-used variant
+ *  reached through the slot's caret flyout, keeping the toolbar to five buttons. */
+const SHAPE_TOOLS = [
   { tool: 'circle', label: 'Circle', key: 'C' },
+  { tool: 'ellipse', label: 'Ellipse', key: 'E' },
+] as const satisfies readonly ToolMeta[]
+
+/** The plain, single-tool toolbar buttons, in order; the shape slot is inserted
+ *  between Select and Rectangle. */
+const TOOLS: ToolMeta[] = [
+  { tool: 'select', label: 'Select', key: 'V' },
   { tool: 'rect', label: 'Rectangle', key: 'R' },
   { tool: 'arrow', label: 'Arrow', key: 'L' },
   { tool: 'text', label: 'Text', key: 'T' },
 ]
+
+const TOOL_BUTTON_CLASS = 'flex min-w-0 flex-1 items-center justify-center px-0 py-2 [&_svg]:block'
+
+function ToolButton({ meta, tool, setTool, disabled }: { meta: ToolMeta; tool: Tool; setTool: (t: Tool) => void; disabled: boolean }) {
+  return (
+    <Button
+      className={TOOL_BUTTON_CLASS}
+      selected={tool === meta.tool}
+      disabled={disabled && meta.tool !== 'select'}
+      onClick={() => setTool(meta.tool)}
+      title={`${meta.label} (${meta.key})`}
+      aria-label={`${meta.label} (${meta.key})`}
+    >
+      {ICON[meta.tool]}
+    </Button>
+  )
+}
+
+/** The Circle/Ellipse slot: the main button places the last-used shape; a corner
+ *  caret opens a flyout to switch between Circle and Ellipse. */
+function ShapeToolButton({ tool, setTool, disabled }: { tool: Tool; setTool: (t: Tool) => void; disabled: boolean }) {
+  const [open, setOpen] = useState(false)
+  const [lastShape, setLastShape] = useState<'circle' | 'ellipse'>('circle')
+  const ref = useRef<HTMLDivElement>(null)
+
+  // Remember the active shape (also when picked via keyboard) so the slot shows it.
+  useEffect(() => {
+    if (tool === 'circle' || tool === 'ellipse') setLastShape(tool)
+  }, [tool])
+
+  // Dismiss the flyout on an outside click.
+  useEffect(() => {
+    if (!open) return
+    function onDown(e: PointerEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    window.addEventListener('pointerdown', onDown)
+    return () => window.removeEventListener('pointerdown', onDown)
+  }, [open])
+
+  const active = tool === 'circle' || tool === 'ellipse'
+  const shown = active ? (tool as 'circle' | 'ellipse') : lastShape
+  const shownMeta = SHAPE_TOOLS.find((s) => s.tool === shown)!
+
+  function choose(t: 'circle' | 'ellipse') {
+    setLastShape(t)
+    setTool(t)
+    setOpen(false)
+  }
+
+  return (
+    <div ref={ref} className="relative flex min-w-0 flex-1">
+      <Button
+        className={TOOL_BUTTON_CLASS}
+        selected={active}
+        disabled={disabled}
+        onClick={() => setTool(shown)}
+        title={`${shownMeta.label} (${shownMeta.key})`}
+        aria-label={`${shownMeta.label} (${shownMeta.key})`}
+      >
+        {ICON[shown]}
+      </Button>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen((o) => !o)}
+        title="More shapes"
+        aria-label="More shapes"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="absolute bottom-0.5 right-0.5 leading-none text-[9px] text-muted hover:text-text disabled:opacity-50"
+      >
+        ▾
+      </button>
+      {open && !disabled && (
+        <div
+          role="menu"
+          className="absolute left-0 top-full z-10 mt-1 flex w-max flex-col gap-1 rounded-md border border-edge bg-panel-2 p-1 shadow-lg"
+        >
+          {SHAPE_TOOLS.map((s) => (
+            <Button
+              key={s.tool}
+              role="menuitem"
+              selected={shown === s.tool}
+              className="flex items-center justify-start gap-2 px-2 py-1 [&_svg]:block"
+              onClick={() => choose(s.tool)}
+              title={`${s.label} (${s.key})`}
+            >
+              {ICON[s.tool]}
+              <span>{s.label}</span>
+            </Button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 function ColorPicker({ value, onChange }: { value: ObjectColor; onChange: (c: ObjectColor) => void }) {
   return (
@@ -88,6 +200,10 @@ function ObjectProps({
     object.kind === 'rect'
       ? RECT_PRESETS.findIndex((p) => p.lengthMm === object.lengthMm && p.widthMm === object.widthMm)
       : -1
+  const ellipsePresetIndex =
+    object.kind === 'ellipse'
+      ? ELLIPSE_PRESETS.findIndex((p) => p.widthMm === object.widthMm && p.heightMm === object.heightMm)
+      : -1
 
   return (
     <Section title={OBJECT_KIND_LABELS[object.kind]} className="rounded-md bg-panel-2 p-2.5">
@@ -125,6 +241,44 @@ function ObjectProps({
             onChange={(e) => patch({ sizeMm: Number(e.target.value) })}
           />
         </Field>
+      )}
+
+      {object.kind === 'ellipse' && (
+        <>
+          <Field label="Base preset">
+            <Select
+              value={ellipsePresetIndex}
+              onChange={(e) => {
+                const i = Number(e.target.value)
+                if (i < 0) return
+                patch({ widthMm: ELLIPSE_PRESETS[i].widthMm, heightMm: ELLIPSE_PRESETS[i].heightMm, label: ELLIPSE_PRESETS[i].name })
+              }}
+            >
+              {ellipsePresetIndex < 0 && <option value={-1}>Custom</option>}
+              {ELLIPSE_PRESETS.map((p, i) => (
+                <option key={i} value={i}>
+                  {ellipsePresetLabel(p)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Row className="gap-2">
+            <Field label="Width (mm)" className="flex-1">
+              <Input type="number" min={1} value={object.widthMm} onChange={(e) => patch({ widthMm: Number(e.target.value) })} />
+            </Field>
+            <Field label="Height (mm)" className="flex-1">
+              <Input type="number" min={1} value={object.heightMm} onChange={(e) => patch({ heightMm: Number(e.target.value) })} />
+            </Field>
+          </Row>
+          <Field label="Rotation (°)">
+            <Input
+              type="number"
+              step={5}
+              value={Math.round(object.rotationDeg)}
+              onChange={(e) => patch({ rotationDeg: Number(e.target.value) })}
+            />
+          </Field>
+        </>
       )}
 
       {object.kind === 'arrow' && (
@@ -275,21 +429,14 @@ export function PlanTab({
 
       <Section title="Tools">
         <div className="flex flex-nowrap gap-1">
-          {TOOLS.map(({ tool: t, label, key }) => (
-            <Button
-              key={t}
-              className="flex min-w-0 flex-1 items-center justify-center px-0 py-2 [&_svg]:block"
-              selected={tool === t}
-              disabled={disabled && t !== 'select'}
-              onClick={() => setTool(t)}
-              title={`${label} (${key})`}
-              aria-label={`${label} (${key})`}
-            >
-              {ICON[t]}
-            </Button>
+          <ToolButton meta={TOOLS[0]} tool={tool} setTool={setTool} disabled={disabled} />
+          <ShapeToolButton tool={tool} setTool={setTool} disabled={disabled} />
+          {TOOLS.slice(1).map((meta) => (
+            <ToolButton key={meta.tool} meta={meta} tool={tool} setTool={setTool} disabled={disabled} />
           ))}
         </div>
-        {!disabled && tool !== 'select' && <Hint>Click or click and drag to place object</Hint>}
+        {!disabled && tool === 'ellipse' && <Hint>Drag to size (snaps to a base); rotate with the handle once selected</Hint>}
+        {!disabled && tool !== 'select' && tool !== 'ellipse' && <Hint>Click or click and drag to place object</Hint>}
       </Section>
 
       {selectedObject && !disabled && (

@@ -1,4 +1,4 @@
-import type { ArrowObject, CircleObject, RectObject, SlideObject, TextObject } from '@/model/types'
+import type { ArrowObject, CircleObject, EllipseObject, RectObject, SlideObject, TextObject } from '@/model/types'
 import { IN_PER_MM } from '@/model/constants'
 import { arrowLengthIn, COLOR_HEX, formatInches } from '@/planning/objects'
 
@@ -50,6 +50,21 @@ function CircleShape({ o, selected }: { o: CircleObject; selected: boolean }) {
       )}
       <ObjectLabel x={o.x} y={o.y + 0.18} text={o.label} />
     </>
+  )
+}
+
+function EllipseShape({ o, selected }: { o: EllipseObject; selected: boolean }) {
+  const hex = COLOR_HEX[o.color]
+  const rx = (o.widthMm * IN_PER_MM) / 2
+  const ry = (o.heightMm * IN_PER_MM) / 2
+  return (
+    <g transform={`translate(${o.x} ${o.y}) rotate(${o.rotationDeg})`}>
+      <ellipse cx={0} cy={0} rx={rx} ry={ry} fill={hex} fillOpacity={0.32} stroke={strokeFor(hex)} strokeWidth={0.06} />
+      {selected && (
+        <ellipse cx={0} cy={0} rx={rx + 0.12} ry={ry + 0.12} fill="none" stroke={SELECT} strokeWidth={0.05} strokeDasharray="0.18 0.12" />
+      )}
+      <ObjectLabel x={0} y={0.18} text={o.label} />
+    </g>
   )
 }
 
@@ -122,6 +137,8 @@ function Shape({ o, selected, showArrowLength }: { o: SlideObject; selected: boo
   switch (o.kind) {
     case 'circle':
       return <CircleShape o={o} selected={selected} />
+    case 'ellipse':
+      return <EllipseShape o={o} selected={selected} />
     case 'rect':
       return <RectShape o={o} selected={selected} />
     case 'arrow':
@@ -142,6 +159,53 @@ function HitTarget({ o }: { o: SlideObject }) {
   return null
 }
 
+/** Objects with a rotation, and the local half-extent (inches) their handle
+ *  sits beyond so it clears the shape. */
+function rotatableExtentX(o: RectObject | EllipseObject): number {
+  return o.kind === 'rect' ? (o.lengthMm * IN_PER_MM) / 2 : (o.widthMm * IN_PER_MM) / 2
+}
+
+/** A draggable knob offset along the object's facing axis; dragging it spins the
+ *  object about its centre. Shown on selected rotatable objects (rect, ellipse). */
+function RotationHandle({
+  o,
+  onPointerDown,
+}: {
+  o: RectObject | EllipseObject
+  onPointerDown?: (id: string, e: React.PointerEvent) => void
+}) {
+  const rad = (o.rotationDeg * Math.PI) / 180
+  const ux = Math.cos(rad)
+  const uy = Math.sin(rad)
+  const extentX = rotatableExtentX(o)
+  const gap = 0.5
+  const handleX = o.x + ux * (extentX + gap)
+  const handleY = o.y + uy * (extentX + gap)
+  return (
+    <>
+      <line
+        x1={o.x + ux * extentX}
+        y1={o.y + uy * extentX}
+        x2={handleX}
+        y2={handleY}
+        stroke={SELECT}
+        strokeWidth={0.03}
+        style={{ pointerEvents: 'none' }}
+      />
+      <circle
+        cx={handleX}
+        cy={handleY}
+        r={0.16}
+        fill={SELECT}
+        stroke="#0c0c10"
+        strokeWidth={0.03}
+        style={{ cursor: 'grab' }}
+        onPointerDown={(e) => onPointerDown?.(o.id, e)}
+      />
+    </>
+  )
+}
+
 export function ObjectsLayer({
   objects,
   selectedId,
@@ -149,6 +213,7 @@ export function ObjectsLayer({
   draft,
   onObjectPointerDown,
   onArrowHandlePointerDown,
+  onRotateHandlePointerDown,
 }: {
   objects: SlideObject[]
   selectedId?: string
@@ -158,6 +223,7 @@ export function ObjectsLayer({
   draft?: SlideObject | null
   onObjectPointerDown?: (id: string, e: React.PointerEvent) => void
   onArrowHandlePointerDown?: (id: string, end: 'start' | 'end', e: React.PointerEvent) => void
+  onRotateHandlePointerDown?: (id: string, e: React.PointerEvent) => void
 }) {
   return (
     <g>
@@ -194,6 +260,9 @@ export function ObjectsLayer({
                   onPointerDown={(e) => onArrowHandlePointerDown?.(o.id, 'end', e)}
                 />
               </>
+            )}
+            {selected && interactive && (o.kind === 'rect' || o.kind === 'ellipse') && (
+              <RotationHandle o={o} onPointerDown={onRotateHandlePointerDown} />
             )}
           </g>
         )

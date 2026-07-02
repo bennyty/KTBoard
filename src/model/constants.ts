@@ -59,6 +59,21 @@ export const CIRCLE_PRESET_SIZES_MM = [20, 25, 28, 32, 40, 50, 60] as const
 /** Diameter used for a Circle placed with a bare click (no drag). */
 export const CIRCLE_DEFAULT_SIZE_MM = 32
 
+/** Named oval-base presets (width × height in mm); an Ellipse drag snaps to the
+ *  nearest of these, mirroring how a Circle snaps to CIRCLE_PRESET_SIZES_MM. */
+export const ELLIPSE_PRESETS = [
+  { name: 'Fenrisian Wolf', widthMm: 60, heightMm: 35 },
+  { name: 'Exodite', widthMm: 75, heightMm: 42 },
+  { name: '', widthMm: 90, heightMm: 52 },
+  { name: '', widthMm: 105, heightMm: 70 },
+  { name: '', widthMm: 120, heightMm: 92 },
+  { name: '', widthMm: 170, heightMm: 105 },
+] as const
+
+/** Axis diameters (mm) for an Ellipse placed with a bare click (smallest preset). */
+export const ELLIPSE_DEFAULT_WIDTH_MM = ELLIPSE_PRESETS[0].widthMm
+export const ELLIPSE_DEFAULT_HEIGHT_MM = ELLIPSE_PRESETS[0].heightMm
+
 // --- Grid-aligned walls & pillars (tombworld / gallowdark) ---
 // PLACEHOLDER footprint sizes — replace with measured values. Editing these
 // reshapes every placed wall/pillar on reload (defs are built from them).
