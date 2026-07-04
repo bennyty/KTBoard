@@ -75,8 +75,7 @@ export function snapEllipsePreset(widthMm: number, heightMm: number): EllipsePre
 /** Display text for a preset: its name, or its dimensions when unnamed. */
 export function ellipsePresetLabel(p: EllipsePreset): string {
   const times = String.fromCharCode(215) // ×
-  if (p.name) return `${p.name}
-  (${p.widthMm}${times}${p.heightMm}mm)`
+  if (p.name) return `${p.name}\n(${p.widthMm}${times}${p.heightMm}mm)`
   return `${p.widthMm}${times}${p.heightMm}mm`
 }
 
