@@ -5,6 +5,7 @@ import { resolveMapPieces } from '@/scoring/generate'
 import { makeNormContext } from '@/scoring/weighted'
 import { makeScoringContext, scoreChain } from '@/scoring/score'
 import { chainViolations } from '@/rules/validity'
+import { equipmentViolations } from '@/rules/equipment'
 import { pxToInches } from '@/geometry/transform'
 import { Board, mapTransform } from '@/ui/Board'
 import { clientToSvg } from '@/ui/svgPointer'
@@ -149,6 +150,18 @@ export function PlanningMode() {
     [markers, isValid, ctx],
   )
   const invalidMarkers = useMemo(() => new Set(violations.map((v) => v.marker)), [violations])
+
+  // Accessible sub-regions carried by the placed terrain pieces, in world inches.
+  const accessibleRegions = useMemo(
+    () => pieces.flatMap((p) => p.accessible ?? []),
+    [pieces],
+  )
+  // Equipment (preset-shaped rects) placed within 2" of other equipment or of
+  // accessible terrain is flagged; the ids feed both the board and props panel.
+  const equipmentWarnings = useMemo(
+    () => equipmentViolations(currentSlide.objects, accessibleRegions, map.objectives),
+    [currentSlide.objects, accessibleRegions, map.objectives],
+  )
 
   const interactive = tool === 'select' && !locked
 
@@ -378,6 +391,7 @@ export function PlanningMode() {
             tool={tool}
             setTool={plan.setTool}
             selectedObject={plan.selectedObject}
+            selectedObjectWarning={!!selectedObjectId && equipmentWarnings.has(selectedObjectId)}
             updateObject={plan.updateObject}
             deleteObject={plan.deleteObject}
             setLastRectPreset={plan.setLastRectPreset}
@@ -472,6 +486,7 @@ export function PlanningMode() {
               selectedId={selectedObjectId ?? undefined}
               interactive={interactive}
               draft={draft}
+              warningIds={equipmentWarnings}
               onObjectPointerDown={onObjectPointerDown}
               onArrowHandlePointerDown={onArrowHandlePointerDown}
               onRotateHandlePointerDown={onRotateHandlePointerDown}

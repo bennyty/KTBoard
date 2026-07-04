@@ -75,6 +75,27 @@ export function circleInsidePolygon(c: Vec, r: number, poly: Polygon): boolean {
   return distPointPolygonBoundary(c, poly) >= r
 }
 
+/** True if two polygon regions overlap (edges cross, or one contains the other). */
+export function polygonsOverlap(a: Polygon, b: Polygon): boolean {
+  for (let i = 0, j = a.length - 1; i < a.length; j = i++) {
+    for (let k = 0, l = b.length - 1; k < b.length; l = k++) {
+      if (segmentsIntersect(a[j], a[i], b[l], b[k])) return true
+    }
+  }
+  return pointInPolygon(a[0], b) || pointInPolygon(b[0], a)
+}
+
+/** Min distance between two polygon regions (0 if they overlap). For disjoint
+ *  polygons the closest pair is always a vertex of one against an edge of the
+ *  other, so scanning every vertex against the opposite boundary suffices. */
+export function polygonPolygonDistance(a: Polygon, b: Polygon): number {
+  if (polygonsOverlap(a, b)) return 0
+  let best = Infinity
+  for (const p of a) best = Math.min(best, distPointPolygonBoundary(p, b))
+  for (const p of b) best = Math.min(best, distPointPolygonBoundary(p, a))
+  return best
+}
+
 export function polygonCentroid(poly: Polygon): Vec {
   // Bbox center — used as a stable rotation pivot, not a true centroid.
   const b = polygonBBox(poly)
@@ -109,6 +130,7 @@ export function resolvePiece(def: PieceDef, placement: PiecePlacement): WorldPie
     kind: def.kind,
     outer,
     innerFloor: def.innerFloor ? transformPolygon(def.innerFloor, placement) : undefined,
+    accessible: def.accessible?.map((poly) => transformPolygon(poly, placement)),
     bbox: polygonBBox(outer),
   }
 }

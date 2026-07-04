@@ -54,6 +54,10 @@ A KT terrain category that appears only in the close-quarters killzones (Gallowd
 **Hazardous area**:
 A marked floor region present only on Bheta-Decima. Tunnel markers cannot be placed inside it; between-segments may span across it.
 
+**Accessible** (terrain):
+An optional set of sub-regions of a Terrain piece, marking the portions operatives can climb/stand on that matter for equipment placement. Also the representation for **access points and doors** — they count as Accessible terrain and are marked the same way, rather than modeled separately. Stored on the piece definition as piece-local polygons (like a stronghold's inner-floor), so they move and rotate with the piece; a single piece may carry several. Traced in Annotation mode via the piece "accessible region" polygon target. Rendered as a teal dashed overlay. Equipment placed within 2″ of any Accessible region is flagged (1″ for Ladders).
+_Avoid_: accessible terrain piece (it is not a separate piece)
+
 ### Mission objectives
 
 **Home objective**:
@@ -114,6 +118,15 @@ Anything placed on the board beyond Tunnel markers. Objects are purely visual/pl
 
 Colors are drawn from a fixed palette: red, blue, yellow, green, white, black. Stored as a token, not a hex value.
 _Avoid_: shape, token, overlay (too generic)
+
+**Equipment**:
+A Rectangle Object whose dimensions exactly match one of the named Rectangle presets (Light Barricade, Heavy Barricade, Portable, Razor Wire, Mines, Ladder) — i.e. a real in-game terrain feature rather than a plain drawn rectangle. An illegally close placement raises a non-blocking legality warning: an amber outline and ⚠ badge on the board, plus a note in the Object properties panel. Advisory only — Objects remain purely visual and are never rule-enforced. Spacing rules (`src/rules/equipment.ts`) vary by preset:
+- **Equipment ↔ equipment**: 2″ clearance, but **Mines are exempt** (a Mine is a marker, not a terrain feature, so it neither constrains nor is constrained by this rule).
+- **Accessible terrain**: 2″ clearance for all, except **Ladders at 1″**.
+- **Objectives**: **Mines only** — more than 2″ from the marker's edge.
+
+Not yet enforced (would need model concepts the app lacks): territory containment, Heavy Barricade's "within 4″ of drop zone", on-the-floor / elevation, ladder adjacency to ≥2″ terrain, and per-option count limits.
+_Avoid_: barricade (only one preset), terrain piece (reserved for catalogued terrain)
 
 **Pixel-to-inch transform**:
 The affine map between image pixel coordinates and killzone inches. Calibrated by clicking two opposite corners of the killzone rectangle and supplying its known dimensions; verified by overlaying a 1″ grid plus 32mm and 40mm circles. Correctness of this transform is the foundational soundness property of the whole tool.

@@ -146,7 +146,7 @@ export function AnnotationMode() {
   // Tracing state
   const [tracePieceName, setTracePieceName] = useState<string>('')
   const [tracePieceKind, setTracePieceKind] = useState<PieceKind>('rubble')
-  const [traceTarget, setTraceTarget] = useState<'outer' | 'innerFloor'>('outer')
+  const [traceTarget, setTraceTarget] = useState<'outer' | 'innerFloor' | 'accessible'>('outer')
   const [traceShape, setTraceShape] = useState<'polygon' | 'rectangle'>('polygon')
   const [traceVertices, setTraceVertices] = useState<Polygon>([]) // world inches
 
@@ -265,9 +265,20 @@ export function AnnotationMode() {
               ...p,
               outer: p.outer.map((v) => ({ x: r4(v.x * factor), y: r4(v.y * factor) })),
               innerFloor: p.innerFloor?.map((v) => ({ x: r4(v.x * factor), y: r4(v.y * factor) })),
+              accessible: p.accessible?.map((poly) =>
+                poly.map((v) => ({ x: r4(v.x * factor), y: r4(v.y * factor) })),
+              ),
             }
           : p,
       ),
+    }))
+  }
+
+  /** Drop all Accessible regions from a piece (tracing only appends). */
+  function clearAccessible(pieceId: string) {
+    setDraftCatalogue((c) => ({
+      ...c,
+      pieces: c.pieces.map((p) => (p.id === pieceId ? { ...p, accessible: undefined } : p)),
     }))
   }
 
@@ -304,6 +315,13 @@ export function AnnotationMode() {
     const pieceId = existingDef?.id ?? `piece-${Date.now()}`
     const existing = draftMap.placements.find((pl) => pl.pieceId === pieceId)
 
+    // Accessible regions accumulate (a piece may have several); outer and
+    // innerFloor are single polygons and are replaced.
+    const applyTarget = (p: PieceDef, local: Polygon): PieceDef =>
+      traceTarget === 'accessible'
+        ? { ...p, kind: tracePieceKind, accessible: [...(p.accessible ?? []), local] }
+        : { ...p, kind: tracePieceKind, [traceTarget]: local }
+
     if (!existingDef) {
       const pivot = polygonCentroid(vertices)
       const local = polygonToLocal(vertices, pivot)
@@ -318,18 +336,14 @@ export function AnnotationMode() {
       const local = vertices.map((v) => rotateDeg(sub(v, origin), -existing.rotationDeg))
       setDraftCatalogue((c) => ({
         ...c,
-        pieces: c.pieces.map((p) =>
-          p.id === pieceId ? { ...p, kind: tracePieceKind, [traceTarget]: local } : p,
-        ),
+        pieces: c.pieces.map((p) => (p.id === pieceId ? applyTarget(p, local) : p)),
       }))
     } else {
       const pivot = polygonCentroid(vertices)
       const local = polygonToLocal(vertices, pivot)
       setDraftCatalogue((c) => ({
         ...c,
-        pieces: c.pieces.map((p) =>
-          p.id === pieceId ? { ...p, kind: tracePieceKind, [traceTarget]: local } : p,
-        ),
+        pieces: c.pieces.map((p) => (p.id === pieceId ? applyTarget(p, local) : p)),
       }))
       setDraftMap((m) => ({
         ...m,
@@ -692,20 +706,27 @@ export function AnnotationMode() {
               />
             </Field>
             <Field label="Kind">
-              <Select value={tracePieceKind} onChange={(e) => setTracePieceKind(e.target.value as PieceKind)}>
+              <Select
+                value={tracePieceKind}
+                onChange={(e) => {
+                  const kind = e.target.value as PieceKind
+                  setTracePieceKind(kind)
+                  // innerFloor is stronghold-only; fall back to outer otherwise.
+                  if (kind !== 'stronghold' && traceTarget === 'innerFloor') setTraceTarget('outer')
+                }}
+              >
                 {PIECE_KINDS.map((k) => (
                   <option key={k} value={k}>{k}</option>
                 ))}
               </Select>
             </Field>
-            {tracePieceKind === 'stronghold' && (
-              <Field label="Polygon">
-                <Select value={traceTarget} onChange={(e) => setTraceTarget(e.target.value as 'outer' | 'innerFloor')}>
-                  <option value="outer">outer extent (wall ring)</option>
-                  <option value="innerFloor">inner floor</option>
-                </Select>
-              </Field>
-            )}
+            <Field label="Polygon">
+              <Select value={traceTarget} onChange={(e) => setTraceTarget(e.target.value as typeof traceTarget)}>
+                <option value="outer">outer extent{tracePieceKind === 'stronghold' ? ' (wall ring)' : ''}</option>
+                {tracePieceKind === 'stronghold' && <option value="innerFloor">inner floor</option>}
+                <option value="accessible">accessible region</option>
+              </Select>
+            </Field>
             <Field label="Shape">
               <Select
                 value={traceShape}
@@ -819,6 +840,13 @@ export function AnnotationMode() {
                   <Button onClick={() => scaleFootprint(selectedPlacement.pieceId, 0.9)}>− 10%</Button>
                   <Button onClick={() => scaleFootprint(selectedPlacement.pieceId, 1 / 0.9)}>+ 10%</Button>
                 </Row>
+                {!!selectedDef?.accessible?.length && (
+                  <Row>
+                    <Button variant="danger" onClick={() => clearAccessible(selectedPlacement.pieceId)}>
+                      Clear accessible regions ({selectedDef.accessible.length})
+                    </Button>
+                  </Row>
+                )}
               </div>
             ) : (
               <Hint>Click a piece in the list to select it.</Hint>

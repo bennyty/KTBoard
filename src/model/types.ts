@@ -22,6 +22,9 @@ export interface PieceDef {
   /** Strongholds only: open floor inside the walls. Markers may be placed
    *  wholly inside this; the ring between outer and innerFloor is blocked. */
   innerFloor?: Polygon
+  /** Sub-regions of this piece marked as Accessible terrain (piece-local inches).
+   *  A piece may have several. Equipment placed within 2" of any is flagged. */
+  accessible?: Polygon[]
 }
 
 export interface KillzoneCatalogue {
@@ -240,6 +243,8 @@ export interface WorldPiece {
   kind: PieceKind
   outer: Polygon
   innerFloor?: Polygon
+  /** Sub-regions marked as Accessible terrain, resolved to world inches. */
+  accessible?: Polygon[]
   /** Precomputed outer bounding box for cheap rejection. */
   bbox: { minX: number; minY: number; maxX: number; maxY: number }
 }

@@ -86,6 +86,17 @@ export const GRIDS: Record<string, { offsetIn: number; stepIn: number }> = {
   gallowdark: { offsetIn: 0.5, stepIn: 3.8125 },
 }
 
+/** Equipment must be placed more than this many inches from other equipment and
+ *  from Accessible terrain; a closer placement is flagged. */
+export const EQUIPMENT_SPACING_IN = 2
+
+/** Ladders need only 1" of clearance from Accessible terrain (which includes
+ *  access points and doors), rather than the usual 2". */
+export const LADDER_ACCESSIBLE_SPACING_IN = 1
+
+/** Mines must sit more than 2" from the edge of any Objective marker. */
+export const MINES_OBJECTIVE_SPACING_IN = 2
+
 /** Named Rectangle presets (in-game equipment footprints), length × width in mm. */
 export const RECT_PRESETS = [
   { name: 'Light Barricade', lengthMm: 50, widthMm: 8 },
