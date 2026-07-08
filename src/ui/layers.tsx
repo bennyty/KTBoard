@@ -222,7 +222,7 @@ export function TunnelLayer({ chain, invalidMarkers, onMarkerPointerDown }: {
             </text>
           </g>
         )
-      })}
+      }).reverse()}
     </g>
   )
 }
