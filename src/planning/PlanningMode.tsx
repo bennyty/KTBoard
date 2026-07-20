@@ -107,6 +107,7 @@ export function PlanningMode() {
           if (!locked) plan.setTool('circle')
           break
         case 'e':
+        case 'o':
           if (!locked) plan.setTool('ellipse')
           break
         case 'r':

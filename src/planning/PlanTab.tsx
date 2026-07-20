@@ -129,7 +129,7 @@ function ShapeToolButton({ tool, setTool, disabled }: { tool: Tool; setTool: (t:
         aria-label="More shapes"
         aria-haspopup="menu"
         aria-expanded={open}
-        className="absolute bottom-0.5 right-0.5 leading-none text-[9px] text-muted hover:text-text disabled:opacity-50"
+        className="absolute bottom-0.5 right-0.5 leading-none text-muted hover:text-text disabled:opacity-50"
       >
         ▾
       </button>
