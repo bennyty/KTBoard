@@ -17,9 +17,11 @@ import { calibrate, inchesToPx } from '@/geometry/transform'
 import { pointInPolygon, polygonCentroid, polygonToLocal, resolvePiece } from '@/geometry/polygon'
 import {
   PILLAR_DEF_ID,
+  WALL_ACCESS_DEF_ID,
   WALL_DEF_ID,
   gridFor,
   makePillarDef,
+  makeWallAccessDef,
   makeWallDef,
   snapPillar,
   snapToFineIntersection,
@@ -167,7 +169,7 @@ export function AnnotationMode() {
   const [draggingVertex, setDraggingVertex] = useState(false)
 
   // Grid-aligned walls & pillars
-  const [wallMode, setWallMode] = useState<'wall' | 'pillar'>('wall')
+  const [wallMode, setWallMode] = useState<'wall' | 'wallAccess' | 'pillar'>('wall')
   const grid = gridFor(draftMap.killzone)
 
   const imgSize = useImageSize(draftMap.image)
@@ -190,6 +192,7 @@ export function AnnotationMode() {
       const have = new Set(c.pieces.map((p) => p.id))
       const missing: PieceDef[] = []
       if (!have.has(draftMap.killzone + WALL_DEF_ID)) missing.push(makeWallDef(draftMap.killzone))
+      if (!have.has(draftMap.killzone + WALL_ACCESS_DEF_ID)) missing.push(makeWallAccessDef(draftMap.killzone))
       if (!have.has(draftMap.killzone + PILLAR_DEF_ID)) missing.push(makePillarDef(draftMap.killzone))
       return missing.length ? { ...c, pieces: [...c.pieces, ...missing] } : c
     })
@@ -400,12 +403,10 @@ export function AnnotationMode() {
         }))
       } else {
         const { center, rotationDeg } = snapWall(inches, grid)
+        const wallDefId = draftMap.killzone + (wallMode === 'wallAccess' ? WALL_ACCESS_DEF_ID : WALL_DEF_ID)
         setDraftMap((m) => ({
           ...m,
-          placements: [
-            ...m.placements,
-            { pieceId: draftMap.killzone + WALL_DEF_ID, x: center.x, y: center.y, rotationDeg },
-          ],
+          placements: [...m.placements, { pieceId: wallDefId, x: center.x, y: center.y, rotationDeg }],
         }))
       }
     } else if (tab === 'zones') setZoneVertices((v) => [...v, inches])
@@ -551,7 +552,9 @@ export function AnnotationMode() {
         ? resolvePiece(makePillarDef(draftMap.killzone), { pieceId: draftMap.killzone + PILLAR_DEF_ID, ...snapPillar(cursorIn, grid), rotationDeg: 0 })
         : (() => {
             const { center, rotationDeg } = snapWall(cursorIn, grid)
-            return resolvePiece(makeWallDef(draftMap.killzone), { pieceId: draftMap.killzone + WALL_DEF_ID, x: center.x, y: center.y, rotationDeg })
+            const def = wallMode === 'wallAccess' ? makeWallAccessDef(draftMap.killzone) : makeWallDef(draftMap.killzone)
+            const pieceId = draftMap.killzone + (wallMode === 'wallAccess' ? WALL_ACCESS_DEF_ID : WALL_DEF_ID)
+            return resolvePiece(def, { pieceId, x: center.x, y: center.y, rotationDeg })
           })()
       : null
 
@@ -1022,13 +1025,18 @@ export function AnnotationMode() {
               <Button selected={wallMode === 'wall'} onClick={() => setWallMode('wall')}>
                 Wall
               </Button>
+              <Button selected={wallMode === 'wallAccess'} onClick={() => setWallMode('wallAccess')}>
+                Wall (accessible)
+              </Button>
               <Button selected={wallMode === 'pillar'} onClick={() => setWallMode('pillar')}>
                 Pillar
               </Button>
             </Row>
             <Hint>
               Click an empty grid spot to place; click an existing wall/pillar to delete. Everything
-              snaps to the half-grid. Footprint sizes live in <code>src/model/constants.ts</code>.
+              snaps to the half-grid. "Wall (accessible)" carries a pre-measured door gap already
+              marked as Accessible terrain (teal), centred on the wall. Footprint sizes live in{' '}
+              <code>src/model/constants.ts</code>.
             </Hint>
             <Row>
               <Button variant="danger" onClick={removeWallsAndPillars}>
@@ -1105,13 +1113,25 @@ export function AnnotationMode() {
             />
           )}
           {wallGhostPiece && (
-            <polygon
-              points={wallGhostPiece.outer.map((p) => `${p.x},${p.y}`).join(' ')}
-              fill="rgba(255,220,80,0.35)"
-              stroke="#ffd54a"
-              strokeWidth={0.04}
-              style={{ pointerEvents: 'none' }}
-            />
+            <>
+              <polygon
+                points={wallGhostPiece.outer.map((p) => `${p.x},${p.y}`).join(' ')}
+                fill="rgba(255,220,80,0.35)"
+                stroke="#ffd54a"
+                strokeWidth={0.04}
+                style={{ pointerEvents: 'none' }}
+              />
+              {wallGhostPiece.accessible?.map((poly, i) => (
+                <polygon
+                  key={i}
+                  points={poly.map((p) => `${p.x},${p.y}`).join(' ')}
+                  fill="rgba(60,210,190,0.35)"
+                  stroke="#3cd2be"
+                  strokeWidth={0.04}
+                  style={{ pointerEvents: 'none' }}
+                />
+              ))}
+            </>
           )}
           {wallHoverPiece && (
             <polygon

@@ -1,5 +1,14 @@
 import type { PieceDef, Vec } from '@/model/types'
-import { GRIDS, TW_PILLAR_SIZE_IN, WALL_LENGTH_IN, TW_WALL_THICKNESS_IN, GD_PILLAR_SIZE_IN, GD_WALL_THICKNESS_IN } from '@/model/constants'
+import {
+  GRIDS,
+  TW_PILLAR_SIZE_IN,
+  WALL_LENGTH_IN,
+  TW_WALL_THICKNESS_IN,
+  GD_PILLAR_SIZE_IN,
+  GD_WALL_THICKNESS_IN,
+  GD_WALL_ACCESS_WIDTH_IN,
+  TW_WALL_ACCESS_WIDTH_IN,
+} from '@/model/constants'
 
 export interface Grid {
   offsetIn: number
@@ -43,6 +52,7 @@ export function snapWall(cursor: Vec, grid: Grid): { center: Vec; rotationDeg: 0
 }
 
 export const WALL_DEF_ID = '-wall'
+export const WALL_ACCESS_DEF_ID = '-wall-access'
 export const PILLAR_DEF_ID = '-pillar'
 
 /** Canonical wall/pillar defs, built from the named constants so a single edit
@@ -60,6 +70,29 @@ export function makeWallDef(killzone: string): PieceDef {
       { x: hl, y: -ht },
       { x: hl, y: ht },
       { x: -hl, y: ht },
+    ],
+  }
+}
+
+/** A wall with a pre-measured access point (door gap) already marked as
+ *  Accessible terrain, centred along its length. Same footprint as the plain
+ *  wall; only the Accessible sub-region differs. */
+export function makeWallAccessDef(killzone: string): PieceDef {
+  const wall = makeWallDef(killzone)
+  const ht = (killzone === 'gallowdark' ? GD_WALL_THICKNESS_IN : TW_WALL_THICKNESS_IN) / 2
+  const hw = (killzone === 'gallowdark' ? GD_WALL_ACCESS_WIDTH_IN : TW_WALL_ACCESS_WIDTH_IN) / 2
+  return {
+    id: killzone + WALL_ACCESS_DEF_ID,
+    name: 'Wall (accessible)',
+    kind: 'wall',
+    outer: wall.outer,
+    accessible: [
+      [
+        { x: -hw, y: -ht },
+        { x: hw, y: -ht },
+        { x: hw, y: ht },
+        { x: -hw, y: ht },
+      ],
     ],
   }
 }

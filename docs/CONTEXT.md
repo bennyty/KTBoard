@@ -58,6 +58,9 @@ A marked floor region present only on Bheta-Decima. Tunnel markers cannot be pla
 An optional set of sub-regions of a Terrain piece, marking the portions operatives can climb/stand on that matter for equipment placement. Also the representation for **access points and doors** — they count as Accessible terrain and are marked the same way, rather than modeled separately. Stored on the piece definition as piece-local polygons (like a stronghold's inner-floor), so they move and rotate with the piece; a single piece may carry several. Traced in Annotation mode via the piece "accessible region" polygon target. Rendered as a teal dashed overlay. Equipment placed within 2″ of any Accessible region is flagged (1″ for Ladders).
 _Avoid_: accessible terrain piece (it is not a separate piece)
 
+**Wall (accessible)**:
+A grid-placed Wall variant, alongside the plain Wall and Pillar, available in the Annotation mode "Walls & pillars" tab for the close-quarters killzones (Gallowdark, Tomb World). Carries a pre-measured Accessible region (door gap) already centred on the wall footprint at generation time, so access points don't need separate hand-tracing on every layout. Width is per killzone: `GD_WALL_ACCESS_WIDTH_IN` (33mm) for Gallowdark, `TW_WALL_ACCESS_WIDTH_IN` (20mm) for Tomb World. Same `PieceDef` shape and `kind: 'wall'` as the plain wall — only the def id and the `accessible` polygon differ (`makeWallAccessDef` in `src/geometry/grid.ts`).
+
 ### Mission objectives
 
 **Home objective**:

@@ -79,6 +79,12 @@ export const GD_WALL_THICKNESS_IN = 5.15 * IN_PER_MM
 export const TW_PILLAR_SIZE_IN = 13.5 * IN_PER_MM
 export const GD_PILLAR_SIZE_IN = 25.75 * IN_PER_MM
 
+/** Width (along the wall's length) of the Accessible region cut into a
+ *  "wall with accessible terrain" piece, centred on the wall. Measured per
+ *  killzone: the access point differs in size between the two kits. */
+export const GD_WALL_ACCESS_WIDTH_IN = 33 * IN_PER_MM
+export const TW_WALL_ACCESS_WIDTH_IN = 20 * IN_PER_MM
+
 /** Grid lattice per killzone: lines sit at offsetIn + n·stepIn. The wall/pillar
  *  snap lattice is the half-grid (stepIn / 2). */
 export const GRIDS: Record<string, { offsetIn: number; stepIn: number }> = {
