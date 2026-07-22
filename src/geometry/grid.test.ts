@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { gridFor, makeWallAccessDef, makeWallDef, snapPillar, snapToFineIntersection, snapWall } from './grid'
-import { GD_WALL_ACCESS_WIDTH_IN, TW_WALL_ACCESS_WIDTH_IN } from '@/model/constants'
+import { IN_PER_MM } from '@/model/constants'
 
 describe('grid snap', () => {
   const grid = gridFor('tombworld')!
@@ -45,18 +45,23 @@ describe('grid snap', () => {
 
 describe('wall with accessible terrain', () => {
   it('shares its outer footprint with the plain wall def', () => {
-    expect(makeWallAccessDef('tombworld').outer).toEqual(makeWallDef('tombworld').outer)
+    expect(makeWallAccessDef('tombworld', 32).outer).toEqual(makeWallDef('tombworld').outer)
   })
 
   it.each([
-    ['tombworld', TW_WALL_ACCESS_WIDTH_IN],
-    ['gallowdark', GD_WALL_ACCESS_WIDTH_IN],
-  ])('carries one centred Accessible region of the predetermined door width (%s)', (killzone, widthIn) => {
-    const def = makeWallAccessDef(killzone)
+    ['tombworld', 32],
+    ['tombworld', 35],
+    ['gallowdark', 33],
+  ])('carries one centred Accessible region of the given door width (%s, %imm)', (killzone, widthMm) => {
+    const def = makeWallAccessDef(killzone, widthMm)
     expect(def.accessible).toHaveLength(1)
     const [region] = def.accessible!
     const xs = region.map((v) => v.x)
-    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(widthIn, 9)
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(widthMm * IN_PER_MM, 9)
     expect(region.reduce((sum, v) => sum + v.x, 0)).toBeCloseTo(0, 9)
+  })
+
+  it('gives distinct-width instances distinct ids', () => {
+    expect(makeWallAccessDef('tombworld', 32).id).not.toBe(makeWallAccessDef('tombworld', 35).id)
   })
 })

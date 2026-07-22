@@ -11,13 +11,12 @@ import {
   type Polygon,
   type Vec,
 } from '@/model/types'
-import { IN_PER_MM } from '@/model/constants'
+import { IN_PER_MM, WALL_ACCESS_WIDTHS_MM } from '@/model/constants'
 import { catalogues, DEFAULT_MAP, getMap, maps } from '@/data/registry'
 import { calibrate, inchesToPx } from '@/geometry/transform'
 import { pointInPolygon, polygonCentroid, polygonToLocal, resolvePiece } from '@/geometry/polygon'
 import {
   PILLAR_DEF_ID,
-  WALL_ACCESS_DEF_ID,
   WALL_DEF_ID,
   gridFor,
   makePillarDef,
@@ -26,6 +25,7 @@ import {
   snapPillar,
   snapToFineIntersection,
   snapWall,
+  wallAccessDefId,
 } from '@/geometry/grid'
 import { rotateDeg, sub, add } from '@/geometry/vec'
 import { Board, mapTransform } from '@/ui/Board'
@@ -170,7 +170,23 @@ export function AnnotationMode() {
 
   // Grid-aligned walls & pillars
   const [wallMode, setWallMode] = useState<'wall' | 'wallAccess' | 'pillar'>('wall')
+  // Which of the killzone's named door-gap widths a new "Wall (accessible)"
+  // placement carries (Tomb World's kit has two distinct sizes).
+  const [wallAccessWidthMm, setWallAccessWidthMm] = useState<number>(
+    WALL_ACCESS_WIDTHS_MM[draftMap.killzone]?.[0]?.widthMm ?? 0,
+  )
+  const wallAccessOptions = WALL_ACCESS_WIDTHS_MM[draftMap.killzone] ?? []
   const grid = gridFor(draftMap.killzone)
+
+  // Switching killzone may invalidate the selected width; fall back to that
+  // killzone's first named variant.
+  useEffect(() => {
+    const options = WALL_ACCESS_WIDTHS_MM[draftMap.killzone] ?? []
+    if (!options.some((o) => o.widthMm === wallAccessWidthMm)) {
+      setWallAccessWidthMm(options[0]?.widthMm ?? 0)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftMap.killzone])
 
   const imgSize = useImageSize(draftMap.image)
 
@@ -192,8 +208,14 @@ export function AnnotationMode() {
       const have = new Set(c.pieces.map((p) => p.id))
       const missing: PieceDef[] = []
       if (!have.has(draftMap.killzone + WALL_DEF_ID)) missing.push(makeWallDef(draftMap.killzone))
-      if (!have.has(draftMap.killzone + WALL_ACCESS_DEF_ID)) missing.push(makeWallAccessDef(draftMap.killzone))
+      for (const { widthMm } of WALL_ACCESS_WIDTHS_MM[draftMap.killzone] ?? []) {
+        if (!have.has(wallAccessDefId(draftMap.killzone, widthMm))) {
+          missing.push(makeWallAccessDef(draftMap.killzone, widthMm))
+        }
+      }
       if (!have.has(draftMap.killzone + PILLAR_DEF_ID)) missing.push(makePillarDef(draftMap.killzone))
+      
+      console.log(missing)
       return missing.length ? { ...c, pieces: [...c.pieces, ...missing] } : c
     })
   }, [tab])
@@ -403,7 +425,10 @@ export function AnnotationMode() {
         }))
       } else {
         const { center, rotationDeg } = snapWall(inches, grid)
-        const wallDefId = draftMap.killzone + (wallMode === 'wallAccess' ? WALL_ACCESS_DEF_ID : WALL_DEF_ID)
+        const wallDefId =
+          wallMode === 'wallAccess'
+            ? wallAccessDefId(draftMap.killzone, wallAccessWidthMm)
+            : draftMap.killzone + WALL_DEF_ID
         setDraftMap((m) => ({
           ...m,
           placements: [...m.placements, { pieceId: wallDefId, x: center.x, y: center.y, rotationDeg }],
@@ -552,8 +577,14 @@ export function AnnotationMode() {
         ? resolvePiece(makePillarDef(draftMap.killzone), { pieceId: draftMap.killzone + PILLAR_DEF_ID, ...snapPillar(cursorIn, grid), rotationDeg: 0 })
         : (() => {
             const { center, rotationDeg } = snapWall(cursorIn, grid)
-            const def = wallMode === 'wallAccess' ? makeWallAccessDef(draftMap.killzone) : makeWallDef(draftMap.killzone)
-            const pieceId = draftMap.killzone + (wallMode === 'wallAccess' ? WALL_ACCESS_DEF_ID : WALL_DEF_ID)
+            const def =
+              wallMode === 'wallAccess'
+                ? makeWallAccessDef(draftMap.killzone, wallAccessWidthMm)
+                : makeWallDef(draftMap.killzone)
+            const pieceId =
+              wallMode === 'wallAccess'
+                ? wallAccessDefId(draftMap.killzone, wallAccessWidthMm)
+                : draftMap.killzone + WALL_DEF_ID
             return resolvePiece(def, { pieceId, x: center.x, y: center.y, rotationDeg })
           })()
       : null
@@ -1032,11 +1063,25 @@ export function AnnotationMode() {
                 Pillar
               </Button>
             </Row>
+            {wallMode === 'wallAccess' && wallAccessOptions.length > 1 && (
+              <Row>
+                {wallAccessOptions.map((o) => (
+                  <Button
+                    key={o.widthMm}
+                    selected={wallAccessWidthMm === o.widthMm}
+                    onClick={() => setWallAccessWidthMm(o.widthMm)}
+                  >
+                    {o.name}
+                  </Button>
+                ))}
+              </Row>
+            )}
             <Hint>
               Click an empty grid spot to place; click an existing wall/pillar to delete. Everything
               snaps to the half-grid. "Wall (accessible)" carries a pre-measured door gap already
-              marked as Accessible terrain (teal), centred on the wall. Footprint sizes live in{' '}
-              <code>src/model/constants.ts</code>.
+              marked as Accessible terrain (teal), centred on the wall; killzones with more than one
+              door-gap size (e.g. Tomb World) let you pick which width to place next. Footprint sizes
+              live in <code>src/model/constants.ts</code>.
             </Hint>
             <Row>
               <Button variant="danger" onClick={removeWallsAndPillars}>
