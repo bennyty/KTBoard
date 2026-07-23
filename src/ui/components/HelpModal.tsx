@@ -55,6 +55,18 @@ export function HelpModal({ onClose }: { onClose: () => void }) {
         </section>
 
         <section>
+          <h3 className="m-0 mb-2 text-lg text-accent-2">Tools</h3>
+          <ul className="m-0 list-disc pl-5 text-sm">
+            <li><strong>Select (V)</strong> — click an object to select it for editing, moving, rotating, or deleting; click empty board to deselect.</li>
+            <li><strong>Circle (C)</strong> — places a circular base marker; click for the last-used size or drag to size it, snapping to standard base diameters.</li>
+            <li><strong>Ellipse (E/O)</strong> — (in the Circle flyout) places an oval base sized to preset dimensions, with a rotation handle after placement.</li>
+            <li><strong>Rectangle (R)</strong> — places terrain/equipment from presets (Light Barricade, Heavy Barricade, Portable, Razor Wire, Mines, Ladder); drag sets rotation.</li>
+            <li><strong>Arrow (L)</strong> — drags a line/arrow annotation from a start point to an end point, e.g. to show movement or line of sight.</li>
+            <li><strong>Text (T)</strong> — drops an editable text label at the clicked point.</li>
+          </ul>
+        </section>
+
+        <section>
           <h3 className="m-0 mb-2 text-lg text-accent-2">Contact</h3>
           <p className="m-0 text-sm">
             Submit{' '}
