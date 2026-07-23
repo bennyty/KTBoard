@@ -175,6 +175,44 @@ function Shape({ o, selected, showArrowLength }: { o: SlideObject; selected: boo
   }
 }
 
+const WARN = '#ff9d2e'
+
+/** Amber outline + badge marking an Equipment rect placed too close to another
+ *  piece of equipment or to accessible terrain (see rules/equipment.ts). */
+function EquipmentWarning({ o }: { o: RectObject }) {
+  const l = o.lengthMm * IN_PER_MM
+  const w = o.widthMm * IN_PER_MM
+  const badgeY = o.y - w / 2 - 0.5
+  return (
+    <g style={{ pointerEvents: 'none' }}>
+      <g transform={`translate(${o.x} ${o.y}) rotate(${o.rotationDeg})`}>
+        <rect
+          x={-l / 2 - 0.09}
+          y={-w / 2 - 0.09}
+          width={l + 0.18}
+          height={w + 0.18}
+          fill="none"
+          stroke={WARN}
+          strokeWidth={0.07}
+          strokeDasharray="0.16 0.1"
+        />
+      </g>
+      <text
+        x={o.x}
+        y={badgeY}
+        textAnchor="middle"
+        fontSize={0.55}
+        style={{ paintOrder: 'stroke' }}
+        stroke="#0c0c10"
+        strokeWidth={0.05}
+        fill={WARN}
+      >
+        ⚠
+      </text>
+    </g>
+  )
+}
+
 /** A transparent, generously sized hit target so thin shapes are easy to grab. */
 function HitTarget({ o }: { o: SlideObject }) {
   if (o.kind === 'arrow') {
@@ -238,6 +276,7 @@ export function ObjectsLayer({
   selectedId,
   interactive,
   draft,
+  warningIds,
   onObjectPointerDown,
   onArrowHandlePointerDown,
   onRotateHandlePointerDown,
@@ -248,6 +287,8 @@ export function ObjectsLayer({
   interactive: boolean
   /** In-progress object being placed; rendered with reduced opacity. */
   draft?: SlideObject | null
+  /** Ids of Equipment placed too close to other equipment / accessible terrain. */
+  warningIds?: Set<string>
   onObjectPointerDown?: (id: string, e: React.PointerEvent) => void
   onArrowHandlePointerDown?: (id: string, end: 'start' | 'end', e: React.PointerEvent) => void
   onRotateHandlePointerDown?: (id: string, e: React.PointerEvent) => void
@@ -262,6 +303,7 @@ export function ObjectsLayer({
             onPointerDown={interactive && onObjectPointerDown ? (e) => onObjectPointerDown(o.id, e) : undefined}
             style={{ cursor: interactive ? 'grab' : 'default', pointerEvents: interactive ? 'auto' : 'none' }}
           >
+            {warningIds?.has(o.id) && o.kind === 'rect' && <EquipmentWarning o={o} />}
             <Shape o={o} selected={selected} />
             {interactive && <HitTarget o={o} />}
             {selected && interactive && o.kind === 'arrow' && (

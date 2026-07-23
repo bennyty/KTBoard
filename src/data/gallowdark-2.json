@@ -15,12 +15,6 @@
   "placements": [
     {
       "pieceId": "gallowdark-wall",
-      "x": 2.40625,
-      "y": 4.3125,
-      "rotationDeg": 0
-    },
-    {
-      "pieceId": "gallowdark-wall",
       "x": 6.21875,
       "y": 4.3125,
       "rotationDeg": 0
@@ -45,12 +39,6 @@
     },
     {
       "pieceId": "gallowdark-wall",
-      "x": 25.28125,
-      "y": 4.3125,
-      "rotationDeg": 0
-    },
-    {
-      "pieceId": "gallowdark-wall",
       "x": 15.75,
       "y": 6.21875,
       "rotationDeg": 90
@@ -59,18 +47,6 @@
       "pieceId": "gallowdark-wall",
       "x": 11.9375,
       "y": 6.21875,
-      "rotationDeg": 90
-    },
-    {
-      "pieceId": "gallowdark-wall",
-      "x": 11.9375,
-      "y": 10.03125,
-      "rotationDeg": 90
-    },
-    {
-      "pieceId": "gallowdark-wall",
-      "x": 15.75,
-      "y": 10.03125,
       "rotationDeg": 90
     },
     {
@@ -87,21 +63,9 @@
     },
     {
       "pieceId": "gallowdark-wall",
-      "x": 21.46875,
-      "y": 11.9375,
-      "rotationDeg": 0
-    },
-    {
-      "pieceId": "gallowdark-wall",
       "x": 25.28125,
       "y": 11.9375,
       "rotationDeg": 0
-    },
-    {
-      "pieceId": "gallowdark-wall",
-      "x": 11.9375,
-      "y": 13.84375,
-      "rotationDeg": 90
     },
     {
       "pieceId": "gallowdark-wall",
@@ -111,12 +75,6 @@
     },
     {
       "pieceId": "gallowdark-wall",
-      "x": 2.40625,
-      "y": 19.5625,
-      "rotationDeg": 0
-    },
-    {
-      "pieceId": "gallowdark-wall",
       "x": 6.21875,
       "y": 19.5625,
       "rotationDeg": 0
@@ -129,25 +87,67 @@
     },
     {
       "pieceId": "gallowdark-wall",
-      "x": 13.84375,
-      "y": 19.5625,
-      "rotationDeg": 0
-    },
-    {
-      "pieceId": "gallowdark-wall",
       "x": 17.65625,
       "y": 19.5625,
       "rotationDeg": 0
     },
     {
       "pieceId": "gallowdark-wall",
+      "x": 25.28125,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 2.40625,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 25.28125,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 11.9375,
+      "y": 10.03125,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 15.75,
+      "y": 10.03125,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 11.9375,
+      "y": 13.84375,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 21.46875,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
       "x": 21.46875,
       "y": 19.5625,
       "rotationDeg": 0
     },
     {
-      "pieceId": "gallowdark-wall",
-      "x": 25.28125,
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 13.84375,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 2.40625,
       "y": 19.5625,
       "rotationDeg": 0
     },

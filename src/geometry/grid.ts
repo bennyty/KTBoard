@@ -1,5 +1,13 @@
 import type { PieceDef, Vec } from '@/model/types'
-import { GRIDS, TW_PILLAR_SIZE_IN, WALL_LENGTH_IN, TW_WALL_THICKNESS_IN, GD_PILLAR_SIZE_IN, GD_WALL_THICKNESS_IN } from '@/model/constants'
+import {
+  GRIDS,
+  TW_PILLAR_SIZE_IN,
+  WALL_LENGTH_IN,
+  TW_WALL_THICKNESS_IN,
+  GD_PILLAR_SIZE_IN,
+  GD_WALL_THICKNESS_IN,
+  IN_PER_MM,
+} from '@/model/constants'
 
 export interface Grid {
   offsetIn: number
@@ -45,6 +53,12 @@ export function snapWall(cursor: Vec, grid: Grid): { center: Vec; rotationDeg: 0
 export const WALL_DEF_ID = '-wall'
 export const PILLAR_DEF_ID = '-pillar'
 
+/** id of a "wall with accessible terrain" def for a given door-gap width; a
+ *  killzone may have several (Tomb World's kit has two distinct widths). */
+export function wallAccessDefId(killzone: string, widthMm: number): string {
+  return `${killzone}-wall-access-${widthMm}`
+}
+
 /** Canonical wall/pillar defs, built from the named constants so a single edit
  *  reshapes every placed instance. Mirrors the committed entries in
  *  tombworld-catalogue.json; seeded into catalogues that lack them. */
@@ -60,6 +74,31 @@ export function makeWallDef(killzone: string): PieceDef {
       { x: hl, y: -ht },
       { x: hl, y: ht },
       { x: -hl, y: ht },
+    ],
+  }
+}
+
+/** A wall with a pre-measured access point (door gap) already marked as
+ *  Accessible terrain, centred along its length. Same footprint as the plain
+ *  wall; only the Accessible sub-region differs. `widthMm` selects which of
+ *  the killzone's named door-gap widths (see WALL_ACCESS_WIDTHS_MM) this
+ *  instance carries. */
+export function makeWallAccessDef(killzone: string, widthMm: number): PieceDef {
+  const wall = makeWallDef(killzone)
+  const ht = (killzone === 'gallowdark' ? GD_WALL_THICKNESS_IN : TW_WALL_THICKNESS_IN) / 2
+  const hw = (widthMm * IN_PER_MM) / 2
+  return {
+    id: wallAccessDefId(killzone, widthMm),
+    name: `Wall (accessible, ${widthMm}mm)`,
+    kind: 'wall',
+    outer: wall.outer,
+    accessible: [
+      [
+        { x: -hw, y: -ht },
+        { x: hw, y: -ht },
+        { x: hw, y: ht },
+        { x: -hw, y: ht },
+      ],
     ],
   }
 }

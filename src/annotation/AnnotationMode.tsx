@@ -11,7 +11,7 @@ import {
   type Polygon,
   type Vec,
 } from '@/model/types'
-import { IN_PER_MM } from '@/model/constants'
+import { IN_PER_MM, WALL_ACCESS_WIDTHS_MM } from '@/model/constants'
 import { catalogues, DEFAULT_MAP, getMap, maps } from '@/data/registry'
 import { calibrate, inchesToPx } from '@/geometry/transform'
 import { pointInPolygon, polygonCentroid, polygonToLocal, resolvePiece } from '@/geometry/polygon'
@@ -20,10 +20,12 @@ import {
   WALL_DEF_ID,
   gridFor,
   makePillarDef,
+  makeWallAccessDef,
   makeWallDef,
   snapPillar,
   snapToFineIntersection,
   snapWall,
+  wallAccessDefId,
 } from '@/geometry/grid'
 import { rotateDeg, sub, add } from '@/geometry/vec'
 import { Board, mapTransform } from '@/ui/Board'
@@ -146,7 +148,7 @@ export function AnnotationMode() {
   // Tracing state
   const [tracePieceName, setTracePieceName] = useState<string>('')
   const [tracePieceKind, setTracePieceKind] = useState<PieceKind>('rubble')
-  const [traceTarget, setTraceTarget] = useState<'outer' | 'innerFloor'>('outer')
+  const [traceTarget, setTraceTarget] = useState<'outer' | 'innerFloor' | 'accessible'>('outer')
   const [traceShape, setTraceShape] = useState<'polygon' | 'rectangle'>('polygon')
   const [traceVertices, setTraceVertices] = useState<Polygon>([]) // world inches
 
@@ -167,8 +169,24 @@ export function AnnotationMode() {
   const [draggingVertex, setDraggingVertex] = useState(false)
 
   // Grid-aligned walls & pillars
-  const [wallMode, setWallMode] = useState<'wall' | 'pillar'>('wall')
+  const [wallMode, setWallMode] = useState<'wall' | 'wallAccess' | 'pillar'>('wall')
+  // Which of the killzone's named door-gap widths a new "Wall (accessible)"
+  // placement carries (Tomb World's kit has two distinct sizes).
+  const [wallAccessWidthMm, setWallAccessWidthMm] = useState<number>(
+    WALL_ACCESS_WIDTHS_MM[draftMap.killzone]?.[0]?.widthMm ?? 0,
+  )
+  const wallAccessOptions = WALL_ACCESS_WIDTHS_MM[draftMap.killzone] ?? []
   const grid = gridFor(draftMap.killzone)
+
+  // Switching killzone may invalidate the selected width; fall back to that
+  // killzone's first named variant.
+  useEffect(() => {
+    const options = WALL_ACCESS_WIDTHS_MM[draftMap.killzone] ?? []
+    if (!options.some((o) => o.widthMm === wallAccessWidthMm)) {
+      setWallAccessWidthMm(options[0]?.widthMm ?? 0)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftMap.killzone])
 
   const imgSize = useImageSize(draftMap.image)
 
@@ -190,7 +208,14 @@ export function AnnotationMode() {
       const have = new Set(c.pieces.map((p) => p.id))
       const missing: PieceDef[] = []
       if (!have.has(draftMap.killzone + WALL_DEF_ID)) missing.push(makeWallDef(draftMap.killzone))
+      for (const { widthMm } of WALL_ACCESS_WIDTHS_MM[draftMap.killzone] ?? []) {
+        if (!have.has(wallAccessDefId(draftMap.killzone, widthMm))) {
+          missing.push(makeWallAccessDef(draftMap.killzone, widthMm))
+        }
+      }
       if (!have.has(draftMap.killzone + PILLAR_DEF_ID)) missing.push(makePillarDef(draftMap.killzone))
+      
+      console.log(missing)
       return missing.length ? { ...c, pieces: [...c.pieces, ...missing] } : c
     })
   }, [tab])
@@ -265,9 +290,20 @@ export function AnnotationMode() {
               ...p,
               outer: p.outer.map((v) => ({ x: r4(v.x * factor), y: r4(v.y * factor) })),
               innerFloor: p.innerFloor?.map((v) => ({ x: r4(v.x * factor), y: r4(v.y * factor) })),
+              accessible: p.accessible?.map((poly) =>
+                poly.map((v) => ({ x: r4(v.x * factor), y: r4(v.y * factor) })),
+              ),
             }
           : p,
       ),
+    }))
+  }
+
+  /** Drop all Accessible regions from a piece (tracing only appends). */
+  function clearAccessible(pieceId: string) {
+    setDraftCatalogue((c) => ({
+      ...c,
+      pieces: c.pieces.map((p) => (p.id === pieceId ? { ...p, accessible: undefined } : p)),
     }))
   }
 
@@ -304,6 +340,13 @@ export function AnnotationMode() {
     const pieceId = existingDef?.id ?? `piece-${Date.now()}`
     const existing = draftMap.placements.find((pl) => pl.pieceId === pieceId)
 
+    // Accessible regions accumulate (a piece may have several); outer and
+    // innerFloor are single polygons and are replaced.
+    const applyTarget = (p: PieceDef, local: Polygon): PieceDef =>
+      traceTarget === 'accessible'
+        ? { ...p, kind: tracePieceKind, accessible: [...(p.accessible ?? []), local] }
+        : { ...p, kind: tracePieceKind, [traceTarget]: local }
+
     if (!existingDef) {
       const pivot = polygonCentroid(vertices)
       const local = polygonToLocal(vertices, pivot)
@@ -318,18 +361,14 @@ export function AnnotationMode() {
       const local = vertices.map((v) => rotateDeg(sub(v, origin), -existing.rotationDeg))
       setDraftCatalogue((c) => ({
         ...c,
-        pieces: c.pieces.map((p) =>
-          p.id === pieceId ? { ...p, kind: tracePieceKind, [traceTarget]: local } : p,
-        ),
+        pieces: c.pieces.map((p) => (p.id === pieceId ? applyTarget(p, local) : p)),
       }))
     } else {
       const pivot = polygonCentroid(vertices)
       const local = polygonToLocal(vertices, pivot)
       setDraftCatalogue((c) => ({
         ...c,
-        pieces: c.pieces.map((p) =>
-          p.id === pieceId ? { ...p, kind: tracePieceKind, [traceTarget]: local } : p,
-        ),
+        pieces: c.pieces.map((p) => (p.id === pieceId ? applyTarget(p, local) : p)),
       }))
       setDraftMap((m) => ({
         ...m,
@@ -386,12 +425,13 @@ export function AnnotationMode() {
         }))
       } else {
         const { center, rotationDeg } = snapWall(inches, grid)
+        const wallDefId =
+          wallMode === 'wallAccess'
+            ? wallAccessDefId(draftMap.killzone, wallAccessWidthMm)
+            : draftMap.killzone + WALL_DEF_ID
         setDraftMap((m) => ({
           ...m,
-          placements: [
-            ...m.placements,
-            { pieceId: draftMap.killzone + WALL_DEF_ID, x: center.x, y: center.y, rotationDeg },
-          ],
+          placements: [...m.placements, { pieceId: wallDefId, x: center.x, y: center.y, rotationDeg }],
         }))
       }
     } else if (tab === 'zones') setZoneVertices((v) => [...v, inches])
@@ -537,7 +577,15 @@ export function AnnotationMode() {
         ? resolvePiece(makePillarDef(draftMap.killzone), { pieceId: draftMap.killzone + PILLAR_DEF_ID, ...snapPillar(cursorIn, grid), rotationDeg: 0 })
         : (() => {
             const { center, rotationDeg } = snapWall(cursorIn, grid)
-            return resolvePiece(makeWallDef(draftMap.killzone), { pieceId: draftMap.killzone + WALL_DEF_ID, x: center.x, y: center.y, rotationDeg })
+            const def =
+              wallMode === 'wallAccess'
+                ? makeWallAccessDef(draftMap.killzone, wallAccessWidthMm)
+                : makeWallDef(draftMap.killzone)
+            const pieceId =
+              wallMode === 'wallAccess'
+                ? wallAccessDefId(draftMap.killzone, wallAccessWidthMm)
+                : draftMap.killzone + WALL_DEF_ID
+            return resolvePiece(def, { pieceId, x: center.x, y: center.y, rotationDeg })
           })()
       : null
 
@@ -692,20 +740,27 @@ export function AnnotationMode() {
               />
             </Field>
             <Field label="Kind">
-              <Select value={tracePieceKind} onChange={(e) => setTracePieceKind(e.target.value as PieceKind)}>
+              <Select
+                value={tracePieceKind}
+                onChange={(e) => {
+                  const kind = e.target.value as PieceKind
+                  setTracePieceKind(kind)
+                  // innerFloor is stronghold-only; fall back to outer otherwise.
+                  if (kind !== 'stronghold' && traceTarget === 'innerFloor') setTraceTarget('outer')
+                }}
+              >
                 {PIECE_KINDS.map((k) => (
                   <option key={k} value={k}>{k}</option>
                 ))}
               </Select>
             </Field>
-            {tracePieceKind === 'stronghold' && (
-              <Field label="Polygon">
-                <Select value={traceTarget} onChange={(e) => setTraceTarget(e.target.value as 'outer' | 'innerFloor')}>
-                  <option value="outer">outer extent (wall ring)</option>
-                  <option value="innerFloor">inner floor</option>
-                </Select>
-              </Field>
-            )}
+            <Field label="Polygon">
+              <Select value={traceTarget} onChange={(e) => setTraceTarget(e.target.value as typeof traceTarget)}>
+                <option value="outer">outer extent{tracePieceKind === 'stronghold' ? ' (wall ring)' : ''}</option>
+                {tracePieceKind === 'stronghold' && <option value="innerFloor">inner floor</option>}
+                <option value="accessible">accessible region</option>
+              </Select>
+            </Field>
             <Field label="Shape">
               <Select
                 value={traceShape}
@@ -819,6 +874,13 @@ export function AnnotationMode() {
                   <Button onClick={() => scaleFootprint(selectedPlacement.pieceId, 0.9)}>− 10%</Button>
                   <Button onClick={() => scaleFootprint(selectedPlacement.pieceId, 1 / 0.9)}>+ 10%</Button>
                 </Row>
+                {!!selectedDef?.accessible?.length && (
+                  <Row>
+                    <Button variant="danger" onClick={() => clearAccessible(selectedPlacement.pieceId)}>
+                      Clear accessible regions ({selectedDef.accessible.length})
+                    </Button>
+                  </Row>
+                )}
               </div>
             ) : (
               <Hint>Click a piece in the list to select it.</Hint>
@@ -994,13 +1056,32 @@ export function AnnotationMode() {
               <Button selected={wallMode === 'wall'} onClick={() => setWallMode('wall')}>
                 Wall
               </Button>
+              <Button selected={wallMode === 'wallAccess'} onClick={() => setWallMode('wallAccess')}>
+                Wall (accessible)
+              </Button>
               <Button selected={wallMode === 'pillar'} onClick={() => setWallMode('pillar')}>
                 Pillar
               </Button>
             </Row>
+            {wallMode === 'wallAccess' && wallAccessOptions.length > 1 && (
+              <Row>
+                {wallAccessOptions.map((o) => (
+                  <Button
+                    key={o.widthMm}
+                    selected={wallAccessWidthMm === o.widthMm}
+                    onClick={() => setWallAccessWidthMm(o.widthMm)}
+                  >
+                    {o.name}
+                  </Button>
+                ))}
+              </Row>
+            )}
             <Hint>
               Click an empty grid spot to place; click an existing wall/pillar to delete. Everything
-              snaps to the half-grid. Footprint sizes live in <code>src/model/constants.ts</code>.
+              snaps to the half-grid. "Wall (accessible)" carries a pre-measured door gap already
+              marked as Accessible terrain (teal), centred on the wall; killzones with more than one
+              door-gap size (e.g. Tomb World) let you pick which width to place next. Footprint sizes
+              live in <code>src/model/constants.ts</code>.
             </Hint>
             <Row>
               <Button variant="danger" onClick={removeWallsAndPillars}>
@@ -1077,13 +1158,25 @@ export function AnnotationMode() {
             />
           )}
           {wallGhostPiece && (
-            <polygon
-              points={wallGhostPiece.outer.map((p) => `${p.x},${p.y}`).join(' ')}
-              fill="rgba(255,220,80,0.35)"
-              stroke="#ffd54a"
-              strokeWidth={0.04}
-              style={{ pointerEvents: 'none' }}
-            />
+            <>
+              <polygon
+                points={wallGhostPiece.outer.map((p) => `${p.x},${p.y}`).join(' ')}
+                fill="rgba(255,220,80,0.35)"
+                stroke="#ffd54a"
+                strokeWidth={0.04}
+                style={{ pointerEvents: 'none' }}
+              />
+              {wallGhostPiece.accessible?.map((poly, i) => (
+                <polygon
+                  key={i}
+                  points={poly.map((p) => `${p.x},${p.y}`).join(' ')}
+                  fill="rgba(60,210,190,0.35)"
+                  stroke="#3cd2be"
+                  strokeWidth={0.04}
+                  style={{ pointerEvents: 'none' }}
+                />
+              ))}
+            </>
           )}
           {wallHoverPiece && (
             <polygon

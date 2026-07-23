@@ -79,12 +79,36 @@ export const GD_WALL_THICKNESS_IN = 5.15 * IN_PER_MM
 export const TW_PILLAR_SIZE_IN = 13.5 * IN_PER_MM
 export const GD_PILLAR_SIZE_IN = 25.75 * IN_PER_MM
 
+/** Named door-gap widths (mm), along the wall's length, for the Accessible
+ *  region cut into a "wall with accessible terrain" piece, centred on the
+ *  wall. Gallowdark's kit uses one uniform size; Tomb World's kit has two
+ *  distinct sizes depending on the piece, so each killzone carries its own
+ *  list of named width variants (mirrors RECT_PRESETS/ELLIPSE_PRESETS). */
+export const WALL_ACCESS_WIDTHS_MM: Record<string, { name: string; widthMm: number }[]> = {
+  gallowdark: [{ name: 'Door (33mm)', widthMm: 33 }],
+  tombworld: [
+    { name: 'Door (32mm)', widthMm: 32 },
+    { name: 'Breach (35mm)', widthMm: 35 },
+  ],
+}
+
 /** Grid lattice per killzone: lines sit at offsetIn + n·stepIn. The wall/pillar
  *  snap lattice is the half-grid (stepIn / 2). */
 export const GRIDS: Record<string, { offsetIn: number; stepIn: number }> = {
   tombworld: { offsetIn: 0.5, stepIn: 3.8125 },
   gallowdark: { offsetIn: 0.5, stepIn: 3.8125 },
 }
+
+/** Equipment must be placed more than this many inches from other equipment and
+ *  from Accessible terrain; a closer placement is flagged. */
+export const EQUIPMENT_SPACING_IN = 2
+
+/** Ladders need only 1" of clearance from Accessible terrain (which includes
+ *  access points and doors), rather than the usual 2". */
+export const LADDER_ACCESSIBLE_SPACING_IN = 1
+
+/** Mines must sit more than 2" from the edge of any Objective marker. */
+export const MINES_OBJECTIVE_SPACING_IN = 2
 
 /** Named Rectangle presets (in-game equipment footprints), length × width in mm. */
 export const RECT_PRESETS = [

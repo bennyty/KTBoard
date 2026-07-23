@@ -25,7 +25,7 @@ describe('snapEllipsePreset', () => {
 
 describe('ellipsePresetLabel', () => {
   it('uses the name when present', () => {
-    expect(ellipsePresetLabel({ name: 'Exodite', widthMm: 75, heightMm: 42 })).toBe('Exodite')
+    expect(ellipsePresetLabel({ name: 'Exodite', widthMm: 75, heightMm: 42 })).toBe('Exodite\n(75×42mm)')
   })
 
   it('falls back to dimensions when unnamed', () => {

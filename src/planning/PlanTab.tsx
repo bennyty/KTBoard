@@ -178,6 +178,7 @@ function ColorPicker({ value, onChange }: { value: ObjectColor; onChange: (c: Ob
 
 function ObjectProps({
   object,
+  warning,
   updateObject,
   deleteObject,
   setLastRectPreset,
@@ -187,6 +188,8 @@ function ObjectProps({
   canCloneToSlides,
 }: {
   object: SlideObject
+  /** Selected Equipment sits within 2" of other equipment or accessible terrain. */
+  warning: boolean
   updateObject: (id: string, patch: Partial<SlideObject>) => void
   deleteObject: (id: string) => void
   setLastRectPreset: (i: number) => void
@@ -207,6 +210,12 @@ function ObjectProps({
 
   return (
     <Section title={OBJECT_KIND_LABELS[object.kind]} className="rounded-md bg-panel-2 p-2.5">
+      {warning && (
+        <div className="rounded-md border border-warn bg-warn/15 px-2 py-1.5 text-xs text-warn">
+          ⚠ This equipment is placed too close to other equipment, accessible terrain, or an
+          objective.
+        </div>
+      )}
       <Field label="Label">
         {object.kind === 'text' ? (
           <Textarea
@@ -375,6 +384,7 @@ export function PlanTab({
   tool,
   setTool,
   selectedObject,
+  selectedObjectWarning,
   updateObject,
   deleteObject,
   setLastRectPreset,
@@ -398,6 +408,7 @@ export function PlanTab({
   tool: Tool
   setTool: (t: Tool) => void
   selectedObject: SlideObject | null
+  selectedObjectWarning: boolean
   updateObject: (id: string, patch: Partial<SlideObject>) => void
   deleteObject: (id: string) => void
   setLastRectPreset: (i: number) => void
@@ -458,6 +469,7 @@ export function PlanTab({
       {selectedObject && !disabled && (
         <ObjectProps
           object={selectedObject}
+          warning={selectedObjectWarning}
           updateObject={updateObject}
           deleteObject={deleteObject}
           setLastRectPreset={setLastRectPreset}

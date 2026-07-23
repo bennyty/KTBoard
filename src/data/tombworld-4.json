@@ -57,19 +57,7 @@
     },
     {
       "pieceId": "tombworld-wall",
-      "x": 2.40625,
-      "y": 4.3125,
-      "rotationDeg": 0
-    },
-    {
-      "pieceId": "tombworld-wall",
       "x": 6.21875,
-      "y": 4.3125,
-      "rotationDeg": 0
-    },
-    {
-      "pieceId": "tombworld-wall",
-      "x": 13.84375,
       "y": 4.3125,
       "rotationDeg": 0
     },
@@ -81,25 +69,7 @@
     },
     {
       "pieceId": "tombworld-wall",
-      "x": 2.40625,
-      "y": 11.9375,
-      "rotationDeg": 0
-    },
-    {
-      "pieceId": "tombworld-wall",
       "x": 6.21875,
-      "y": 11.9375,
-      "rotationDeg": 0
-    },
-    {
-      "pieceId": "tombworld-wall",
-      "x": 10.03125,
-      "y": 11.9375,
-      "rotationDeg": 0
-    },
-    {
-      "pieceId": "tombworld-wall",
-      "x": 17.65625,
       "y": 11.9375,
       "rotationDeg": 0
     },
@@ -111,12 +81,6 @@
     },
     {
       "pieceId": "tombworld-wall",
-      "x": 25.28125,
-      "y": 11.9375,
-      "rotationDeg": 0
-    },
-    {
-      "pieceId": "tombworld-wall",
       "x": 19.5625,
       "y": 6.21875,
       "rotationDeg": 90
@@ -125,12 +89,6 @@
       "pieceId": "tombworld-wall",
       "x": 19.5625,
       "y": 10.03125,
-      "rotationDeg": 90
-    },
-    {
-      "pieceId": "tombworld-wall",
-      "x": 8.125,
-      "y": 6.21875,
       "rotationDeg": 90
     },
     {
@@ -147,12 +105,6 @@
     },
     {
       "pieceId": "tombworld-wall",
-      "x": 19.5625,
-      "y": 17.65625,
-      "rotationDeg": 90
-    },
-    {
-      "pieceId": "tombworld-wall",
       "x": 8.125,
       "y": 13.84375,
       "rotationDeg": 90
@@ -162,12 +114,6 @@
       "x": 8.125,
       "y": 17.65625,
       "rotationDeg": 90
-    },
-    {
-      "pieceId": "tombworld-wall",
-      "x": 2.40625,
-      "y": 19.5625,
-      "rotationDeg": 0
     },
     {
       "pieceId": "tombworld-wall",
@@ -183,13 +129,67 @@
     },
     {
       "pieceId": "tombworld-wall",
+      "x": 17.65625,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tombworld-wall-access-35",
+      "x": 2.40625,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tombworld-wall-access-35",
       "x": 13.84375,
       "y": 19.5625,
       "rotationDeg": 0
     },
     {
-      "pieceId": "tombworld-wall",
+      "pieceId": "tombworld-wall-access-35",
+      "x": 10.03125,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tombworld-wall-access-35",
       "x": 17.65625,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tombworld-wall-access-32",
+      "x": 2.40625,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tombworld-wall-access-32",
+      "x": 8.125,
+      "y": 6.21875,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "tombworld-wall-access-32",
+      "x": 13.84375,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tombworld-wall-access-32",
+      "x": 25.28125,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "tombworld-wall-access-32",
+      "x": 19.5625,
+      "y": 17.65625,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "tombworld-wall-access-32",
+      "x": 2.40625,
       "y": 19.5625,
       "rotationDeg": 0
     },
@@ -297,7 +297,7 @@
     }
   ],
   "dropZones": [
-      {
+    {
       "id": "dz-98964",
       "name": "Grey (north)",
       "polygon": [
@@ -334,7 +334,7 @@
         },
         {
           "x": 27.6875,
-          "y": 23.875 
+          "y": 23.875
         },
         {
           "x": 27.6875,
@@ -343,7 +343,7 @@
       ],
       "anchorEdge": "bottom"
     }
-],
+  ],
   "objectives": [
     {
       "id": "obj-west",

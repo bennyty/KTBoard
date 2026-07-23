@@ -58,6 +58,16 @@ export function TerrainLayer({ pieces, selectedId, onPiecePointerDown }: {
               strokeWidth={0.05}
             />
           )}
+          {piece.accessible?.map((region, k) => (
+            <polygon
+              key={`acc-${k}`}
+              points={polyPoints(region)}
+              fill="rgba(60,210,190,0.22)"
+              stroke="rgba(60,210,190,0.85)"
+              strokeWidth={0.05}
+              strokeDasharray="0.25 0.15"
+            />
+          ))}
         </g>
       ))}
     </g>
