@@ -7,7 +7,9 @@ import ktboardLogo from '../favicon.png'
 export function App() {
   const [mode, setMode] = useState<'planning' | 'annotation'>('planning')
   const [helpOpen, setHelpOpen] = useState(false)
-  const isDev = import.meta.env.DEV
+  // Dev mode is on in the dev server, or in any build where localStorage has
+  // been flagged (set localStorage.devMode = 'true' in the console).
+  const isDev = import.meta.env.DEV || localStorage.getItem('devMode') === 'true'
 
   return (
     <div className="flex flex-col md:h-screen md:overflow-hidden font-vintage text-base">
