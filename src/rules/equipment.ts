@@ -23,6 +23,11 @@ export function isEquipment(o: SlideObject): o is RectObject {
   return o.kind === 'rect' && !!matchedPreset(o)
 }
 
+/** Name of the Equipment preset an Object matches, or null if it isn't equipment. */
+export function equipmentName(o: SlideObject): string | null {
+  return isEquipment(o) ? matchedPreset(o)!.name : null
+}
+
 /** The four corners of a Rectangle Object in world (killzone-inch) coordinates.
  *  `lengthMm` runs along the local x-axis, `widthMm` along the local y-axis. */
 export function rectCorners(o: RectObject): Polygon {

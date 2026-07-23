@@ -1,5 +1,11 @@
-import type { ArrowObject, CircleObject, EllipseObject, RectObject, SlideObject, TextObject } from '@/model/types'
-import { CONTROL_RANGE_IN, IN_PER_MM } from '@/model/constants'
+import type { ArrowObject, CircleObject, EllipseObject, Polygon, RectObject, SlideObject, TextObject } from '@/model/types'
+import {
+  CONTROL_RANGE_IN,
+  EQUIPMENT_SPACING_IN,
+  IN_PER_MM,
+  LADDER_ACCESSIBLE_SPACING_IN,
+} from '@/model/constants'
+import { equipmentName, rectCorners } from '@/rules/equipment'
 import { arrowLengthIn, COLOR_HEX, formatInches } from '@/planning/objects'
 
 /** Renders Slide Objects in killzone-inch coordinates (inside the Board's scaling <g>). */
@@ -209,6 +215,71 @@ function EquipmentWarning({ o }: { o: RectObject }) {
       >
         ⚠
       </text>
+    </g>
+  )
+}
+
+/** A polygon expanded outward by `clearance` inches, drawn as a keep-out halo.
+ *  A round-joined stroke of width 2·clearance is exactly the Minkowski buffer
+ *  the spacing rule measures (polygonPolygonDistance ≤ clearance), so the shaded
+ *  ring marks precisely where the dragged equipment's edge may not enter. Full
+ *  opacity inside the group, dimmed once by group opacity so overlaps stay even. */
+function ClearanceHalo({ polygon, clearance }: { polygon: Polygon; clearance: number }) {
+  const points = polygon.map((p) => `${p.x},${p.y}`).join(' ')
+  return (
+    <g style={{ opacity: 0.16 }}>
+      <polygon
+        points={points}
+        fill={WARN}
+        stroke={WARN}
+        strokeWidth={2 * clearance}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </g>
+  )
+}
+
+/** While an Equipment rect is being dragged, shade the keep-out zones around
+ *  every other piece of equipment and every Accessible region so the user can
+ *  see where a legal placement must stay clear of. Mirrors rules/equipment.ts:
+ *  equipment↔equipment is 2" (Mines exempt on both sides); Accessible terrain is
+ *  1" for a Ladder, 2" otherwise. */
+export function EquipmentClearanceLayer({
+  dragged,
+  objects,
+  accessibleRegions,
+}: {
+  dragged: RectObject
+  objects: SlideObject[]
+  accessibleRegions: Polygon[]
+}) {
+  const draggedName = equipmentName(dragged)
+  if (!draggedName) return null
+  const draggedIsMines = draggedName === 'Mines'
+  const accessibleClearance = draggedName === 'Ladder' ? LADDER_ACCESSIBLE_SPACING_IN : EQUIPMENT_SPACING_IN
+
+  const halos: { key: string; polygon: Polygon; clearance: number }[] = []
+
+  // Other equipment: skip self, and skip Mines on either side (they are exempt).
+  if (!draggedIsMines) {
+    for (const o of objects) {
+      if (o.id === dragged.id) continue
+      const name = equipmentName(o)
+      if (!name || name === 'Mines') continue
+      halos.push({ key: `eq-${o.id}`, polygon: rectCorners(o as RectObject), clearance: EQUIPMENT_SPACING_IN })
+    }
+  }
+  // Accessible terrain (access points, doors) always constrains equipment.
+  accessibleRegions.forEach((region, i) => {
+    if (region.length >= 3) halos.push({ key: `acc-${i}`, polygon: region, clearance: accessibleClearance })
+  })
+
+  return (
+    <g style={{ pointerEvents: 'none' }}>
+      {halos.map((h) => (
+        <ClearanceHalo key={h.key} polygon={h.polygon} clearance={h.clearance} />
+      ))}
     </g>
   )
 }

@@ -131,7 +131,7 @@ function TraceLoupe({ image, imgSize, map, cursor, vertex, refPoint }: TraceLoup
               paintOrder="stroke"
               style={{ fontVariantNumeric: 'tabular-nums' }}
             >
-              {distMm.toFixed(1)} mm · {distIn.toFixed(3)}″
+              Dist from last point: {distMm.toFixed(1)} mm · {distIn.toFixed(3)}″
             </text>
           )
         })()}

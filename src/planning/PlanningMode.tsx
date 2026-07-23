@@ -10,7 +10,8 @@ import { pxToInches } from '@/geometry/transform'
 import { Board, mapTransform } from '@/ui/Board'
 import { clientToSvg } from '@/ui/svgPointer'
 import { DropZoneLayer, ObjectiveLayer, TerrainLayer, TunnelLayer, TunnelAuraLayer } from '@/ui/layers'
-import { ObjectsLayer } from '@/ui/objectsLayer'
+import { EquipmentClearanceLayer, ObjectsLayer } from '@/ui/objectsLayer'
+import { isEquipment } from '@/rules/equipment'
 import { isSlideEmpty, usePlan } from './usePlan'
 import { useTunnelGenerator } from './useTunnelGenerator'
 import { ellipsePresetLabel, makeArrow, makeCircle, makeEllipse, makeRect, makeText, snapCircleSizeMm, snapEllipsePreset } from './objects'
@@ -65,6 +66,10 @@ export function PlanningMode() {
   const [showTunnelRange, setShowTunnelRange] = useState<[boolean, boolean, boolean]>([false, false, false])
   const [draft, setDraft] = useState<SlideObject | null>(null)
   const [wiggle, setWiggle] = useState(false)
+  // Id of the object currently being dragged/rotated on the board; drives the
+  // equipment clearance overlay. Kept in state (not the gesture ref) so the
+  // overlay re-renders as the drag lands.
+  const [draggingObjectId, setDraggingObjectId] = useState<string | null>(null)
   const gesture = useRef<Gesture | null>(null)
 
   // Switching map or drop zone clears the current slide's terrain-anchored
@@ -165,6 +170,13 @@ export function PlanningMode() {
   )
 
   const interactive = tool === 'select' && !locked
+
+  // While an Equipment rect is being dragged, the board shows its keep-out zones.
+  const draggedEquipment = useMemo(() => {
+    if (!draggingObjectId) return null
+    const o = currentSlide.objects.find((x) => x.id === draggingObjectId)
+    return o && isEquipment(o) ? o : null
+  }, [draggingObjectId, currentSlide.objects])
 
   /** Oval-base preset for an ellipse sizing drag: dx/dy off the centre give the
    *  two axis diameters, snapped to the nearest preset. A bare click (no drag)
@@ -277,6 +289,7 @@ export function PlanningMode() {
   function onBoardPointerUp(inches: Vec) {
     const g = gesture.current
     gesture.current = null
+    setDraggingObjectId(null)
     if (g?.kind === 'circle') {
       const radius = Math.hypot(inches.x - g.center.x, inches.y - g.center.y)
       const sizeMm = radius < 0.1 ? lastCircleSizeMm : snapCircleSizeMm(radius)
@@ -305,6 +318,7 @@ export function PlanningMode() {
 
   function onObjectPointerDown(id: string, e: React.PointerEvent) {
     plan.selectObject(id)
+    setDraggingObjectId(id)
     gesture.current = { kind: 'moveObject', id, last: evToInches(e) }
       ; (e.currentTarget as Element).closest('svg')?.setPointerCapture(e.pointerId)
     e.stopPropagation()
@@ -323,6 +337,7 @@ export function PlanningMode() {
     const obj = currentSlide.objects.find((o) => o.id === id)
     if (!obj || (obj.kind !== 'rect' && obj.kind !== 'ellipse')) return
     plan.selectObject(id)
+    setDraggingObjectId(id)
     gesture.current = { kind: 'rotateObject', id, center: { x: obj.x, y: obj.y } }
       ; (e.currentTarget as Element).closest('svg')?.setPointerCapture(e.pointerId)
     e.stopPropagation()
@@ -480,6 +495,13 @@ export function PlanningMode() {
                 chain={markers}
                 invalidMarkers={invalidMarkers}
                 onMarkerPointerDown={interactive ? onMarkerPointerDown : undefined}
+              />
+            )}
+            {draggedEquipment && (
+              <EquipmentClearanceLayer
+                dragged={draggedEquipment}
+                objects={currentSlide.objects}
+                accessibleRegions={accessibleRegions}
               />
             )}
             <ObjectsLayer
