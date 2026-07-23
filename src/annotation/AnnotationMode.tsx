@@ -59,13 +59,15 @@ interface TraceLoupeProps {
   map: AnnotatedMap
   cursor: Vec
   vertex: Vec
+  /** Previous vertex, if any; used to show the distance from the dragged point. */
+  refPoint: Vec | null
 }
 
 function clamp(v: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, v))
 }
 
-function TraceLoupe({ image, imgSize, map, cursor, vertex }: TraceLoupeProps) {
+function TraceLoupe({ image, imgSize, map, cursor, vertex, refPoint }: TraceLoupeProps) {
   // Canvas bounds in inch-coordinate space
   const canvasMinX = -map.originPx.x / map.pxPerInchX
   const canvasMaxX = (imgSize.width - map.originPx.x) / map.pxPerInchX
@@ -112,6 +114,27 @@ function TraceLoupe({ image, imgSize, map, cursor, vertex }: TraceLoupeProps) {
         <line x1={lx} y1={ly + gap} x2={lx} y2={ly + LOUPE_R} stroke="rgba(255,60,60,0.9)" strokeWidth={0.03} />
       </g>
       <circle cx={lx} cy={ly} r={LOUPE_R} fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth={0.06} />
+      {refPoint &&
+        (() => {
+          const distIn = Math.hypot(vertex.x - refPoint.x, vertex.y - refPoint.y)
+          const distMm = distIn / IN_PER_MM
+          const ty = ly + LOUPE_R + 0.5
+          return (
+            <text
+              x={lx}
+              y={ty}
+              textAnchor="middle"
+              fontSize={0.42}
+              fill="#fff"
+              stroke="#0c0c10"
+              strokeWidth={0.09}
+              paintOrder="stroke"
+              style={{ fontVariantNumeric: 'tabular-nums' }}
+            >
+              {distMm.toFixed(1)} mm · {distIn.toFixed(3)}″
+            </text>
+          )
+        })()}
     </g>
   )
 }
@@ -795,6 +818,23 @@ export function AnnotationMode() {
                 </Row>
               </>
             )}
+            {traceVertices.length > 0 && (
+              <List>
+                {traceVertices.map((v, i) => (
+                  <ListItem key={i}>
+                    <span className="grow tabular-nums text-xs">
+                      {i + 1}. ({v.x.toFixed(2)}, {v.y.toFixed(2)})
+                    </span>
+                    <Button
+                      variant="danger"
+                      onClick={() => setTraceVertices((vs) => vs.filter((_, k) => k !== i))}
+                    >
+                      ✕
+                    </Button>
+                  </ListItem>
+                ))}
+              </List>
+            )}
           </Section>
         )}
 
@@ -1234,6 +1274,13 @@ export function AnnotationMode() {
               map={draftMap}
               cursor={cursorIn}
               vertex={traceVertices[dragTraceVertexIndex.current]}
+              refPoint={
+                traceVertices.length > 1
+                  ? traceVertices[
+                      (dragTraceVertexIndex.current - 1 + traceVertices.length) % traceVertices.length
+                    ]
+                  : null
+              }
             />
           )}
         </Board>
