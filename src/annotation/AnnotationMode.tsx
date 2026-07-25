@@ -292,6 +292,24 @@ export function AnnotationMode() {
     patchPlacement(pieceId, (pl) => ({ x: r3(pl.x + dx), y: r3(pl.y + dy) }))
   }
 
+  /** Clone a placed piece's catalogue def under a new id and place the copy nearby. */
+  function duplicatePiece(pieceId: string) {
+    const def = draftCatalogue.pieces.find((p) => p.id === pieceId)
+    const pl = draftMap.placements.find((p) => p.pieceId === pieceId)
+    if (!def || !pl) return
+    const newId = `piece-${Date.now()}`
+    const baseName = def.name.replace(/ \(copy( \d+)?\)$/, '')
+    const existingNames = new Set(draftCatalogue.pieces.map((p) => p.name))
+    let name = `${baseName} (copy)`
+    for (let n = 2; existingNames.has(name); n++) name = `${baseName} (copy ${n})`
+    setDraftCatalogue((c) => ({ ...c, pieces: [...c.pieces, { ...def, id: newId, name }] }))
+    setDraftMap((m) => ({
+      ...m,
+      placements: [...m.placements, { ...pl, pieceId: newId, x: r3(pl.x + 0.5), y: r3(pl.y + 0.5) }],
+    }))
+    setSelectedPieceId(newId)
+  }
+
   function setPieceKind(pieceId: string, kind: PieceKind) {
     setDraftCatalogue((c) => ({
       ...c,
@@ -528,16 +546,15 @@ export function AnnotationMode() {
     }))
   }
 
-  // Press "r" to rotate the selected piece 90° while placing.
+  // Press "r" to rotate the selected piece 90°, "d" to duplicate it, while placing.
   useEffect(() => {
     if (tab !== 'place' || !selectedPieceId) return
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key !== 'r' && e.key !== 'R') return
       const target = e.target as HTMLElement | null
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return
-      e.preventDefault()
-      if (e.key === 'r') {rotateSelected(90)}
-      if (e.key === 'R') {rotateSelected(-90)}
+      if (e.key === 'r') { e.preventDefault(); rotateSelected(90) }
+      else if (e.key === 'R') { e.preventDefault(); rotateSelected(-90) }
+      else if (e.key === 'd' || e.key === 'D') { e.preventDefault(); duplicatePiece(selectedPieceId!) }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
@@ -934,6 +951,7 @@ export function AnnotationMode() {
                     onFocus={() => setSelectedPieceId(pl.pieceId)}
                   />
                   <Button onClick={() => setSelectedPieceId(pl.pieceId)}>⌖</Button>
+                  <Button title="Duplicate (D)" onClick={() => duplicatePiece(pl.pieceId)}>⧉</Button>
                   <Button
                     variant="danger"
                     onClick={() =>
