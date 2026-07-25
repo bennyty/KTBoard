@@ -97,6 +97,7 @@ export const WALL_ACCESS_WIDTHS_MM: Record<string, { name: string; widthMm: numb
 export const GRIDS: Record<string, { offsetIn: number; stepIn: number }> = {
   tombworld: { offsetIn: 0.5, stepIn: 3.8125 },
   gallowdark: { offsetIn: 0.5, stepIn: 3.8125 },
+  wtc_itd: { offsetIn: 0.5, stepIn: 3.8125 },
 }
 
 /** Equipment must be placed more than this many inches from other equipment and
