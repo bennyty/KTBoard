@@ -26,12 +26,15 @@ import gd3 from './gallowdark-3.json'
 import gd4 from './gallowdark-4.json'
 import gd5 from './gallowdark-5.json'
 import gd6 from './gallowdark-6.json'
+import wtc1 from './WTC 2026 ITD 1.3 1.json'
+import wtc_catalogue from './wtc-catalogue.json'
 import one_obj_map from './one-obj-test-map.json'
 
 export const catalogues: Record<string, KillzoneCatalogue> = {
   volkus: volkusCatalogueJson as KillzoneCatalogue,
   gallowdark: gallowdarkCatalogueJson as KillzoneCatalogue,
-  tombworld: twCatalogueJson as KillzoneCatalogue
+  tombworld: twCatalogueJson as KillzoneCatalogue,
+  wtc: wtc_catalogue as KillzoneCatalogue,
 }
 
 export interface MapGroup {
@@ -71,6 +74,12 @@ export const maps: MapGroup[] = [
       tw4 as AnnotatedMap,
       tw5 as AnnotatedMap,
       tw6 as AnnotatedMap,
+    ]
+  },
+  {
+    name: 'WTC 2026 ITD',
+    maps: [
+      wtc1 as AnnotatedMap,
     ]
   },
   {
