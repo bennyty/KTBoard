@@ -11,7 +11,7 @@
     "x": 28,
     "y": 25
   },
-  "draft": false,
+  "draft": true,
   "placements": [
     {
       "pieceId": "gallowdark-wall-access-33",
@@ -284,13 +284,13 @@
       "rotationDeg": 0
     },
     {
-      "pieceId": "piece-1785008287113",
+      "pieceId": "piece-1785003385525",
       "x": 4.282803485192448,
       "y": 15.75087340600998,
       "rotationDeg": 0
     },
     {
-      "pieceId": "piece-1785008323917",
+      "pieceId": "piece-1785003344785",
       "x": 15.783691244671145,
       "y": 8.08361489969085,
       "rotationDeg": 0
@@ -314,13 +314,13 @@
       "rotationDeg": 0
     },
     {
-      "pieceId": "piece-1785008439525",
-      "x": 2.404172416911068,
-      "y": 19.538682389211466,
+      "pieceId": "piece-1785003039976",
+      "x": 9.982735870353668,
+      "y": 8.070452602034113,
       "rotationDeg": 0
     },
     {
-      "pieceId": "piece-1785008464998",
+      "pieceId": "piece-1785003189557",
       "x": 13.82869305979296,
       "y": 15.628686019455095,
       "rotationDeg": 0

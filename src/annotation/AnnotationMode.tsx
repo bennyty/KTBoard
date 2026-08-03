@@ -904,6 +904,14 @@ export function AnnotationMode() {
                   <Button onClick={() => nudgePlacement(selectedPlacement.pieceId, 0, -0.05)}>▲ Y</Button>
                   <Button onClick={() => nudgePlacement(selectedPlacement.pieceId, 0, 0.05)}>Y ▼</Button>
                 </Row>
+                <Button onClick={() => patchPlacement(selectedPlacement.pieceId, (piece) => {
+                  let def = draftCatalogue.pieces.find((p) => p.id === piece.pieceId)
+                  console.log('p', piece);
+                  console.log('d', def);
+                  return { x: -(def?.outer[0].x ?? 0) + (draftMap.widthIn/2), y: -(def?.outer[0].y ?? 0) + (draftMap.heightIn/2)}
+                })}>
+                  Reset position to footprint origin
+                </Button>
                 <Field label="Rotation (°)">
                   <Input
                     type="number"

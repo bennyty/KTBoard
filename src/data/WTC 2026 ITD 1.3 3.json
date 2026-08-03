@@ -1,7 +1,7 @@
 {
   "id": "WTC 2026 ITD 1.3 3",
   "name": "WTC 2026 ITD 3",
-  "killzone": "gallowdark",
+  "killzone": "wtc_itd",
   "image": "/KTBoard/maps/wtc/WTC-ITD-2026-LAYOUTV1.3-3.png",
   "widthIn": 27.6875,
   "heightIn": 23.875,
@@ -11,12 +11,18 @@
     "x": 28,
     "y": 25
   },
-  "draft": false,
+  "draft": true,
   "placements": [
     {
-      "pieceId": "piece-1785008810067",
-      "x": 19.58677365119199,
-      "y": 8.06834147637149,
+      "pieceId": "piece-1785003344785",
+      "x": 23.376104892097693,
+      "y": 15.731076712828624,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1785003039976",
+      "x": 27.217931658867375,
+      "y": -3.37185080271648,
       "rotationDeg": 0
     },
     {
@@ -26,19 +32,19 @@
       "rotationDeg": 0
     },
     {
-      "pieceId": "piece-1785008868780",
+      "pieceId": "piece-1785008417019",
       "x": 15.69205070475498,
       "y": 13.29185225159289,
-      "rotationDeg": 0
+      "rotationDeg": 90
     },
     {
-      "pieceId": "piece-1785008890412",
+      "pieceId": "piece-1785008389814",
       "x": 18.212165552449513,
       "y": 15.796693675968065,
-      "rotationDeg": 0
+      "rotationDeg": 90
     },
     {
-      "pieceId": "piece-1785008919648",
+      "pieceId": "piece-1785003275008",
       "x": 5.932333203683417,
       "y": 11.932517576169776,
       "rotationDeg": 0
