@@ -11,7 +11,7 @@
     "x": 28,
     "y": 25
   },
-  "draft": true,
+  "draft": false,
   "placements": [
     {
       "pieceId": "gallowdark-wall-access-33",
