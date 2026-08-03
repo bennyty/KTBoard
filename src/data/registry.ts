@@ -27,6 +27,11 @@ import gd4 from './gallowdark-4.json'
 import gd5 from './gallowdark-5.json'
 import gd6 from './gallowdark-6.json'
 import wtc1 from './WTC 2026 ITD 1.3 1.json'
+import wtc2 from './WTC 2026 ITD 1.3 2.json'
+import wtc3 from './WTC 2026 ITD 1.3 3.json'
+import wtc4 from './WTC 2026 ITD 1.3 4.json'
+import wtc5 from './WTC 2026 ITD 1.3 5.json'
+import wtc6 from './WTC 2026 ITD 1.3 6.json'
 import wtc_catalogue from './wtc_itd-catalogue.json'
 import one_obj_map from './one-obj-test-map.json'
 
@@ -80,6 +85,11 @@ export const maps: MapGroup[] = [
     name: 'WTC 2026 ITD',
     maps: [
       wtc1 as AnnotatedMap,
+      wtc2 as AnnotatedMap,
+      wtc3 as AnnotatedMap,
+      wtc4 as AnnotatedMap,
+      wtc5 as AnnotatedMap,
+      wtc6 as AnnotatedMap,
     ]
   },
   {

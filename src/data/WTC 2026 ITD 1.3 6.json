@@ -1,0 +1,397 @@
+{
+  "id": "WTC 2026 ITD 1.3 6",
+  "name": "WTC 2026 ITD 6",
+  "killzone": "wtc_itd",
+  "image": "/KTBoard/maps/wtc/WTC-ITD-2026-LAYOUTV1.3-6.png",
+  "widthIn": 27.6875,
+  "heightIn": 23.875,
+  "pxPerInchX": 24.9,
+  "pxPerInchY": 24.9,
+  "originPx": {
+    "x": 27,
+    "y": 25
+  },
+  "draft": true,
+  "placements": [
+    {
+      "pieceId": "piece-1785003275008",
+      "x": 9.754399809253265,
+      "y": 11.935685472076676,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1785003344785",
+      "x": 19.596387447123547,
+      "y": 19.553955812530823,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "piece-1785003385526",
+      "x": 8.07329644879184,
+      "y": 15.716054489334901,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "piece-1785003039976",
+      "x": 15.742100404448301,
+      "y": 27.207250213048546,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "piece-1785008389814",
+      "x": 14.372876671902148,
+      "y": 19.538682389211466,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "piece-1785008360105",
+      "x": 10.585067688700665,
+      "y": 19.538682389211466,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1785008836572",
+      "x": 19.535293753846105,
+      "y": 14.391538730586868,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1785008417019",
+      "x": 13.257916769588808,
+      "y": 11.917244152850415,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "piece-1785003385525",
+      "x": 13.878972134436946,
+      "y": 4.256062123191404,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 4.3125,
+      "y": 10.03125,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 4.3125,
+      "y": 6.21875,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 10.03125,
+      "y": 8.125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 19.5625,
+      "y": 6.21875,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 23.375,
+      "y": 6.21875,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 23.375,
+      "y": 10.03125,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 21.46875,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 15.75,
+      "y": 21.46875,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall",
+      "x": 11.9375,
+      "y": 17.65625,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 8.125,
+      "y": 6.21875,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 8.125,
+      "y": 2.40625,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 19.5625,
+      "y": 2.40625,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 17.65625,
+      "y": 8.125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 11.9375,
+      "y": 13.84375,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 15.75,
+      "y": 17.65625,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 17.65625,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 23.375,
+      "y": 17.65625,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-wall-access-33",
+      "x": 23.375,
+      "y": 21.46875,
+      "rotationDeg": 90
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 4.3125,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 4.3125,
+      "y": 8.125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 4.3125,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 8.125,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 8.125,
+      "y": 0.5,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 8.125,
+      "y": 8.125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 11.9375,
+      "y": 8.125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 15.75,
+      "y": 8.125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 19.5625,
+      "y": 8.125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 19.5625,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 19.5625,
+      "y": 0.5,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 23.375,
+      "y": 4.3125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 23.375,
+      "y": 8.125,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 23.375,
+      "y": 11.9375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 23.375,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 23.375,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 23.375,
+      "y": 23.375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 15.75,
+      "y": 23.375,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 15.75,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 15.75,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 19.5625,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 11.9375,
+      "y": 19.5625,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 11.9375,
+      "y": 15.75,
+      "rotationDeg": 0
+    },
+    {
+      "pieceId": "gallowdark-pillar",
+      "x": 11.9375,
+      "y": 11.9375,
+      "rotationDeg": 0
+    }
+  ],
+  "dropZones": [
+    {
+      "id": "dz-98964",
+      "name": "Grey (west)",
+      "polygon": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 4.3125,
+          "y": 0
+        },
+        {
+          "x": 4.3125,
+          "y": 23.875
+        },
+        {
+          "x": 0,
+          "y": 23.875
+        }
+      ],
+      "anchorEdge": "left"
+    },
+    {
+      "id": "dz-17664",
+      "name": "Orange (east)",
+      "polygon": [
+        {
+          "x": 23.375,
+          "y": 0
+        },
+        {
+          "x": 27.6875,
+          "y": 0
+        },
+        {
+          "x": 27.6875,
+          "y": 23.875
+        },
+        {
+          "x": 23.375,
+          "y": 23.875
+        }
+      ],
+      "anchorEdge": "right"
+    }
+  ],
+  "objectives": [
+    {
+      "id": "obj-west",
+      "role": "other",
+      "center": {
+        "x": 19.544,
+        "y": 19.563
+      }
+    },
+    {
+      "id": "obj-east",
+      "role": "center",
+      "center": {
+        "x": 13.838,
+        "y": 4.313
+      }
+    },
+    {
+      "id": "obj-south",
+      "role": "other",
+      "center": {
+        "x": 8.1,
+        "y": 15.738
+      }
+    }
+  ]
+}
