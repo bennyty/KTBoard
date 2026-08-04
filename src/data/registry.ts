@@ -33,6 +33,13 @@ import wtc4 from './WTC 2026 ITD 1.3 4.json'
 import wtc5 from './WTC 2026 ITD 1.3 5.json'
 import wtc6 from './WTC 2026 ITD 1.3 6.json'
 import wtc_catalogue from './wtc_itd-catalogue.json'
+import wtc_nskz_1_1 from './2025-nskz-1.1.json'
+import wtc_nskz_1_2 from './2025-nskz-1.2.json'
+import wtc_nskz_2_1 from './2025-nskz-2.1.json'
+import wtc_nskz_5_1 from './2025-nskz-5.1.json'
+import wtc_nskz_6_1 from './2025-nskz-6.1.json'
+import wtc_nskz_6_2 from './2025-nskz-6.2.json'
+import nskz_catalogue from './nskz-catalogue.json'
 import one_obj_map from './one-obj-test-map.json'
 
 export const catalogues: Record<string, KillzoneCatalogue> = {
@@ -40,6 +47,7 @@ export const catalogues: Record<string, KillzoneCatalogue> = {
   gallowdark: gallowdarkCatalogueJson as KillzoneCatalogue,
   tombworld: twCatalogueJson as KillzoneCatalogue,
   wtc_itd: wtc_catalogue as KillzoneCatalogue,
+  nskz: nskz_catalogue as KillzoneCatalogue,
 }
 
 export interface MapGroup {
@@ -90,6 +98,17 @@ export const maps: MapGroup[] = [
       wtc4 as AnnotatedMap,
       wtc5 as AnnotatedMap,
       wtc6 as AnnotatedMap,
+    ]
+  },
+  {
+    name: 'NSKZ',
+    maps: [
+      wtc_nskz_1_1 as AnnotatedMap,
+      wtc_nskz_1_2 as AnnotatedMap,
+      wtc_nskz_2_1 as AnnotatedMap,
+      wtc_nskz_5_1 as AnnotatedMap,
+      wtc_nskz_6_1 as AnnotatedMap,
+      wtc_nskz_6_2 as AnnotatedMap,
     ]
   },
   {
